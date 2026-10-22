@@ -1,0 +1,2147 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Cpath d='M5 47c11-19 28-32 54-39-14 10-24 21-29 34-5-7-12-10-19-9 5-3 9-7 12-12-8 5-14 14-18 26z' fill='%2338e8c6'/%3E%3C/svg%3E" />
+<title>智慧校园综合管理平台 · Web 原型</title>
+<style>
+  :root{
+    --bg:#04090b;
+    --panel:rgba(6,20,23,.78);
+    --panel-deep:rgba(3,12,15,.92);
+    --cyan:#38e8c6;
+    --cyan-2:#8affea;
+    --mint:#7fe6b8;
+    --amber:#ffd36a;
+    --text:#dcf6ef;
+    --muted:#7fa79f;
+    --line:rgba(56,232,198,.22);
+    --line-strong:rgba(56,232,198,.55);
+  }
+  *{margin:0;padding:0;box-sizing:border-box}
+  html,body{width:100%;height:100%;overflow:hidden;background:#010507;color:var(--text);
+    font-family:"Microsoft YaHei","PingFang SC","Hiragino Sans GB",sans-serif;-webkit-font-smoothing:antialiased}
+  button{font-family:inherit;color:inherit;background:none;border:none;cursor:pointer;outline:none}
+  input{font-family:inherit}
+  #app{position:fixed;inset:0;display:grid;place-items:center;background:radial-gradient(circle at 50% 45%,#071214 0%,#010507 70%)}
+  #stage{position:relative;width:1920px;height:1080px;transform-origin:center center;overflow:hidden;
+    background:#04090b;box-shadow:0 0 80px rgba(0,0,0,.8)}
+  #scene{position:absolute;inset:0;width:1920px;height:1080px;display:block}
+
+  /* ---------- 全局效果层 ---------- */
+  .vignette{position:absolute;inset:0;pointer-events:none;z-index:5;
+    background:radial-gradient(ellipse at 50% 48%,transparent 48%,rgba(0,6,8,.55) 100%)}
+  .scanlines{position:absolute;inset:0;pointer-events:none;z-index:6;opacity:.28;
+    background:repeating-linear-gradient(0deg,rgba(190,255,245,.05) 0px,rgba(190,255,245,.05) 1px,transparent 1px,transparent 4px)}
+  .edge-glow{position:absolute;inset:0;pointer-events:none;z-index:6;
+    box-shadow:inset 0 0 140px rgba(0,0,0,.55), inset 0 0 40px rgba(56,232,198,.05)}
+
+  /* ---------- 顶部导航 ---------- */
+  #header{position:absolute;left:0;top:0;right:0;height:100px;z-index:30;display:flex;align-items:center;
+    padding:0 30px 0 26px;
+    background:linear-gradient(180deg,rgba(3,10,12,.95) 0%,rgba(3,10,12,.62) 68%,rgba(3,10,12,0) 100%)}
+  #header::after{content:"";position:absolute;left:0;right:0;bottom:18px;height:1px;
+    background:linear-gradient(90deg,rgba(56,232,198,.5),rgba(56,232,198,.08) 45%,rgba(56,232,198,.38) 100%)}
+  .brand{display:flex;align-items:center;gap:14px;min-width:470px;position:relative;z-index:2}
+  .logo{width:56px;height:56px;filter:drop-shadow(0 0 10px rgba(56,232,198,.4))}
+  .brand h1{font-size:29px;font-weight:700;letter-spacing:3px;color:#ecfffb;
+    text-shadow:0 0 18px rgba(56,232,198,.35)}
+  .brand p{margin-top:3px;font-size:9px;letter-spacing:4.2px;color:#7fb6ac}
+  #nav{display:flex;align-items:center;gap:10px;margin:0 auto;position:relative;z-index:2}
+  .nav-item{position:relative;padding:8px 24px;font-size:18px;letter-spacing:1.5px;color:#9db8b2;
+    transition:color .2s,text-shadow .2s}
+  .nav-item:hover{color:#d4f4ec}
+  .nav-item.active{color:var(--cyan);text-shadow:0 0 14px rgba(56,232,198,.65)}
+  .nav-item.active::before,.nav-item.active::after{font-size:12px;color:var(--cyan);opacity:.85;position:absolute;top:50%;
+    transform:translateY(-50%);letter-spacing:-1px}
+  .nav-item.active::before{content:"››";left:2px}
+  .nav-item.active::after{content:"‹‹";right:2px}
+  .status{display:flex;align-items:center;gap:20px;min-width:430px;justify-content:flex-end;position:relative;z-index:2}
+  .time-box{text-align:right;line-height:1}
+  #clock{display:block;font-size:25px;font-weight:600;letter-spacing:1.5px;color:#f0fffb;
+    font-variant-numeric:tabular-nums;text-shadow:0 0 12px rgba(56,232,198,.28)}
+  #date{display:block;margin-top:5px;font-size:10px;letter-spacing:2px;color:#7e9d95}
+  .sep{width:1px;height:30px;display:block;background:linear-gradient(180deg,transparent,rgba(56,232,198,.45),transparent)}
+  .weather-box{display:flex;align-items:center;gap:14px;font-size:14px;color:#cfe9e1;letter-spacing:1px}
+  .weather-box #stat-loc{color:#eafff8}
+  .weather-box #stat-temp{color:#eafff8;font-size:18px;font-weight:600}
+  .weather-box #stat-wind{color:#8fb2a9}
+
+  /* ---------- 左侧工具栏 ---------- */
+  #dock{position:absolute;left:20px;top:152px;z-index:24;display:flex;flex-direction:column;align-items:center;gap:13px}
+  .dock-btn{position:relative;width:48px;height:48px;display:grid;place-items:center;color:#c2ded7;
+    border:1px solid rgba(56,232,198,.14);background:rgba(5,15,17,.5);
+    transition:all .18s ease;border-radius:2px}
+  .dock-btn svg{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:1.4;stroke-linecap:round;stroke-linejoin:round}
+  .dock-btn:hover{color:var(--cyan-2);border-color:rgba(56,232,198,.4);background:rgba(9,31,33,.6);
+    box-shadow:0 0 16px rgba(56,232,198,.14)}
+  .dock-btn.active{color:var(--cyan);border-color:rgba(56,232,198,.6);background:rgba(10,38,38,.62);
+    box-shadow:0 0 20px rgba(56,232,198,.2), inset 0 0 14px rgba(56,232,198,.06)}
+  .dock-btn.active::before{content:"";position:absolute;left:-9px;top:9px;bottom:9px;width:2px;border-radius:2px;
+    background:var(--cyan);box-shadow:0 0 10px var(--cyan)}
+  .dock-btn .tip{position:absolute;left:58px;top:50%;transform:translateY(-50%) translateX(-6px);
+    padding:6px 12px;white-space:nowrap;font-size:12px;letter-spacing:1px;color:#dcfff8;
+    background:rgba(5,20,22,.92);border:1px solid var(--line);opacity:0;pointer-events:none;transition:.18s}
+  .dock-btn:hover .tip{opacity:1;transform:translateY(-50%) translateX(0)}
+  .dock-sep{width:26px;height:1px;background:rgba(56,232,198,.18)}
+  .dock-btn.reset{width:44px;height:44px;border-radius:50%;margin-top:6px}
+
+  /* ---------- 右侧面板 ---------- */
+  #right-panel{position:absolute;right:24px;top:118px;bottom:42px;width:440px;z-index:34}
+  .panel{position:absolute;inset:0;display:none;flex-direction:column;padding:20px 20px 16px;
+    background:linear-gradient(180deg,rgba(7,23,26,.86) 0%,rgba(3,12,15,.94) 100%);
+    border:1px solid var(--line);backdrop-filter:blur(7px);
+    box-shadow:0 24px 60px rgba(0,0,0,.45), inset 0 0 44px rgba(56,232,198,.035);
+    clip-path:polygon(0 0,100% 0,100% calc(100% - 22px),calc(100% - 22px) 100%,0 100%)}
+  .panel.active{display:flex;animation:panelIn .32s ease both}
+  @keyframes panelIn{from{opacity:0;transform:translateX(14px)}to{opacity:1;transform:none}}
+  .panel::before,.panel::after{content:"";position:absolute;width:24px;height:24px;pointer-events:none;opacity:.9}
+  .panel::before{left:-1px;top:-1px;border-left:2px solid var(--cyan);border-top:2px solid var(--cyan)}
+  .panel::after{right:-1px;bottom:-1px;border-right:2px solid var(--cyan);border-bottom:2px solid var(--cyan)}
+  .panel-head{display:flex;align-items:center;gap:10px;padding-bottom:12px;margin-bottom:16px;
+    border-bottom:1px solid rgba(56,232,198,.18);position:relative}
+  .panel-head::after{content:"";position:absolute;left:0;bottom:-1px;width:80px;height:1px;background:var(--cyan);
+    box-shadow:0 0 10px var(--cyan)}
+  .tri{width:0;height:0;border-top:5px solid transparent;border-bottom:5px solid transparent;
+    border-left:8px solid var(--cyan);filter:drop-shadow(0 0 5px rgba(56,232,198,.7))}
+  .panel-head h2{font-size:21px;font-weight:600;letter-spacing:2px;color:#e9fffa}
+  .panel-code{margin-left:auto;font-size:9px;letter-spacing:2.4px;color:rgba(127,167,159,.65)}
+  .panel-body{flex:1;overflow-y:auto;overflow-x:hidden;scrollbar-width:thin;scrollbar-color:rgba(56,232,198,.35) transparent}
+  .panel-body::-webkit-scrollbar{width:3px}
+  .panel-body::-webkit-scrollbar-thumb{background:rgba(56,232,198,.35)}
+  .sec-title{display:flex;align-items:center;gap:8px;margin:2px 0 14px;font-size:14px;font-weight:600;
+    letter-spacing:2px;color:#c7eee4}
+  .sec-title i{width:0;height:0;border-top:4px solid transparent;border-bottom:4px solid transparent;
+    border-left:6px solid rgba(56,232,198,.85)}
+  .sec-title .en{margin-left:auto;font-size:8px;letter-spacing:2px;color:rgba(127,167,159,.5);font-weight:400}
+
+  /* 安保面板 */
+  .guard-row{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:22px}
+  .guard-card{position:relative;display:flex;align-items:center;gap:12px;padding:14px 12px;
+    background:linear-gradient(135deg,rgba(56,232,198,.09),rgba(56,232,198,.015));
+    border:1px solid rgba(56,232,198,.16)}
+  .guard-card::after{content:"";position:absolute;right:6px;top:6px;width:14px;height:14px;
+    border-top:1px solid rgba(56,232,198,.5);border-right:1px solid rgba(56,232,198,.5)}
+  .guard-icon{width:38px;height:38px;display:grid;place-items:center;
+    background:radial-gradient(circle,rgba(56,232,198,.2),transparent 70%);color:var(--cyan)}
+  .guard-icon svg{width:26px;height:26px;fill:rgba(56,232,198,.2);stroke:var(--cyan);stroke-width:1.3}
+  .guard-card span{display:block;font-size:12px;color:#94b8ae;letter-spacing:1px}
+  .guard-card strong{display:block;margin-top:3px;font-size:32px;font-weight:600;color:#f2fffb;
+    font-variant-numeric:tabular-nums;text-shadow:0 0 12px rgba(56,232,198,.35);line-height:1}
+  .kv-row{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:14px}
+  .kv{text-align:center;padding:10px 0;border:1px solid rgba(56,232,198,.09);background:rgba(9,28,30,.35)}
+  .kv span{display:block;font-size:11.5px;color:#8fb2a8;letter-spacing:1px}
+  .kv strong{display:block;margin-top:6px;font-size:28px;font-weight:600;color:#eafff9;font-variant-numeric:tabular-nums}
+  .kv:nth-child(3) strong{color:var(--amber);text-shadow:0 0 10px rgba(255,211,106,.25)}
+  .chart-wrap{height:196px;margin-bottom:20px;padding:8px 4px 0;position:relative}
+  .chart-legend{display:flex;gap:16px;justify-content:center;margin-top:2px;font-size:11px;color:#93b7ad}
+  .chart-legend i{display:inline-block;width:14px;height:2px;margin-right:5px;vertical-align:middle}
+  .donut-row{display:flex;align-items:center;gap:20px;padding:4px 0 18px}
+  .donut-box{width:190px;height:190px;flex:0 0 190px}
+  .donut-legend{flex:1;display:flex;flex-direction:column;gap:12px}
+  .donut-legend div{display:flex;align-items:center;gap:9px;font-size:12.5px;color:#a7c8be}
+  .donut-legend i{width:8px;height:8px;display:block}
+  .donut-legend b{margin-left:auto;color:#eafff9;font-size:16px;font-weight:500}
+  .panel-foot{margin-top:auto;padding-top:10px;border-top:1px solid rgba(56,232,198,.12);
+    display:flex;justify-content:space-between;font-size:9px;letter-spacing:1.6px;color:rgba(127,167,159,.55)}
+
+  /* 视频监控 */
+  .feed{position:relative;height:150px;margin-bottom:13px;border:1px solid rgba(56,232,198,.24);
+    background:#051012;overflow:hidden}
+  .feed:last-of-type{margin-bottom:6px}
+  .feed canvas{position:absolute;inset:0;width:100%;height:100%;filter:saturate(.85) contrast(1.05)}
+  .feed::after{content:"";position:absolute;inset:0;pointer-events:none;
+    background:repeating-linear-gradient(0deg,rgba(0,0,0,.14) 0 1px,transparent 1px 3px)}
+  .feed .f-label{position:absolute;left:10px;top:8px;font-size:12.5px;letter-spacing:1.4px;color:#d8fff7;
+    text-shadow:0 0 8px #000;z-index:2}
+  .feed .f-label::before{content:"";display:inline-block;width:6px;height:6px;margin-right:6px;
+    background:var(--cyan);border-radius:50%;box-shadow:0 0 8px var(--cyan)}
+  .feed .f-rec{position:absolute;right:10px;top:8px;font-size:9px;letter-spacing:1.5px;color:#ff7d6e;z-index:2}
+  .feed .f-rec::before{content:"";display:inline-block;width:5px;height:5px;margin-right:5px;background:#ff5a49;
+    border-radius:50%;animation:blink 1.2s infinite}
+  @keyframes blink{0%,55%{opacity:1}56%,100%{opacity:.2}}
+  .feed .f-time{position:absolute;right:10px;bottom:7px;font-size:9.5px;letter-spacing:1px;color:#bfe7de;
+    font-variant-numeric:tabular-nums;z-index:2;text-shadow:0 0 6px #000}
+  .feed .f-cnr{position:absolute;left:8px;bottom:7px;font-size:8.5px;letter-spacing:1px;color:rgba(190,230,222,.55);z-index:2}
+
+  /* AI 面板 */
+  #panel-ai .panel-body{display:flex;flex-direction:column;padding-right:2px}
+  .ai-chat{flex:1;display:flex;flex-direction:column;gap:12px;padding-bottom:10px}
+  .msg{max-width:88%;padding:11px 13px;font-size:13.5px;line-height:1.68;letter-spacing:.4px;
+    border:1px solid rgba(56,232,198,.18);background:rgba(12,38,39,.5);color:#d7f4ec}
+  .msg .cap{display:block;margin-bottom:6px;color:var(--cyan-2);font-weight:600}
+  .msg.assistant{border-left:2px solid var(--cyan)}
+  .msg.user{align-self:flex-end;background:rgba(26,84,80,.55);border-color:rgba(56,232,198,.35);color:#eafff9}
+  .msg .cap-list{display:flex;flex-direction:column;gap:7px}
+  .msg .cap-list b{color:var(--cyan-2);font-weight:600}
+  .typing{display:inline-flex;gap:4px;padding:4px 2px}
+  .typing i{width:5px;height:5px;border-radius:50%;background:var(--cyan);animation:tdot 1s infinite}
+  .typing i:nth-child(2){animation-delay:.15s}.typing i:nth-child(3){animation-delay:.3s}
+  @keyframes tdot{0%,60%,100%{opacity:.25;transform:translateY(0)}30%{opacity:1;transform:translateY(-3px)}}
+  .ai-input{display:flex;gap:8px;padding-top:12px;border-top:1px solid rgba(56,232,198,.16)}
+  .ai-input input{flex:1;height:42px;padding:0 12px;font-size:13.5px;color:#eafff9;
+    background:rgba(5,18,20,.75);border:1px solid rgba(56,232,198,.28);outline:none;letter-spacing:.5px}
+  .ai-input input::placeholder{color:#729189}
+  .ai-input input:focus{border-color:rgba(56,232,198,.65);box-shadow:0 0 14px rgba(56,232,198,.15)}
+  .ai-input button{width:74px;height:42px;font-size:14px;letter-spacing:2px;color:#04211e;
+    background:linear-gradient(180deg,#63f0d4,#23c5aa);box-shadow:0 0 16px rgba(56,232,198,.3);font-weight:700}
+  .ai-input button:hover{filter:brightness(1.08)}
+
+  /* 学生信息 */
+  .stu-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:18px}
+  .bar-card{padding:12px 14px;border:1px solid rgba(56,232,198,.12);background:rgba(8,26,28,.35);margin-bottom:16px}
+  .bar-row{display:flex;align-items:center;gap:10px;margin:10px 0;font-size:12px;color:#9fbfb5}
+  .bar-row span{width:56px;flex:0 0 56px}
+  .bar-row .bar{flex:1;height:7px;background:rgba(255,255,255,.05);position:relative;overflow:hidden}
+  .bar-row .bar i{display:block;height:100%;background:linear-gradient(90deg,rgba(56,232,198,.35),var(--cyan));
+    box-shadow:0 0 10px rgba(56,232,198,.35)}
+  .bar-row b{width:38px;text-align:right;color:#e9fff9;font-weight:500}
+  .mini-table{width:100%;border-collapse:collapse;font-size:12px;color:#b4d3c9}
+  .mini-table th{font-weight:400;color:#789992;text-align:left;padding:7px 4px;border-bottom:1px solid rgba(56,232,198,.14);font-size:10.5px;letter-spacing:1px}
+  .mini-table td{padding:9px 4px;border-bottom:1px solid rgba(56,232,198,.07)}
+  .mini-table td:last-child{color:var(--cyan)}
+
+  /* 生源信息 */
+  .china-map{width:100%;height:436px;display:block;margin:-6px 0 6px}
+  .china-map .province-g path{fill:rgba(11,42,52,.82);stroke:rgba(56,232,198,.55);stroke-width:1.1;
+    transition:fill .2s}
+  .china-map .province-g path:hover{fill:rgba(30,104,108,.75)}
+  .china-map{filter:drop-shadow(0 0 14px rgba(56,232,198,.12))}
+  .mk .pulse{fill:rgba(56,232,198,.16);stroke:rgba(56,232,198,.7);stroke-width:1;animation:pulse 2.4s infinite}
+  .mk .dot{fill:#9dffe8;filter:drop-shadow(0 0 5px #38e8c6)}
+  .mk text{fill:#c8f5e9;font-size:17px;letter-spacing:1px;paint-order:stroke;stroke:#041013;stroke-width:5}
+  @keyframes pulse{0%{r:6;opacity:.9}70%{r:18;opacity:0}100%{r:18;opacity:0}}
+  .source-list{display:flex;flex-direction:column;gap:8px;padding-bottom:14px}
+  .source-row{display:flex;align-items:center;gap:10px;font-size:12px;color:#a6c8bd}
+  .source-row span{width:60px;flex:0 0 60px}
+  .source-row .bar{flex:1;height:6px;background:rgba(255,255,255,.05)}
+  .source-row .bar i{display:block;height:100%;background:linear-gradient(90deg,rgba(56,232,198,.2),var(--cyan))}
+  .source-row b{width:36px;text-align:right;color:#e9fff9;font-weight:500}
+
+  /* ---------- 浮层卡片 ---------- */
+  .float-card{position:absolute;z-index:26;background:linear-gradient(180deg,rgba(7,23,26,.94),rgba(3,12,15,.96));
+    border:1px solid rgba(56,232,198,.34);backdrop-filter:blur(6px);
+    box-shadow:0 18px 50px rgba(0,0,0,.5), inset 0 0 28px rgba(56,232,198,.04);
+    padding:14px 16px;display:none;animation:cardIn .22s ease both}
+  .float-card.show{display:block}
+  @keyframes cardIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+  .float-card .fc-head{display:flex;align-items:center;gap:8px;padding-bottom:9px;margin-bottom:11px;
+    border-bottom:1px solid rgba(56,232,198,.2);font-size:13.5px;letter-spacing:1.4px;color:#d9f9f1}
+  .float-card .fc-head .tri{border-left-width:7px}
+  .float-card .fc-close{margin-left:auto;width:20px;height:20px;display:grid;place-items:center;
+    color:#7fa79f;font-size:15px;line-height:1}
+  .float-card .fc-close:hover{color:var(--cyan)}
+  #weather-card{left:96px;top:428px;width:252px}
+  #camera-card{left:96px;top:452px;width:264px}
+  #settings-card{left:96px;top:470px;width:270px}
+  .wx-title{font-size:12px;color:#9fc0b6;text-align:center;letter-spacing:1.5px;margin:4px 0 12px}
+  .wx-icons{display:flex;justify-content:space-around;margin-bottom:16px}
+  .wx-btn{display:flex;flex-direction:column;align-items:center;gap:6px;padding:9px 12px;color:#82a49a;
+    border:1px solid transparent;transition:.18s}
+  .wx-btn svg{width:24px;height:24px;fill:none;stroke:currentColor;stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round}
+  .wx-btn span{font-size:10.5px;letter-spacing:1px}
+  .wx-btn:hover{color:#d8fff6;border-color:rgba(56,232,198,.24);background:rgba(56,232,198,.05)}
+  .wx-btn.active{color:var(--cyan);border-color:rgba(56,232,198,.55);background:rgba(56,232,198,.1);
+    box-shadow:0 0 16px rgba(56,232,198,.16)}
+  .time-row{display:flex;align-items:center;gap:10px;margin-top:2px}
+  .time-row .sun-ic{width:18px;height:18px;flex:0 0 18px;stroke:var(--cyan);fill:none;stroke-width:1.5}
+  .time-row input[type=range]{flex:1;-webkit-appearance:none;height:4px;border-radius:2px;outline:none;
+    background:linear-gradient(90deg,#1ecfb4,#9effe9 60%,#ffd36a)}
+  .time-row input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:12px;height:18px;
+    background:#eafff9;border:1px solid var(--cyan);box-shadow:0 0 10px rgba(56,232,198,.7);
+    clip-path:polygon(50% 0,100% 45%,100% 100%,0 100%,0 45%);cursor:pointer}
+  .time-val{font-size:12px;color:#d8fff7;width:46px;text-align:right;font-variant-numeric:tabular-nums}
+  #camera-card .cam-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+  .cam-grid button{height:35px;font-size:12px;letter-spacing:2px;color:#a9d2c7;
+    border:1px solid rgba(56,232,198,.35);background:rgba(31,126,120,.25);transition:.16s}
+  .cam-grid button:hover{color:#eafff9;background:rgba(46,196,177,.3);box-shadow:0 0 12px rgba(56,232,198,.18)}
+  .cam-grid button.active{color:#03211d;background:linear-gradient(180deg,#7ff8e2,#2fd7ba);font-weight:700;
+    box-shadow:0 0 16px rgba(56,232,198,.35)}
+  .set-row{display:flex;align-items:center;justify-content:space-between;font-size:12px;color:#a9cabf;padding:8px 0;
+    border-bottom:1px solid rgba(56,232,198,.08)}
+  .set-row:last-child{border-bottom:none}
+  .switch{width:38px;height:20px;border:1px solid rgba(56,232,198,.35);background:rgba(5,20,22,.8);position:relative;cursor:pointer}
+  .switch i{position:absolute;left:2px;top:2px;width:14px;height:14px;background:#6a8d84;transition:.18s}
+  .switch.on{border-color:rgba(56,232,198,.7);background:rgba(20,80,74,.6)}
+  .switch.on i{left:20px;background:var(--cyan);box-shadow:0 0 8px var(--cyan)}
+  .sens{display:flex;align-items:center;gap:8px}
+  .sens input{width:110px}
+
+  /* 操作提示 */
+  #hint-card{position:absolute;left:96px;bottom:44px;width:300px;z-index:16;padding:13px 15px;
+    background:linear-gradient(180deg,rgba(7,23,26,.82),rgba(3,12,15,.9));
+    border:1px solid rgba(56,232,198,.28);border-left:2px solid var(--cyan)}
+  #hint-card .hc-title{display:flex;align-items:center;gap:8px;font-size:12.5px;color:#c9f0e6;
+    letter-spacing:1.4px;margin-bottom:8px}
+  #hint-card .hc-line{font-size:11px;line-height:1.85;color:#8fb0a7;letter-spacing:.5px}
+
+  /* POI */
+  #poi-layer{position:absolute;inset:0;z-index:27;pointer-events:none}
+  #poi-hover{position:absolute;display:none;padding:6px 13px;font-size:14px;letter-spacing:2px;color:#f2fffc;
+    background:rgba(53,180,151,.72);border:1px solid rgba(160,255,236,.55);
+    box-shadow:0 0 18px rgba(56,232,198,.35);transform:translate(-50%,-100%);white-space:nowrap}
+  #poi-hover::after{content:"";position:absolute;left:50%;bottom:-6px;width:1px;height:6px;background:rgba(160,255,236,.7)}
+  #poi-card{position:absolute;width:310px;display:none;padding:0;pointer-events:auto;
+    background:linear-gradient(180deg,rgba(8,26,25,.95),rgba(4,15,14,.96));
+    border:1px solid rgba(56,232,198,.4);box-shadow:0 18px 50px rgba(0,0,0,.55)}
+  #poi-card .pc-head{display:flex;align-items:center;gap:8px;padding:10px 13px;
+    background:linear-gradient(90deg,rgba(56,232,198,.17),transparent);border-bottom:1px solid rgba(56,232,198,.25)}
+  #poi-card .pc-head b{font-size:15px;letter-spacing:2px;color:#eafff9;font-weight:600}
+  #poi-card .pc-close{margin-left:auto;color:#8fb0a7;font-size:14px;width:20px;height:20px;display:grid;place-items:center}
+  #poi-card .pc-body{padding:12px 14px 13px;font-size:12.5px;line-height:1.8;color:#b9d8ce;letter-spacing:.4px}
+  #poi-card .pc-metrics{display:flex;gap:8px;margin-top:10px;padding-top:10px;border-top:1px dashed rgba(56,232,198,.2)}
+  #poi-card .pc-metrics div{flex:1;text-align:center}
+  #poi-card .pc-metrics span{display:block;font-size:9.5px;color:#7c9e95;letter-spacing:.8px}
+  #poi-card .pc-metrics em{display:block;margin-top:4px;font-style:normal;font-size:16px;color:var(--cyan)}
+  #floor-tags{position:absolute;inset:0;z-index:26;pointer-events:none}
+  .floor-tag{position:absolute;transform:translate(-50%,-50%);padding:6px 16px;font-size:15px;letter-spacing:2px;
+    color:#fff;opacity:0;border:1px solid rgba(255,255,255,.35);white-space:nowrap;
+    box-shadow:0 0 22px rgba(0,0,0,.35);transition:opacity .2s}
+  .floor-tag[data-i="0"]{background:rgba(45,150,110,.8)}
+  .floor-tag[data-i="1"]{background:rgba(38,120,128,.82)}
+  .floor-tag[data-i="2"]{background:rgba(45,82,170,.85)}
+  .floor-tag[data-i="3"]{background:rgba(112,62,160,.85)}
+
+  /* Toast */
+  #toast{position:absolute;left:50%;bottom:52px;transform:translate(-50%,14px);z-index:40;padding:9px 20px;
+    font-size:12.5px;letter-spacing:1px;color:#eafff9;background:rgba(6,24,25,.92);
+    border:1px solid rgba(56,232,198,.4);opacity:0;pointer-events:none;transition:.28s;
+    box-shadow:0 0 24px rgba(0,0,0,.5)}
+  #toast.show{opacity:1;transform:translate(-50%,0)}
+
+  /* Loading */
+  #loading{position:absolute;inset:0;z-index:60;display:grid;place-items:center;
+    background:radial-gradient(circle at 50% 50%,#071417,#010507 75%);transition:opacity .6s}
+  #loading.hide{opacity:0;pointer-events:none}
+  .load-inner{text-align:center}
+  .load-logo{width:86px;height:86px;margin:0 auto 18px;filter:drop-shadow(0 0 18px rgba(56,232,198,.45));
+    animation:float 2.4s ease-in-out infinite}
+  @keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-7px)}}
+  .load-inner h2{font-size:24px;letter-spacing:6px;color:#eafff9;font-weight:600}
+  .load-inner p{margin-top:10px;font-size:10px;letter-spacing:3px;color:#6f938a}
+  .load-bar{width:240px;height:2px;margin:26px auto 0;background:rgba(56,232,198,.14);overflow:hidden}
+  .load-bar i{display:block;width:40%;height:100%;background:linear-gradient(90deg,transparent,var(--cyan),transparent);
+    animation:load 1.4s infinite}
+  @keyframes load{from{transform:translateX(-100%)}to{transform:translateX(300%)}}
+  #load-text{margin-top:14px;font-size:11px;color:#7fa79f;letter-spacing:1px}
+</style>
+</head>
+<body>
+<div id="app">
+  <div id="stage">
+    <canvas id="scene"></canvas>
+    <div class="vignette"></div>
+    <div class="scanlines"></div>
+    <div class="edge-glow"></div>
+
+    <!-- 顶部导航 -->
+    <header id="header">
+      <div class="brand">
+        <svg class="logo" viewBox="0 0 64 64" aria-hidden="true">
+          <defs>
+            <linearGradient id="lg" x1="0" y1="1" x2="1" y2="0">
+              <stop offset="0" stop-color="#0c6f68"/>
+              <stop offset=".55" stop-color="#2fe3c4"/>
+              <stop offset="1" stop-color="#c9fff4"/>
+            </linearGradient>
+          </defs>
+          <path d="M5 47c11-19 28-32 54-39-14 10-24 21-29 34-5-7-12-10-19-9 5-3 9-7 12-12-8 5-14 14-18 26z" fill="url(#lg)" opacity=".92"/>
+          <path d="M17 55c8-12 21-21 38-25-8 7-14 14-17 24-4-4-9-6-14-5 3-2 5-5 7-8-6 3-10 8-14 14z" fill="url(#lg)" opacity=".55"/>
+        </svg>
+        <div class="brand-text">
+          <h1>智慧校园综合管理平台</h1>
+          <p>SMART CAMPUS INTEGRATED PLATFORM</p>
+        </div>
+      </div>
+      <nav id="nav">
+        <button class="nav-item active" data-tab="home">系统首页</button>
+        <button class="nav-item" data-tab="base">基础数据</button>
+        <button class="nav-item" data-tab="student">学生信息</button>
+        <button class="nav-item" data-tab="video">视频监控</button>
+        <button class="nav-item" data-tab="source">生源信息</button>
+        <button class="nav-item" data-tab="ai">AI小助手</button>
+      </nav>
+      <div class="status">
+        <div class="time-box"><span id="clock">23:02:40</span><span id="date">2026/08/07</span></div>
+        <i class="sep"></i>
+        <div class="weather-box">
+          <span id="stat-loc">唐山</span>
+          <span id="stat-weather">晴</span>
+          <span id="stat-temp">16℃</span>
+          <span id="stat-wind">南风 3级</span>
+        </div>
+      </div>
+    </header>
+
+    <!-- 左侧工具栏 -->
+    <aside id="dock">
+      <button class="dock-btn active" data-act="home" aria-label="系统首页">
+        <svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="8"/><rect x="14" y="3" width="7" height="5"/><rect x="3" y="15" width="7" height="6"/><rect x="14" y="12" width="7" height="9"/></svg>
+        <span class="tip">系统首页</span>
+      </button>
+      <button class="dock-btn" data-act="data" aria-label="基础数据">
+        <svg viewBox="0 0 24 24"><path d="M4 20V10M10 20V4M16 20v-7M21 20H3"/></svg>
+        <span class="tip">基础数据</span>
+      </button>
+      <button class="dock-btn" data-act="view" aria-label="视角模式">
+        <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"/><path d="M15.5 8.5l-2.2 5-5 2.2 2.2-5z"/></svg>
+        <span class="tip">视角模式</span>
+      </button>
+      <button class="dock-btn" data-act="settings" aria-label="设置">
+        <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3.2"/><path d="M12 2.8v3M12 18.2v3M2.8 12h3M18.2 12h3M5.5 5.5l2.1 2.1M16.4 16.4l2.1 2.1M18.5 5.5l-2.1 2.1M7.6 16.4l-2.1 2.1"/></svg>
+        <span class="tip">设置</span>
+      </button>
+      <span class="dock-sep"></span>
+      <button class="dock-btn" data-act="walk" aria-label="第三人称漫游">
+        <svg viewBox="0 0 24 24"><circle cx="12" cy="5.5" r="2.3"/><path d="M12 8.2v5.4M12 13.6l-2.4 6M12 13.6l2.4 6M7.6 10.6l4.4 1.2 4.4-1.2"/></svg>
+        <span class="tip">第三人称漫游</span>
+      </button>
+      <button class="dock-btn" data-act="cctv" aria-label="视频监控">
+        <svg viewBox="0 0 24 24"><path d="M2.5 12s3.4-5.2 9.5-5.2S21.5 12 21.5 12s-3.4 5.2-9.5 5.2S2.5 12 2.5 12z"/><circle cx="12" cy="12" r="2.6"/></svg>
+        <span class="tip">视频监控</span>
+      </button>
+      <button class="dock-btn" data-act="floors" aria-label="楼层拆解">
+        <svg viewBox="0 0 24 24"><path d="M12 3l9 5-9 5-9-5 9-5z"/><path d="M3 12l9 5 9-5M3 16l9 5 9-5"/></svg>
+        <span class="tip">楼层拆解</span>
+      </button>
+      <button class="dock-btn" data-act="weather" aria-label="天气与时间">
+        <svg viewBox="0 0 24 24"><circle cx="8" cy="9" r="3.2"/><path d="M8 3.3V2M8 16v-1.3M2.3 9H1M15 9h-1.3M4 5l-.9-.9M12.9 13.9l-.9-.9M4 13l-.9.9M12.9 4.1l-.9.9"/><path d="M13 19.5h7a2.5 2.5 0 000-5 4 4 0 00-7.6-1.2A3.2 3.2 0 0013 19.5z"/></svg>
+        <span class="tip">天气与时间</span>
+      </button>
+      <span class="dock-sep"></span>
+      <button class="dock-btn reset" data-act="reset" aria-label="复位视角">
+        <svg viewBox="0 0 24 24"><path d="M3 11.5L12 4l9 7.5"/><path d="M5.5 10v9h13v-9"/></svg>
+        <span class="tip">复位视角</span>
+      </button>
+    </aside>
+
+    <!-- 右侧面板 -->
+    <aside id="right-panel">
+      <!-- 系统首页 / 基础数据 -->
+      <section class="panel active" id="panel-security">
+        <div class="panel-head"><span class="tri"></span><h2>学校安保巡查</h2><span class="panel-code">SECURITY / A</span></div>
+        <div class="panel-body">
+          <div class="guard-row">
+            <div class="guard-card">
+              <div class="guard-icon"><svg viewBox="0 0 24 24"><path d="M12 2.5l7 2.6v6.1c0 4.6-2.9 8-7 10.3-4.1-2.3-7-5.7-7-10.3V5.1l7-2.6z"/><path d="M9 12l2.2 2.2L15.5 10"/></svg></div>
+              <div><span>本月巡查</span><strong>534</strong></div>
+            </div>
+            <div class="guard-card">
+              <div class="guard-icon"><svg viewBox="0 0 24 24"><path d="M12 2.5l7 2.6v6.1c0 4.6-2.9 8-7 10.3-4.1-2.3-7-5.7-7-10.3V5.1l7-2.6z"/><path d="M9 12l2.2 2.2L15.5 10"/></svg></div>
+              <div><span>今日巡查</span><strong>46</strong></div>
+            </div>
+          </div>
+          <h3 class="sec-title"><i></i>学生在校情况<span class="en">STUDENT ATTENDANCE</span></h3>
+          <div class="kv-row">
+            <div class="kv"><span>应到校</span><strong>500</strong></div>
+            <div class="kv"><span>实际到校</span><strong>450</strong></div>
+            <div class="kv"><span>缺勤人数</span><strong>50</strong></div>
+          </div>
+          <div class="chart-wrap" id="chart-line"></div>
+          <div class="chart-legend">
+            <span><i style="background:#7ff0d8"></i>应到校</span>
+            <span><i style="background:#35e0c0"></i>实际到校</span>
+            <span><i style="background:#ffd36a"></i>缺勤人数</span>
+          </div>
+          <h3 class="sec-title" style="margin-top:20px"><i></i>学校教师总览<span class="en">TEACHERS</span></h3>
+          <div class="donut-row">
+            <div class="donut-box" id="chart-donut"></div>
+            <div class="donut-legend">
+              <div><i style="background:#38e8c6"></i>专任教师<b>31</b></div>
+              <div><i style="background:#2f9c8a"></i>行政人员<b>27</b></div>
+              <div><i style="background:#22616c"></i>后勤职工<b>25</b></div>
+            </div>
+          </div>
+        </div>
+        <div class="panel-foot"><span>DATA SYNC · 2026-08-07</span><span>ONLINE</span></div>
+      </section>
+
+      <!-- 视频监控 -->
+      <section class="panel" id="panel-video">
+        <div class="panel-head"><span class="tri"></span><h2>视频监控</h2><span class="panel-code">VIDEO / 4 CH</span></div>
+        <div class="panel-body">
+          <div class="feed"><canvas data-feed="0"></canvas><span class="f-label">学校大门监控</span><span class="f-rec">REC</span><span class="f-cnr">CH-01 · 1080P</span><span class="f-time">23:02:40</span></div>
+          <div class="feed"><canvas data-feed="1"></canvas><span class="f-label">学校教学楼监控</span><span class="f-rec">REC</span><span class="f-cnr">CH-02 · 1080P</span><span class="f-time">23:02:40</span></div>
+          <div class="feed"><canvas data-feed="2"></canvas><span class="f-label">学校后门监控</span><span class="f-rec">REC</span><span class="f-cnr">CH-03 · 1080P</span><span class="f-time">23:02:40</span></div>
+          <div class="feed"><canvas data-feed="3"></canvas><span class="f-label">学校操场监控</span><span class="f-rec">REC</span><span class="f-cnr">CH-04 · 1080P</span><span class="f-time">23:02:40</span></div>
+        </div>
+        <div class="panel-foot"><span>4 CHANNELS ONLINE</span><span>HLS · 25 FPS</span></div>
+      </section>
+
+      <!-- AI -->
+      <section class="panel" id="panel-ai">
+        <div class="panel-head"><span class="tri"></span><h2>AI问答小助手</h2><span class="panel-code">DEEPSEEK</span></div>
+        <div class="panel-body">
+          <div class="ai-chat" id="ai-chat">
+            <div class="msg assistant">
+              <span class="cap">AI问答小助手</span>
+              您好，我是 DeepSeek，请提出您的问题。
+            </div>
+            <div class="msg assistant">
+              <span class="cap-list">
+                <span><b>免费使用：</b>目前完全免费，没有任何收费计划</span>
+                <span><b>超大上下文：</b>支持 1M 上下文，可以一次性处理像《三体》三部曲那样的长篇内容</span>
+                <span><b>文件处理：</b>支持上传图片、PDF、Word、Excel、PPT 等文件，从中读取文字信息</span>
+                <span><b>联网搜索：</b>支持联网功能（需要手动开启）</span>
+                <span><b>多平台：</b>可以在网页端使用，也有 App（支持语音输入）</span>
+              </span>
+              <div style="margin-top:8px">有什么问题需要我帮忙吗？</div>
+            </div>
+          </div>
+        </div>
+        <div class="ai-input">
+          <input id="ai-input" type="text" placeholder="向DeepSeek提问..." autocomplete="off" />
+          <button id="ai-send">发送</button>
+        </div>
+        <div class="panel-foot" style="padding-top:9px"><span>DEMO MODE · 本地模拟回答</span><span>API READY</span></div>
+      </section>
+
+      <!-- 学生信息 -->
+      <section class="panel" id="panel-student">
+        <div class="panel-head"><span class="tri"></span><h2>学生信息</h2><span class="panel-code">STUDENT / B</span></div>
+        <div class="panel-body">
+          <div class="stu-stats">
+            <div class="kv"><span>在校学生</span><strong>500</strong></div>
+            <div class="kv"><span>今日出勤</span><strong>450</strong></div>
+            <div class="kv"><span>请假人数</span><strong>50</strong></div>
+          </div>
+          <h3 class="sec-title"><i></i>年级分布<span class="en">GRADE</span></h3>
+          <div class="bar-card" id="grade-bars">
+            <div class="bar-row"><span>高一</span><div class="bar"><i style="width:68%"></i></div><b>168</b></div>
+            <div class="bar-row"><span>高二</span><div class="bar"><i style="width:66%"></i></div><b>166</b></div>
+            <div class="bar-row"><span>高三</span><div class="bar"><i style="width:66%"></i></div><b>166</b></div>
+          </div>
+          <h3 class="sec-title"><i></i>性别比例<span class="en">GENDER</span></h3>
+          <div class="donut-row">
+            <div class="donut-box" id="chart-gender"></div>
+            <div class="donut-legend">
+              <div><i style="background:#38e8c6"></i>男生<b>260</b></div>
+              <div><i style="background:#2f9c8a"></i>女生<b>240</b></div>
+            </div>
+          </div>
+          <h3 class="sec-title"><i></i>班级概览<span class="en">CLASS</span></h3>
+          <table class="mini-table">
+            <tr><th>班级</th><th>人数</th><th>出勤</th><th>状态</th></tr>
+            <tr><td>高一（1）班</td><td>42</td><td>39</td><td>正常</td></tr>
+            <tr><td>高二（3）班</td><td>44</td><td>40</td><td>正常</td></tr>
+            <tr><td>高三（2）班</td><td>41</td><td>36</td><td>关注</td></tr>
+          </table>
+        </div>
+        <div class="panel-foot"><span>DATA SYNC · 2026-08-07</span><span>ONLINE</span></div>
+      </section>
+
+      <!-- 生源信息 -->
+      <section class="panel" id="panel-source">
+        <div class="panel-head"><span class="tri"></span><h2>学生来源分布</h2><span class="panel-code">SOURCE / MAP</span></div>
+        <div class="panel-body">
+          <svg class="china-map" viewBox="0 0 1000 740" aria-label="中国生源分布地图">
+            <g transform="translate(20,20)">
+              <g class="province-g" id="province-g">
+                <path d="M682.7,255.8 684.0,255.9 685.3,254.3 676.7,253.3 672.8,249.4 671.8,246.5 671.0,248.1 668.8,248.0 669.2,249.6 667.0,249.0 668.8,252.2 665.6,251.7 664.3,254.2 657.9,256.6 658.2,258.5 661.3,262.0 659.4,264.3 658.2,263.7 653.3,266.5 652.8,268.1 655.0,270.7 653.1,271.3 654.3,275.0 656.6,274.6 658.7,276.7 660.4,274.9 661.1,275.7 661.4,275.0 664.8,275.1 665.8,276.9 668.5,278.0 668.0,276.3 668.6,276.7 669.9,275.0 674.0,275.0 676.5,271.4 676.0,270.1 673.9,269.3 673.9,266.5 677.7,266.5 682.7,264.5 683.3,262.7 680.8,259.9 681.4,258.5 680.5,257.4 682.7,255.8Z"/>
+<path d="M689.2,278.8 690.8,278.6 691.8,275.4 689.2,275.0 688.4,276.3 687.4,275.4 687.7,273.6 686.3,272.5 685.2,269.0 685.8,267.1 689.4,267.8 689.3,266.0 687.8,265.5 685.8,262.6 683.7,262.3 682.7,264.5 680.3,265.8 679.8,269.5 681.2,270.4 679.7,270.7 680.5,271.7 679.8,272.0 680.0,274.0 676.7,274.1 676.2,272.9 674.4,274.6 673.9,277.5 675.4,278.2 674.5,279.3 675.6,280.0 675.0,282.4 675.9,284.5 675.3,285.6 673.5,286.0 672.7,288.0 673.3,291.4 675.1,291.7 675.4,292.9 678.3,292.9 679.0,294.7 680.6,293.7 681.2,295.3 688.6,292.9 688.8,291.4 687.3,290.0 690.4,289.4 691.2,287.6 690.3,285.5 690.8,284.2 693.8,282.1 690.5,279.5 687.7,279.6 687.7,280.3 685.4,279.7 686.6,278.5 689.2,278.8Z"/>
+<path d="M684.5,254.5 684.0,255.9 681.5,256.2 680.5,257.4 681.4,258.5 680.8,259.9 682.7,262.7 685.8,262.6 687.8,265.5 689.3,266.0 689.4,267.8 685.8,267.1 685.3,268.2 685.8,271.5 687.7,273.6 687.2,274.9 688.4,276.3 689.2,275.0 691.8,275.4 689.9,279.7 693.2,281.0 693.8,281.6 693.2,282.7 694.8,283.1 696.3,286.0 698.5,286.3 700.4,288.4 702.2,287.2 701.1,284.9 701.8,284.1 707.6,283.1 707.2,284.2 712.6,279.5 714.0,272.3 716.7,270.9 716.7,269.3 721.9,267.9 721.6,266.5 719.8,265.1 719.9,263.1 718.3,262.6 717.0,256.4 712.3,256.5 710.6,254.8 711.2,253.9 709.2,254.2 706.0,251.1 706.8,248.4 708.4,248.3 707.4,246.6 709.6,245.8 712.1,241.5 706.7,241.8 705.9,240.3 704.3,241.3 698.2,241.0 698.2,239.3 697.0,238.4 697.5,236.9 694.9,233.3 695.6,231.7 697.4,232.6 698.0,231.2 697.0,229.5 697.7,228.4 696.5,227.7 697.4,227.0 696.5,226.3 695.8,227.5 694.6,227.4 695.2,226.6 694.3,226.1 694.5,224.8 692.5,223.7 693.7,222.3 693.2,220.6 689.4,216.1 684.7,216.4 683.3,219.1 678.8,218.7 676.1,220.3 675.8,224.4 674.0,224.2 675.6,226.3 675.4,227.8 674.1,228.6 670.3,229.5 669.7,228.6 667.9,229.2 667.6,227.9 666.6,228.2 664.8,230.8 663.7,230.8 663.3,232.5 661.9,232.1 660.5,229.2 659.2,229.3 651.6,233.7 652.1,235.9 650.7,235.5 649.4,236.5 647.8,235.5 644.1,235.9 644.2,231.8 645.3,231.1 644.1,226.2 643.0,225.2 639.4,225.5 638.1,226.9 638.6,228.5 636.1,229.0 633.8,232.2 634.7,235.5 634.3,237.6 631.2,237.3 628.8,239.2 629.8,240.0 629.1,241.5 630.9,243.1 627.9,245.7 631.6,249.1 631.4,250.9 635.1,255.6 635.5,259.9 638.9,260.4 638.0,261.9 632.2,263.4 632.0,265.7 630.5,264.9 629.3,266.8 631.1,267.4 631.4,268.8 634.0,268.7 634.0,269.8 636.8,269.7 637.0,273.9 639.5,275.4 637.4,280.6 637.1,281.9 638.1,282.4 636.7,283.2 636.1,285.2 632.4,285.6 631.5,284.0 629.1,285.3 627.1,287.4 628.4,290.0 628.2,291.3 626.3,292.2 626.1,293.4 624.7,293.5 623.9,295.2 623.6,300.9 628.1,302.8 628.7,306.3 631.4,310.8 630.6,311.8 632.8,312.5 628.9,321.0 627.2,322.7 627.2,328.5 626.0,327.9 625.7,329.7 622.4,331.3 624.3,334.4 623.8,335.5 626.2,336.9 626.5,338.0 631.6,338.7 631.9,339.9 633.3,340.3 636.0,340.1 639.8,342.8 644.9,342.4 644.9,344.1 646.2,343.8 648.2,341.0 650.0,341.4 651.1,343.4 653.7,342.2 653.4,339.7 651.9,339.1 650.5,335.4 653.7,330.3 656.8,329.4 661.3,321.0 661.4,319.1 665.4,318.6 666.2,317.7 665.2,316.3 666.0,316.5 667.0,314.3 668.5,316.4 674.2,309.1 684.1,309.0 686.4,304.7 688.2,304.6 689.3,303.5 692.2,298.8 689.4,298.8 687.3,295.8 687.9,295.6 687.2,295.5 687.2,293.9 681.2,295.3 680.6,293.7 679.0,294.7 678.3,292.9 675.4,292.9 675.1,291.7 673.3,291.4 672.7,288.0 673.5,286.0 675.3,285.6 675.9,284.5 675.0,282.4 675.6,280.0 674.5,279.3 675.4,278.2 673.9,277.5 674.4,274.6 669.9,275.0 668.6,276.7 668.0,276.3 668.5,278.0 665.8,276.9 664.8,275.1 661.4,275.0 661.1,275.7 660.4,274.9 657.9,276.6 656.6,274.6 654.3,275.0 653.8,272.2 653.0,272.0 655.0,270.7 652.8,268.1 653.3,266.5 658.2,263.7 659.4,264.3 661.3,262.0 658.2,258.5 657.9,256.6 664.3,254.2 665.6,251.7 668.8,252.2 667.0,249.0 669.2,249.6 668.8,248.0 671.0,248.1 671.3,246.6 672.4,246.8 672.8,249.4 676.7,253.3 685.3,254.3 684.5,254.5ZM680.5,265.5 677.7,266.5 673.9,266.5 673.9,269.3 676.0,270.1 676.5,271.4 675.6,273.2 676.2,272.9 676.7,274.1 680.0,274.0 679.8,272.0 680.5,271.7 679.7,270.7 681.2,270.4 679.8,269.5 679.6,268.2 680.5,265.5ZM689.5,279.3 686.6,278.5 685.4,279.7 687.7,280.3 689.5,279.3Z"/>
+<path d="M574.4,372.4 579.6,372.3 580.2,371.4 581.4,372.1 582.8,369.9 583.7,370.3 586.4,368.4 592.9,367.7 594.4,364.9 596.7,363.4 600.6,363.5 600.5,359.2 604.3,359.7 604.1,360.3 609.5,360.2 609.4,359.5 611.6,360.6 615.0,358.8 615.1,357.6 617.1,358.1 618.1,355.9 619.9,356.3 620.0,355.2 622.9,354.2 623.7,351.8 624.9,352.3 624.2,348.7 625.4,348.3 625.3,342.7 626.2,342.6 625.3,341.7 626.0,341.6 626.5,338.0 626.2,336.9 623.8,335.5 624.3,334.4 622.4,331.3 625.7,329.7 626.0,327.9 627.2,328.5 627.2,322.7 628.9,321.0 632.8,312.5 630.6,311.8 631.4,310.8 628.7,306.3 628.1,302.8 623.6,300.9 623.9,295.2 624.7,293.5 626.1,293.4 626.3,292.2 628.2,291.3 628.4,290.0 627.1,287.4 629.1,285.3 631.5,284.0 632.4,285.6 636.1,285.2 636.7,283.2 638.1,282.4 637.1,281.9 637.4,280.6 639.5,275.4 637.0,273.9 636.8,269.7 634.0,269.8 634.0,268.7 631.4,268.8 631.1,267.4 629.3,266.8 630.5,264.9 632.0,265.7 632.2,263.4 638.0,261.9 638.9,260.4 635.5,259.9 635.1,255.6 632.8,252.8 631.7,253.3 631.6,256.8 628.4,258.2 627.5,257.0 623.8,260.3 620.1,260.9 619.1,259.1 615.7,259.9 613.6,260.7 612.8,263.1 611.2,263.9 606.7,261.3 604.4,262.1 599.1,271.1 598.7,274.5 596.3,275.1 591.8,273.7 589.6,278.2 586.3,278.7 586.0,279.5 587.9,280.7 586.2,285.4 583.8,287.2 584.2,289.6 582.2,293.9 582.8,294.8 582.1,297.3 580.6,297.5 576.5,302.4 576.7,307.0 580.0,310.6 579.5,311.9 580.6,312.4 580.9,314.7 580.0,316.9 578.5,317.1 579.3,320.0 575.2,325.5 574.5,325.2 575.5,330.7 574.7,331.9 576.3,333.8 575.5,341.9 578.0,352.3 574.4,359.7 574.3,362.0 572.1,366.9 572.1,370.6 573.1,372.2 574.4,372.4Z"/>
+<path d="M369.3,212.6 379.8,234.8 376.1,238.3 376.4,239.0 381.7,245.7 387.3,249.2 387.5,256.0 391.9,253.9 391.0,252.6 392.5,252.1 394.6,255.3 394.4,253.4 397.4,251.9 399.3,253.9 400.4,252.6 400.4,250.4 406.5,250.6 408.1,248.9 414.9,250.1 416.9,253.2 417.0,255.1 415.8,256.6 415.8,261.7 413.3,263.2 410.7,266.9 404.5,269.4 410.4,269.9 411.7,271.3 417.1,273.3 418.3,276.7 421.0,277.2 421.0,278.8 426.3,278.7 426.2,286.1 428.1,286.5 428.3,287.7 432.3,286.2 431.8,287.7 432.5,289.3 433.9,289.6 433.9,291.0 437.5,292.2 438.1,293.4 439.2,292.7 440.8,293.3 445.4,288.7 441.7,284.9 442.8,284.4 451.3,281.7 453.8,283.3 459.9,284.7 465.2,280.2 473.1,277.6 476.7,278.4 476.1,280.8 478.0,283.5 478.4,286.9 476.0,288.7 473.2,293.6 466.3,298.2 468.1,303.1 465.5,304.4 465.4,305.4 466.1,308.8 470.4,310.5 478.2,317.7 481.7,316.6 482.1,315.6 491.3,314.3 495.8,311.9 500.2,312.0 500.5,310.5 502.7,310.0 503.9,306.0 502.8,303.8 504.3,300.3 503.6,299.0 504.1,293.6 506.3,289.4 506.0,288.4 507.4,287.2 508.7,283.6 510.8,283.8 510.8,281.5 514.4,281.3 515.8,279.3 518.5,279.4 518.8,282.4 521.5,286.1 521.2,287.8 517.4,292.1 515.7,298.5 513.9,299.9 521.0,303.5 524.9,303.1 528.8,306.2 528.3,307.1 537.2,310.3 537.9,313.0 539.6,313.5 541.3,312.6 549.6,312.3 549.9,305.2 552.0,307.6 554.1,305.7 554.1,304.3 552.1,302.1 553.9,297.7 557.3,294.0 558.7,293.9 558.3,292.4 561.0,289.9 561.5,290.4 562.7,289.5 563.3,287.0 564.8,285.5 566.2,284.2 567.3,284.5 566.9,283.9 567.9,282.9 566.6,281.9 567.0,281.3 568.0,282.5 571.9,281.1 570.9,277.8 574.5,280.6 575.3,279.2 576.7,279.2 578.3,281.4 579.5,281.3 582.4,276.7 586.2,275.2 586.4,276.3 585.0,277.9 585.4,279.3 586.7,278.4 589.3,278.4 591.8,273.7 596.3,275.1 598.7,274.5 599.1,271.1 604.4,262.1 606.7,261.3 611.2,263.9 612.8,263.1 613.6,260.7 615.7,259.9 619.1,259.1 620.1,260.9 622.9,260.6 627.5,257.0 628.4,258.2 631.6,256.8 631.7,253.3 632.8,252.8 631.4,250.9 631.6,249.1 627.9,245.7 630.9,243.1 629.1,241.5 629.8,240.0 628.7,239.6 631.2,237.3 634.3,237.6 634.7,235.5 633.8,232.2 636.1,229.0 638.6,228.5 638.1,226.9 639.4,225.5 643.0,225.2 644.1,226.2 645.3,231.1 644.2,231.8 644.1,235.9 647.8,235.5 649.4,236.5 650.7,235.5 652.1,235.9 651.6,233.7 659.2,229.3 660.5,229.2 661.9,232.1 663.3,232.5 663.7,230.8 664.8,230.8 666.6,228.2 667.6,227.9 667.9,229.2 669.7,228.6 670.3,229.5 674.1,228.6 675.4,227.8 675.6,226.3 674.0,224.2 675.8,224.4 676.1,220.3 678.8,218.7 683.3,219.1 684.7,216.4 689.4,216.1 693.2,220.6 693.7,222.3 692.5,223.7 694.5,224.8 694.3,226.1 695.2,226.6 694.6,227.4 695.8,227.5 696.5,226.3 697.4,227.0 696.5,227.7 697.7,228.4 697.0,229.5 698.0,231.2 697.4,232.6 695.6,231.7 694.9,233.3 697.5,236.9 697.0,238.4 698.2,239.3 698.7,241.5 701.0,240.7 704.3,241.3 705.9,240.3 706.7,241.8 711.4,242.1 714.2,239.4 714.0,236.6 714.9,236.6 713.1,234.8 712.9,232.2 714.3,226.4 712.0,224.2 716.2,220.6 717.9,223.2 721.4,223.9 721.5,226.2 724.5,231.7 724.4,233.8 725.4,234.0 726.8,231.1 728.3,230.5 728.1,229.6 731.0,227.8 731.1,226.1 737.6,222.9 740.5,223.2 745.4,218.9 748.9,218.1 750.3,219.6 753.2,217.3 754.0,214.7 755.9,214.0 758.1,214.8 758.1,213.8 761.1,214.8 762.1,213.4 760.4,211.9 761.7,211.7 764.7,213.1 766.3,212.8 768.1,214.2 768.7,213.1 771.4,213.1 774.0,211.9 773.1,211.4 774.5,208.8 777.9,207.8 779.4,208.6 781.4,201.4 779.9,201.5 778.0,200.0 777.0,200.6 775.4,199.0 775.2,197.9 777.5,198.0 777.0,197.0 778.4,197.1 778.8,196.3 777.8,192.0 775.6,188.6 776.5,186.0 772.5,182.0 772.4,179.2 766.8,181.9 765.4,183.6 762.5,184.5 759.2,184.1 759.4,179.8 757.0,177.9 756.6,176.0 757.5,174.9 756.5,174.8 757.6,174.1 756.5,173.9 755.7,171.3 756.7,166.9 758.5,165.6 758.7,164.3 757.2,163.9 757.6,161.1 755.0,159.7 754.5,156.1 750.5,156.0 749.4,155.0 752.1,152.6 751.3,150.2 752.5,149.7 755.6,150.9 758.9,154.1 760.7,152.9 760.6,151.7 761.9,151.8 762.8,154.3 763.6,153.6 765.4,156.0 766.5,155.9 767.3,154.7 766.6,153.4 767.8,151.8 767.3,148.7 771.2,148.2 773.3,145.3 770.7,141.7 770.5,138.9 771.2,138.1 774.0,138.7 774.8,137.3 779.9,136.7 779.9,132.8 778.4,134.0 778.7,131.7 777.1,131.9 775.2,130.6 776.8,131.9 776.3,133.8 773.9,133.6 773.0,135.7 770.5,135.9 769.0,134.4 768.9,131.4 767.0,131.2 768.2,129.2 764.5,128.2 761.5,123.8 764.2,120.0 773.0,115.4 775.2,112.0 779.5,110.3 790.0,100.7 790.9,101.3 791.0,104.3 792.5,107.6 793.4,107.8 792.5,109.4 794.3,108.3 795.0,105.3 794.1,103.8 794.1,100.3 798.6,91.2 798.6,89.4 800.1,88.1 803.4,89.2 805.0,88.0 805.8,82.8 805.1,80.0 803.5,78.9 805.0,78.6 804.3,75.5 805.4,74.6 804.5,72.9 806.7,70.9 805.6,70.1 808.5,67.9 809.9,64.0 814.4,61.2 814.4,58.4 813.3,57.6 814.7,57.1 816.5,54.6 817.1,55.1 818.0,51.8 816.7,51.0 817.0,50.3 815.0,49.8 814.8,48.5 813.4,48.2 807.0,40.5 803.6,39.8 799.4,45.2 795.8,46.3 793.6,45.2 792.3,47.3 789.7,45.9 784.9,46.8 781.5,44.9 780.8,46.4 777.3,47.4 770.5,46.6 768.2,43.3 768.5,41.7 765.9,35.3 766.2,33.6 764.7,31.8 764.7,30.5 766.4,30.2 767.2,28.2 762.4,27.4 761.9,25.5 757.6,23.1 754.1,27.3 750.5,26.9 749.4,24.5 742.2,21.5 748.6,17.1 750.5,13.7 751.6,13.3 752.1,12.4 749.7,10.3 750.0,9.0 747.2,7.1 736.6,8.4 736.9,9.0 728.5,16.2 724.4,18.1 725.1,21.7 731.1,20.6 735.3,22.7 733.6,26.8 735.6,28.1 736.1,30.1 734.1,34.6 731.4,35.4 726.6,39.4 725.2,39.4 723.4,44.8 722.5,45.0 723.1,45.6 720.9,47.2 721.1,48.5 720.2,48.5 720.2,50.9 716.0,55.0 716.2,57.3 712.7,60.4 711.7,64.1 710.3,64.6 711.3,65.4 713.9,65.1 713.8,68.9 709.8,72.4 701.7,73.5 700.3,75.4 698.8,75.5 698.8,76.4 694.1,79.6 690.7,80.1 689.9,81.5 684.8,79.3 678.4,78.1 672.9,75.1 662.5,94.1 663.0,95.1 658.6,101.1 659.0,106.1 654.4,108.1 655.2,112.7 660.8,117.3 665.9,113.5 668.8,114.3 674.0,113.1 678.8,114.6 683.3,118.1 689.9,110.8 694.8,110.2 701.6,111.3 704.8,115.6 710.4,117.7 710.7,120.1 714.0,121.3 713.4,122.3 719.5,126.8 721.7,132.3 722.7,132.5 722.5,137.1 720.8,136.8 718.9,138.7 717.0,137.8 714.2,138.4 710.3,137.6 708.5,135.6 707.0,135.8 707.0,135.0 705.9,135.1 705.1,136.7 697.7,135.7 688.9,140.0 686.5,138.4 683.8,138.8 684.2,139.8 683.1,143.1 674.7,142.6 670.8,144.4 666.0,150.8 666.2,154.5 664.5,156.2 662.3,156.3 657.1,160.7 651.9,162.0 646.0,162.2 642.3,161.1 639.2,162.1 637.8,165.5 632.5,170.5 629.2,171.3 625.0,174.6 612.8,172.7 608.9,171.0 606.4,168.2 600.7,167.8 598.1,168.6 596.0,170.2 593.8,174.0 592.9,177.9 590.5,182.2 594.4,187.9 597.6,190.3 599.0,192.6 598.9,195.1 596.4,195.5 592.8,199.1 591.2,199.0 584.4,202.2 575.3,212.9 570.2,215.6 564.4,216.8 561.5,218.9 553.4,219.2 550.6,220.4 541.2,219.2 536.5,220.3 530.9,220.1 529.2,219.2 526.2,221.0 518.6,222.5 502.4,229.1 494.5,233.0 491.0,236.3 489.7,234.9 483.5,234.7 483.6,230.6 473.3,232.0 466.3,230.4 455.3,225.2 451.2,225.3 445.4,223.6 441.2,218.3 426.6,215.0 418.3,214.7 417.4,215.7 412.7,215.5 405.6,217.1 385.2,215.4 369.3,212.6Z"/>
+<path d="M778.8,271.3 779.0,271.9 780.5,270.6 787.6,270.6 788.4,272.1 789.8,268.5 791.8,266.7 791.4,265.6 797.5,259.9 800.2,257.7 802.2,258.0 801.8,256.7 805.9,254.4 808.1,254.7 810.6,251.8 812.2,252.1 811.5,251.6 812.5,250.2 811.7,249.3 810.6,249.7 810.7,249.0 812.0,248.1 813.8,244.4 810.1,239.8 808.5,234.5 806.5,234.4 806.1,231.6 807.0,229.5 806.2,228.6 809.2,225.5 807.3,224.6 806.3,225.3 806.2,222.5 804.3,222.1 804.4,219.8 802.6,218.4 803.1,216.0 801.7,215.8 801.2,212.5 799.6,212.7 799.1,208.0 799.7,206.0 796.7,207.6 795.1,210.5 793.3,211.6 791.8,211.0 792.9,209.4 791.2,208.7 792.6,207.2 790.3,205.1 790.3,204.1 786.5,203.2 782.9,199.1 781.5,200.5 779.4,208.6 777.9,207.8 774.5,208.8 773.1,211.4 774.0,211.9 771.4,213.1 768.7,213.1 768.1,214.2 766.3,212.8 764.7,213.1 761.7,211.7 760.4,211.9 762.1,213.4 761.1,214.8 758.1,213.8 758.1,214.8 755.9,214.0 754.0,214.7 753.2,217.3 750.3,219.6 748.9,218.1 745.4,218.9 740.5,223.2 737.6,222.9 731.1,226.1 731.0,227.8 728.1,229.6 728.3,230.5 726.8,231.1 725.4,234.0 724.4,233.8 724.5,231.7 721.5,226.2 721.4,223.9 717.9,223.2 716.2,220.6 712.7,223.0 712.0,224.2 714.3,226.4 712.9,232.2 713.1,234.8 714.8,236.1 714.0,236.6 714.6,238.4 709.6,245.8 707.4,246.6 708.4,248.3 706.8,248.4 706.0,251.1 709.2,254.2 711.2,253.9 710.6,254.8 712.3,256.5 717.0,256.4 718.3,262.6 719.9,263.1 719.8,265.1 721.6,267.4 731.5,263.2 733.5,258.2 736.7,255.5 736.8,254.0 739.9,253.3 739.0,251.4 740.8,251.6 741.4,250.2 746.2,250.9 746.3,249.9 747.2,250.0 748.0,251.2 752.1,249.7 753.9,251.6 754.2,253.9 757.3,254.0 757.0,255.2 758.8,257.0 758.0,259.7 755.6,260.9 755.4,262.4 754.0,262.4 754.9,264.6 751.3,268.4 747.8,269.6 746.8,271.0 747.2,272.9 746.4,274.4 742.9,275.8 744.1,277.3 743.2,277.7 743.6,279.3 746.1,279.7 747.4,281.0 750.7,279.5 749.9,281.3 748.6,281.5 748.8,283.4 750.0,284.3 749.2,285.1 748.6,283.6 748.7,284.7 747.3,286.0 745.2,285.5 744.7,287.0 740.8,288.1 741.6,292.0 745.0,290.1 750.4,289.1 750.6,288.2 749.0,287.6 749.8,286.4 751.7,286.2 752.8,287.7 753.7,287.2 752.7,285.9 755.9,285.5 755.7,284.7 757.5,283.5 756.8,282.5 761.4,278.6 763.2,278.4 768.3,274.8 770.1,275.0 770.7,273.9 773.8,273.6 774.9,272.9 774.8,271.9 776.6,272.5 778.8,271.3Z"/>
+<path d="M873.0,220.0 873.4,219.1 874.6,219.8 875.3,218.9 876.4,211.5 877.2,209.1 878.5,208.4 881.5,209.1 881.3,210.5 883.5,210.7 883.2,214.3 886.2,216.3 886.0,217.3 887.3,216.0 888.3,219.6 889.3,219.8 888.0,218.3 889.1,216.4 888.4,215.0 885.5,213.9 891.7,211.0 895.4,211.3 895.3,210.0 897.0,209.9 896.4,208.2 898.0,206.1 899.7,198.9 897.0,200.3 895.2,198.7 892.6,200.1 889.0,196.5 885.6,195.9 884.9,188.3 880.5,192.4 878.5,188.6 877.2,188.9 875.2,191.6 871.0,191.6 869.1,193.1 867.6,192.7 867.0,193.3 867.3,197.1 863.9,198.4 861.8,198.1 859.5,194.3 860.0,191.9 858.0,191.3 855.5,186.1 855.6,181.8 853.9,179.1 851.4,180.7 850.8,182.4 848.9,182.3 849.7,183.4 849.6,186.5 846.8,187.9 844.8,187.7 843.7,185.3 843.2,185.9 841.8,184.7 842.3,183.7 840.2,181.1 839.9,179.1 841.0,179.0 841.3,177.9 835.4,176.6 833.4,178.1 832.4,173.1 834.1,170.7 832.1,167.1 829.4,167.0 825.9,164.7 820.7,166.9 817.1,166.5 812.4,162.8 812.2,159.6 808.2,160.2 807.2,162.0 806.5,161.4 803.1,162.2 802.0,160.0 800.2,159.2 799.8,161.0 792.2,161.0 791.4,159.0 790.1,158.8 789.5,157.3 788.5,157.6 786.1,154.6 787.1,153.3 785.5,151.4 786.6,149.8 785.4,144.5 784.7,145.1 783.7,144.2 779.3,145.8 774.3,144.8 771.2,148.2 767.3,148.7 767.8,151.8 766.6,153.4 767.3,154.7 766.5,155.9 765.4,156.0 763.6,153.6 762.8,154.3 761.9,151.8 760.6,151.7 760.7,152.9 758.9,154.1 755.6,150.9 752.5,149.7 751.3,150.2 752.1,152.6 749.4,155.0 750.5,156.0 754.5,156.1 755.0,159.7 757.6,161.1 757.2,163.9 758.7,164.3 758.5,165.6 756.7,166.9 755.7,171.3 756.5,173.9 757.6,174.1 756.5,174.8 757.5,174.9 756.6,176.0 757.0,177.9 759.4,179.8 759.2,184.1 762.5,184.5 765.4,183.6 766.8,181.9 772.4,179.2 772.5,182.0 776.5,186.0 775.6,188.6 778.6,194.8 778.4,197.1 777.0,197.0 777.5,198.0 775.2,197.9 777.0,200.6 778.0,200.0 779.9,201.5 781.4,201.4 782.1,199.4 783.8,199.7 784.4,201.6 786.5,203.2 790.3,204.1 790.3,205.1 792.6,207.2 791.2,208.7 792.9,209.4 791.8,211.0 793.3,211.6 795.1,210.5 796.7,207.6 799.7,206.0 799.1,208.0 799.6,212.7 801.2,212.5 801.7,215.8 803.1,216.0 802.6,218.4 804.4,219.8 804.3,222.1 806.2,222.5 806.3,225.3 807.3,224.6 809.2,225.5 806.1,228.9 807.0,229.5 806.3,229.6 806.5,234.4 808.5,234.5 810.1,239.8 813.8,244.4 810.6,249.7 811.7,249.3 814.2,250.2 817.7,249.0 819.0,245.8 821.7,244.3 823.9,240.7 825.5,240.5 824.8,239.7 826.5,234.6 827.8,234.5 827.9,233.0 829.5,233.9 831.6,231.8 835.4,235.9 834.5,237.1 837.1,237.8 836.6,238.1 841.1,238.3 842.5,239.6 848.2,239.0 849.9,240.5 853.1,236.4 849.9,232.2 849.8,229.1 848.7,228.1 857.4,228.0 859.6,227.2 863.0,227.6 863.2,226.2 867.0,224.1 866.5,223.0 867.4,220.8 868.8,220.5 869.4,219.2 872.2,221.1 873.0,220.0Z"/>
+<path d="M779.3,145.8 783.7,144.2 784.7,145.1 785.4,144.5 786.6,149.8 785.5,151.4 787.1,153.3 786.1,154.6 788.5,157.6 789.5,157.3 790.1,158.8 791.4,159.0 792.2,161.0 799.8,161.0 800.2,159.2 802.0,160.0 803.1,162.2 806.5,161.4 807.2,162.0 808.2,160.2 812.2,159.6 812.4,162.8 817.1,166.5 820.7,166.9 825.9,164.7 829.4,167.0 832.1,167.1 834.1,170.7 832.4,173.1 833.4,178.1 835.4,176.6 841.3,177.9 841.0,179.0 839.9,179.1 840.2,181.1 842.3,183.7 841.8,184.7 843.2,185.9 843.7,185.3 844.8,187.7 846.8,187.9 849.6,186.5 849.7,183.4 848.9,182.3 850.8,182.4 851.4,180.7 853.9,179.1 855.6,181.8 855.5,186.1 858.0,191.3 860.0,191.9 859.5,194.3 861.8,198.1 863.9,198.4 867.3,197.1 867.0,193.3 867.6,192.7 869.1,193.1 871.0,191.6 875.2,191.6 877.2,188.9 878.5,188.6 880.5,192.4 884.9,188.3 885.6,195.9 889.0,196.5 892.6,200.1 895.2,198.7 897.0,200.3 899.5,198.8 897.9,198.3 898.1,192.3 899.6,188.2 896.5,175.3 894.2,172.6 897.3,170.6 898.0,171.3 900.3,169.8 902.6,170.1 905.6,167.1 904.9,166.5 905.3,165.4 907.1,165.5 908.5,163.0 910.3,164.7 925.1,169.2 928.0,167.2 927.3,164.8 928.1,161.2 929.0,159.6 933.1,157.3 933.1,153.4 936.3,151.2 937.4,148.7 936.8,147.0 940.0,145.2 940.2,143.7 939.3,143.5 940.6,142.3 939.0,140.9 940.1,138.5 941.5,137.7 942.4,131.0 943.6,128.8 944.8,128.6 944.1,124.3 946.1,122.3 950.2,121.3 953.5,116.7 950.0,111.5 951.9,106.1 958.4,102.6 955.8,102.3 953.2,103.9 949.2,103.0 944.5,103.7 937.3,106.2 936.6,107.5 934.7,107.6 934.3,108.8 927.8,108.5 923.0,112.4 920.6,112.2 921.0,113.4 919.0,116.6 916.1,115.7 914.1,116.8 910.3,116.8 909.9,117.5 905.5,116.9 903.9,117.8 903.2,116.3 901.8,116.1 895.2,117.1 893.1,112.6 889.6,109.1 892.4,105.4 890.8,103.3 891.1,101.2 888.9,101.5 888.6,99.6 887.6,99.2 889.8,94.0 887.0,94.3 885.6,93.5 882.9,94.2 878.2,90.9 875.0,86.0 872.4,85.8 871.7,83.4 869.8,83.2 869.3,84.7 867.0,83.9 865.0,84.6 863.9,82.7 860.0,82.2 860.8,80.8 859.7,80.0 851.0,81.1 845.3,80.1 843.2,78.0 843.1,76.7 840.9,75.5 840.4,71.0 842.0,67.5 837.8,65.5 838.3,63.6 837.2,63.1 838.4,60.8 837.2,57.4 831.4,51.4 831.1,48.7 832.4,46.4 830.9,46.4 831.2,47.8 829.8,47.2 830.1,45.9 831.5,45.6 831.2,44.7 829.4,44.2 830.1,42.2 827.6,40.9 828.6,40.1 828.5,38.8 824.3,34.2 824.1,32.6 825.1,32.4 825.7,30.5 821.9,29.1 823.8,27.3 822.2,27.1 822.6,25.6 821.3,23.9 820.3,24.1 819.4,22.0 817.6,21.9 816.6,20.9 818.9,18.2 817.9,17.5 816.6,18.3 814.4,15.6 812.1,16.4 813.1,13.8 811.1,12.0 809.8,12.7 803.8,9.7 799.8,10.4 799.6,11.7 796.6,9.6 792.8,9.3 789.7,6.2 788.0,6.9 783.9,4.1 781.3,3.9 780.1,2.9 778.7,3.8 778.5,2.8 778.2,3.9 774.8,2.7 768.8,4.6 761.7,5.0 760.4,3.8 756.7,5.3 750.3,6.0 747.2,7.1 750.0,9.0 749.7,10.3 752.1,12.4 748.6,17.1 742.2,21.5 749.4,24.5 750.5,26.9 752.5,27.6 754.1,27.3 757.6,23.1 761.9,25.5 762.4,27.4 767.2,28.2 766.4,30.2 764.7,30.5 764.7,31.8 766.2,33.6 765.9,35.3 768.5,41.7 768.2,43.3 770.5,46.6 777.3,47.4 780.8,46.4 781.5,44.9 784.9,46.8 789.7,45.9 792.3,47.3 793.6,45.2 795.8,46.3 799.4,45.2 803.6,39.8 807.0,40.5 813.4,48.2 814.8,48.5 815.0,49.8 817.0,50.3 816.7,51.0 818.0,51.8 817.1,55.1 816.5,54.6 814.7,57.1 813.3,57.6 814.4,58.4 814.4,61.2 809.9,64.0 808.5,67.9 805.6,70.1 806.7,70.9 804.5,72.9 805.4,74.6 804.3,75.5 805.0,78.6 803.5,78.9 805.1,80.0 805.8,82.8 805.0,88.0 803.4,89.2 800.1,88.1 798.6,89.4 798.6,91.2 794.1,100.3 794.1,103.8 795.0,105.3 794.3,108.3 792.5,109.4 793.4,107.8 792.5,107.6 791.0,104.3 790.9,101.3 790.0,100.7 779.5,110.3 775.2,112.0 773.0,115.4 764.2,120.0 761.5,123.8 764.5,128.2 768.2,129.2 767.0,131.2 768.9,131.4 769.0,134.4 770.9,136.1 773.0,135.7 773.9,133.6 776.3,133.8 776.8,131.9 775.2,130.6 777.1,131.9 778.7,131.7 778.4,134.0 779.9,132.8 779.9,136.7 774.8,137.3 774.0,138.7 771.2,138.1 770.5,138.9 770.7,141.7 773.3,145.3 778.2,145.1 779.3,145.8Z"/>
+<path d="M737.9,442.3 739.3,442.3 739.3,445.8 740.0,446.2 740.9,445.4 741.3,446.9 742.8,446.8 743.7,448.9 750.0,446.2 754.1,447.0 754.9,445.3 754.6,442.3 750.6,436.7 744.8,432.6 743.2,433.0 741.2,435.3 741.6,437.2 740.8,436.9 740.4,437.8 740.6,439.5 737.6,440.0 737.9,442.3ZM754.6,430.6 748.7,428.9 744.4,425.7 741.3,427.8 745.2,431.8 746.2,431.1 752.1,434.1 754.7,433.6 754.6,430.6ZM751.8,436.2 750.9,434.7 747.3,433.2 751.8,436.2ZM751.9,435.7 752.5,436.9 756.5,437.6 756.9,436.6 751.9,435.7Z"/>
+<path d="M682.1,373.2 681.1,375.3 679.9,375.7 678.4,370.2 674.0,365.1 673.9,366.2 671.4,365.8 668.1,367.5 667.6,371.6 668.4,371.4 670.9,374.5 673.8,375.3 674.6,376.5 676.8,376.5 678.0,381.2 680.3,382.8 682.8,382.4 684.0,383.6 685.3,382.9 686.1,384.4 687.1,383.6 688.4,386.5 689.0,386.2 688.9,389.8 693.8,388.7 695.3,389.3 694.5,394.4 693.6,394.0 691.9,399.2 693.4,401.0 695.6,399.4 696.2,399.9 696.6,403.7 697.5,404.2 696.4,405.3 696.7,406.6 697.5,406.6 698.6,409.1 704.6,408.7 704.4,406.5 705.4,406.5 706.0,404.5 708.7,404.5 710.1,407.1 711.2,407.0 711.9,411.3 709.7,414.3 709.0,413.1 706.7,412.3 706.9,411.6 701.7,411.7 702.0,413.7 703.6,413.9 703.7,416.7 702.8,419.0 700.8,419.3 700.6,420.7 698.9,421.6 698.5,424.5 700.7,426.2 700.3,427.4 701.5,428.4 702.8,427.8 703.7,428.8 702.8,430.0 704.3,430.3 704.8,429.3 705.3,430.5 706.2,430.5 706.1,434.9 704.0,436.3 705.2,438.1 710.0,438.0 710.8,436.9 713.6,437.6 713.8,436.7 714.4,439.2 717.7,440.5 718.9,439.3 722.7,439.3 725.6,443.5 729.6,443.6 729.4,444.8 730.6,444.2 731.7,447.3 733.0,445.5 735.0,444.9 734.7,443.2 737.9,442.3 737.6,440.0 740.6,439.5 740.4,437.8 740.8,436.9 741.6,437.2 741.2,435.3 745.2,431.8 741.3,427.8 742.5,426.3 744.4,425.7 748.7,428.9 754.6,430.6 752.7,424.0 751.2,422.0 746.5,419.7 747.1,418.0 746.0,414.7 738.8,411.2 738.1,409.4 739.1,406.4 737.4,402.7 736.8,398.3 735.4,397.0 728.7,378.1 718.3,373.0 715.6,371.0 716.5,369.8 714.3,369.5 716.1,369.4 715.2,368.8 712.1,368.5 711.6,365.0 712.1,363.7 713.1,364.0 712.8,362.4 706.2,364.1 704.0,369.6 705.0,370.0 703.5,370.9 701.3,370.4 700.0,371.3 698.7,376.0 695.6,376.7 694.9,374.7 695.7,373.5 694.0,373.0 694.1,371.3 692.1,370.9 689.6,371.4 689.7,374.0 687.9,373.4 686.5,375.1 684.5,374.7 683.0,372.7 682.1,373.2Z"/>
+<path d="M699.6,495.5 700.4,496.5 704.0,495.0 705.3,496.4 704.2,501.7 705.5,502.7 706.9,511.6 708.7,510.9 710.4,511.3 710.6,512.3 712.5,512.4 713.9,510.4 715.6,510.4 716.1,507.9 717.8,507.5 720.3,514.6 724.0,513.3 724.7,514.0 726.0,512.4 728.0,512.2 728.1,513.0 729.2,512.8 730.6,515.6 730.2,516.6 731.5,518.0 732.4,517.6 732.9,514.3 734.2,513.6 734.8,511.3 733.7,509.4 736.0,505.5 736.9,505.8 738.5,503.1 741.8,504.7 741.5,505.3 742.4,504.6 741.9,502.9 740.3,503.1 739.3,502.1 740.3,499.2 741.1,498.4 741.6,500.5 743.5,500.4 747.0,495.2 749.2,496.2 750.2,493.2 747.8,488.3 750.1,487.1 750.1,484.3 751.5,484.3 748.9,478.3 750.5,479.2 751.3,478.4 751.5,479.5 754.4,480.6 754.2,477.8 755.0,476.5 754.1,476.1 754.0,474.1 755.0,470.3 754.4,469.2 752.4,468.9 757.1,464.0 755.1,464.2 754.5,463.0 753.7,463.7 750.6,462.3 745.2,454.9 742.9,454.2 740.9,452.1 740.3,451.1 743.1,449.5 743.6,448.0 742.8,446.8 741.3,446.9 740.9,445.4 740.0,446.2 739.3,445.8 739.3,442.3 734.7,443.2 735.0,444.9 733.0,445.5 731.7,447.3 730.6,444.2 729.4,444.8 729.6,443.6 725.6,443.5 722.7,439.3 718.0,440.1 717.3,445.9 715.8,447.1 715.3,449.4 714.4,448.7 712.1,450.2 712.0,451.5 713.4,451.7 714.6,454.8 711.5,456.4 707.6,455.1 706.5,456.0 707.3,458.2 706.1,458.9 706.7,459.2 706.7,463.3 704.3,465.7 704.4,467.2 700.6,470.4 700.5,471.5 697.9,472.0 697.7,473.4 695.8,473.9 695.6,475.8 694.0,475.9 693.5,477.5 694.3,481.6 696.4,482.7 695.9,483.5 697.0,483.2 699.5,487.8 699.3,491.4 700.2,491.8 699.5,493.3 700.3,494.7 699.6,495.5ZM757.5,462.3 760.0,463.3 759.5,460.2 754.3,458.5 755.4,462.3 757.5,462.3ZM757.5,455.7 755.9,456.4 758.6,457.5 758.5,455.7 757.5,455.7ZM754.1,447.0 754.9,449.3 757.0,450.5 754.1,447.0ZM757.8,468.9 758.1,467.7 756.3,466.3 755.7,467.6 757.8,468.9Z"/>
+<path d="M671.1,383.8 671.6,386.3 670.6,385.9 668.5,387.1 668.5,388.0 664.2,389.8 661.1,384.0 656.4,382.9 654.7,386.6 656.0,386.7 655.8,388.5 655.0,388.6 656.2,392.2 652.8,392.8 651.6,393.8 651.1,396.3 651.8,397.8 650.7,401.1 646.9,401.9 645.7,400.7 644.7,401.1 644.4,403.8 649.3,406.4 649.3,411.6 652.6,411.9 654.3,414.5 655.9,415.2 657.2,413.5 658.5,414.0 660.4,412.1 659.4,413.3 660.8,419.9 660.4,426.7 660.0,427.5 656.7,427.4 653.9,429.5 652.0,433.0 652.0,435.8 653.1,435.9 655.3,439.8 657.1,438.7 658.3,440.4 659.7,439.7 660.8,441.7 662.7,442.4 662.9,443.5 659.7,445.3 659.4,447.4 658.4,447.5 658.1,448.8 660.4,452.0 660.2,456.0 662.8,458.1 663.8,465.6 666.1,466.2 670.3,463.9 670.8,461.2 672.1,460.6 675.7,463.1 672.2,467.8 671.9,469.2 673.0,470.6 674.9,470.4 679.0,467.7 679.4,466.5 678.4,465.4 680.6,463.5 681.2,465.3 682.9,465.8 683.7,465.0 685.7,470.1 687.3,469.6 688.6,470.9 692.9,470.3 695.0,472.1 694.9,473.4 697.7,473.4 697.9,472.0 700.5,471.5 701.7,469.2 702.9,469.1 705.8,463.4 706.7,463.3 706.7,459.2 706.1,458.9 707.3,458.2 706.5,456.0 707.6,455.1 711.5,456.4 714.6,454.8 713.4,451.7 712.0,451.5 712.1,450.2 714.4,448.7 715.3,449.4 718.2,442.2 718.0,440.1 714.4,439.2 713.8,436.7 713.6,437.6 710.8,436.9 710.0,438.0 705.2,438.1 704.0,436.3 706.1,434.9 706.2,430.5 705.3,430.5 704.8,429.3 704.3,430.3 702.8,430.0 703.7,428.8 702.8,427.8 700.9,428.1 700.7,426.2 698.5,424.5 698.9,421.6 700.6,420.7 700.8,419.3 702.8,419.0 703.7,416.7 703.6,413.9 702.0,413.7 701.7,411.7 706.9,411.6 706.7,412.3 709.0,413.1 709.7,414.3 711.9,411.3 711.2,407.0 710.1,407.1 708.7,404.5 706.0,404.5 705.4,406.5 704.4,406.5 704.6,408.7 698.6,409.1 697.5,406.6 696.7,406.6 696.4,405.3 697.5,404.2 696.6,403.7 696.2,399.9 695.6,399.4 693.4,401.0 691.9,399.2 693.6,394.0 694.5,394.4 695.3,389.3 693.8,388.7 688.9,389.8 689.0,386.2 688.4,386.5 687.1,383.6 686.1,384.4 685.3,382.9 684.0,383.6 682.8,382.4 680.3,382.8 677.7,380.9 678.1,379.8 676.8,378.6 676.8,376.5 674.6,376.5 673.8,375.3 670.9,374.5 668.4,371.4 667.6,371.6 665.6,373.4 664.8,372.9 664.3,375.2 667.5,378.9 670.8,378.9 670.0,381.7 671.1,383.8Z"/>
+<path d="M708.4,560.2 708.6,558.5 707.5,559.1 706.7,557.8 708.0,557.4 708.1,556.3 707.0,554.6 708.3,554.4 708.2,555.7 709.5,555.5 708.8,556.9 710.4,557.5 710.2,559.4 710.4,555.3 712.5,556.5 712.9,555.0 714.3,554.7 710.6,552.0 711.8,550.5 712.3,550.1 712.4,551.3 713.8,551.6 713.9,549.4 715.4,550.0 715.2,551.6 716.0,551.0 715.9,552.4 716.9,552.5 717.3,550.9 717.6,553.1 718.4,552.9 718.8,551.1 718.0,551.1 718.8,550.5 720.4,551.9 720.2,551.2 721.8,550.7 720.9,549.7 722.1,549.0 720.6,546.6 719.0,548.1 718.8,550.3 717.5,548.1 715.8,547.3 717.7,546.3 718.1,542.6 719.2,542.0 719.6,539.9 717.7,536.8 718.9,535.0 720.8,534.9 723.2,533.2 721.3,531.6 720.6,528.7 717.3,528.0 718.7,526.0 721.9,527.6 723.0,524.8 724.8,525.1 721.2,529.9 726.0,527.7 726.0,524.6 724.7,523.3 725.8,522.2 727.5,522.4 728.3,518.9 730.0,519.0 731.1,517.8 729.2,512.8 728.1,513.0 728.0,512.2 726.0,512.4 724.7,514.0 724.0,513.3 720.3,514.6 717.8,507.5 716.1,507.9 715.6,510.4 713.9,510.4 712.5,512.4 710.6,512.3 710.4,511.3 708.7,510.9 706.9,511.6 705.5,502.7 704.2,501.7 705.3,496.4 704.0,495.0 700.4,496.5 699.4,495.4 697.7,496.8 698.6,497.5 698.4,499.3 695.2,499.9 694.3,501.7 690.6,502.2 688.8,505.0 686.8,503.8 685.4,501.5 682.6,503.9 681.6,503.6 681.9,505.7 680.5,507.3 679.1,507.1 678.7,508.4 677.9,507.5 677.3,508.4 677.5,509.6 678.9,510.2 678.9,514.2 680.0,515.0 678.1,518.7 676.3,520.2 672.3,521.0 670.3,523.7 670.1,529.2 671.7,530.8 671.1,532.8 669.8,532.1 668.2,534.3 667.8,536.8 669.1,536.7 669.3,537.9 667.5,540.8 663.8,542.8 664.6,544.4 662.8,545.9 661.9,553.4 659.5,555.5 660.6,558.6 659.8,559.2 660.6,560.4 659.7,560.4 662.8,562.5 664.7,562.0 665.5,563.6 667.9,562.0 667.6,563.4 670.0,567.3 671.1,566.3 674.4,566.3 673.5,568.5 675.1,570.1 676.2,574.8 677.3,575.6 676.2,577.9 677.0,581.9 678.1,585.1 680.3,586.3 680.3,587.7 682.0,587.9 684.5,587.2 685.1,584.9 686.6,584.9 687.7,581.5 689.6,580.9 693.1,575.3 695.3,573.8 693.6,571.0 694.7,568.0 696.6,569.1 700.8,567.3 701.5,569.1 702.4,568.9 703.4,567.8 703.0,566.4 705.0,564.0 702.9,562.7 708.2,562.0 707.1,560.9 708.4,560.2ZM699.2,569.1 698.6,570.2 697.5,569.8 697.9,571.7 700.2,570.6 699.2,569.1Z"/>
+<path d="M695.8,473.9 692.9,470.3 688.6,470.9 687.3,469.6 685.7,470.1 683.7,465.0 682.9,465.8 681.2,465.3 680.6,463.5 678.4,465.4 679.4,466.5 679.0,467.7 674.9,470.4 673.0,470.6 671.9,468.1 675.7,463.1 672.1,460.6 670.8,461.2 670.3,463.9 666.1,466.2 664.4,465.5 660.3,467.5 656.6,465.0 654.2,465.2 653.5,467.2 650.7,469.6 648.0,468.3 648.6,471.7 646.2,470.5 644.0,472.3 644.5,473.1 645.4,472.5 644.6,473.9 642.5,474.5 641.1,473.9 638.8,475.3 635.5,474.5 634.6,477.0 631.7,477.6 629.9,479.8 630.3,482.8 630.8,482.5 631.9,484.8 633.1,484.9 632.0,490.2 634.1,491.7 633.4,492.7 634.6,493.4 634.6,494.9 632.4,497.5 630.6,498.0 631.1,500.5 626.8,502.4 627.0,505.0 624.1,510.0 624.9,510.9 624.7,513.9 628.7,513.1 627.1,518.7 629.5,521.6 628.1,524.4 628.5,527.2 632.4,529.0 630.1,537.2 633.5,535.9 634.4,537.1 631.4,538.6 631.1,542.2 629.4,545.2 630.4,547.9 629.8,551.0 630.7,551.0 631.5,552.5 631.0,554.3 636.6,553.4 639.1,551.5 642.2,554.3 641.3,556.2 642.1,557.2 639.4,558.1 636.8,560.6 635.9,564.5 633.3,565.7 636.8,568.1 636.9,569.4 641.0,567.7 641.6,568.9 642.0,567.2 644.2,568.1 644.8,566.2 647.1,565.4 647.8,566.1 650.4,564.5 651.8,564.8 652.6,563.6 656.9,568.5 659.3,568.1 658.0,564.5 659.0,561.4 660.3,562.0 659.7,560.4 660.6,560.4 659.5,555.5 661.9,553.4 662.8,545.9 664.6,544.4 663.8,542.8 667.5,540.8 669.3,537.9 669.1,536.7 667.8,536.8 668.2,534.3 669.8,532.1 671.1,532.8 671.7,530.8 670.1,529.2 670.3,523.7 672.3,521.0 676.3,520.2 678.1,518.7 680.0,515.0 678.9,514.2 678.9,510.2 677.5,509.6 677.3,508.4 677.9,507.5 678.7,508.4 679.1,507.1 680.5,507.3 681.9,505.7 681.6,503.6 682.6,503.9 685.4,501.5 686.8,503.8 688.8,505.0 690.6,502.2 694.3,501.7 695.2,499.9 698.4,499.3 698.6,497.5 697.7,496.8 700.3,494.7 698.5,485.3 697.5,485.0 697.0,483.2 695.9,483.5 696.4,482.7 694.3,481.6 693.4,479.6 694.0,475.9 695.6,475.8 695.8,473.9Z"/>
+<path d="M667.6,371.6 668.7,366.7 671.4,365.8 673.9,366.2 674.0,365.1 678.4,370.2 679.9,375.7 681.1,375.3 681.5,373.3 683.0,372.7 685.6,375.0 687.9,373.4 689.7,374.0 689.6,371.4 692.1,370.9 694.1,371.3 694.0,373.0 695.7,373.5 694.9,374.7 695.6,376.7 698.7,376.0 700.0,371.3 701.3,370.4 703.5,370.9 705.0,370.0 704.0,369.6 706.2,364.1 710.1,363.6 712.2,362.2 714.2,363.1 715.4,359.1 716.7,358.8 717.5,357.4 718.6,353.1 722.7,352.2 722.7,349.8 724.1,350.7 724.9,347.6 727.1,346.1 727.0,347.2 728.6,345.7 727.9,344.6 727.0,345.2 727.6,343.9 725.7,343.1 726.7,341.1 728.7,341.5 728.9,340.6 729.5,341.3 728.3,344.2 734.9,342.7 734.2,338.7 735.4,338.7 734.7,337.5 736.8,336.0 737.4,338.0 738.9,336.0 739.2,334.5 737.0,333.1 739.9,334.0 744.1,331.4 745.6,331.5 748.2,328.9 747.0,329.8 749.5,331.0 749.2,329.5 755.1,326.4 755.6,328.1 757.1,326.8 757.7,328.7 760.3,329.0 762.0,328.0 761.7,327.3 763.2,327.5 764.0,324.9 762.2,324.9 762.5,323.1 764.6,321.9 763.9,319.9 765.9,317.5 760.2,317.5 758.9,316.5 757.5,317.1 757.3,314.8 753.8,316.4 749.3,316.0 748.3,317.0 746.8,316.3 745.5,313.4 742.8,314.3 741.7,313.4 741.5,311.5 740.0,311.6 738.5,309.6 735.3,309.4 729.6,312.0 727.4,312.1 727.7,314.8 721.5,318.3 722.2,320.5 719.8,323.0 713.4,323.4 711.5,320.2 710.5,321.1 709.2,320.7 707.4,315.3 708.7,313.1 712.4,312.7 712.9,308.7 710.9,309.7 706.9,303.4 702.5,303.4 701.4,305.0 700.7,303.9 693.1,302.2 691.2,300.2 688.2,304.6 685.9,305.2 684.1,309.0 674.2,309.1 668.5,316.4 667.0,314.3 666.0,316.5 665.2,316.3 666.2,317.7 665.4,318.6 661.4,319.1 661.3,321.0 656.8,329.4 653.7,330.3 651.7,332.9 650.5,335.4 651.9,339.1 653.4,339.7 653.7,342.7 653.2,344.9 651.8,345.7 651.4,349.1 663.3,342.9 662.5,345.7 660.4,345.9 659.6,347.9 657.6,348.4 657.0,349.9 653.8,350.8 651.6,353.8 651.7,355.1 646.9,357.3 645.2,360.8 644.1,361.1 644.4,362.7 643.4,363.6 645.0,365.2 648.2,364.5 649.6,365.4 650.2,367.6 652.8,368.4 653.4,371.7 654.8,373.0 656.9,373.3 657.0,372.5 659.1,373.2 661.6,372.1 665.6,373.4 667.6,371.6Z"/>
+<path d="M610.7,416.1 615.0,415.7 615.5,414.8 617.6,415.7 618.4,414.7 621.8,417.8 625.3,415.1 626.6,415.1 627.3,419.5 626.5,421.5 628.4,426.2 630.0,426.0 630.5,428.0 633.7,426.0 635.2,427.9 639.8,427.8 639.4,431.7 640.6,431.3 643.6,433.7 646.1,433.4 646.6,432.3 647.7,432.7 648.8,430.8 649.9,431.8 649.5,434.0 650.9,435.1 652.0,434.7 652.0,433.0 653.9,429.5 656.7,427.4 660.0,427.5 660.8,419.9 659.4,413.3 660.4,412.1 658.5,414.0 657.2,413.5 655.9,415.2 654.3,414.5 652.6,411.9 649.3,411.6 649.3,406.4 644.4,403.8 644.7,401.1 648.8,401.9 650.9,400.7 651.8,397.8 651.1,396.3 651.6,393.8 652.8,392.8 656.2,392.2 655.0,388.6 655.8,388.5 656.0,386.7 654.7,386.6 655.6,383.5 657.6,382.6 659.4,384.0 661.1,384.0 662.9,388.4 664.2,389.8 665.8,389.4 670.6,385.9 671.7,386.1 670.0,381.7 670.8,378.9 667.5,378.9 664.3,375.2 664.8,372.9 663.8,373.2 663.3,372.3 659.1,373.2 654.2,372.8 652.8,368.4 650.2,367.6 649.6,365.4 648.2,364.5 645.0,365.2 643.4,363.6 644.4,362.7 644.1,361.1 645.2,360.8 646.9,357.3 651.7,355.1 651.6,353.8 653.8,350.8 657.0,349.9 657.6,348.4 659.6,347.9 660.4,345.9 662.5,345.7 663.3,342.9 653.8,347.5 651.9,349.4 651.7,346.3 653.2,344.9 653.4,341.8 651.1,343.4 650.0,341.4 648.2,341.0 646.2,343.8 644.9,344.1 644.9,342.4 639.8,342.8 636.0,340.1 633.3,340.3 631.9,339.9 631.6,338.7 626.5,338.0 626.0,341.6 625.3,341.7 626.2,342.6 625.3,342.7 625.4,348.3 624.2,348.7 624.9,352.3 623.7,351.8 622.9,354.2 620.0,355.2 619.9,356.3 618.1,355.9 617.1,358.1 615.1,357.6 615.0,358.8 611.6,360.6 609.4,359.5 609.5,360.2 604.1,360.3 604.3,359.7 600.5,359.2 600.6,363.5 596.7,363.4 594.4,364.9 592.9,367.7 586.4,368.4 583.7,370.3 582.8,369.9 581.4,372.1 580.2,371.4 579.6,372.3 574.4,372.4 574.1,374.0 576.4,377.5 575.4,379.4 578.5,381.0 577.7,383.7 578.9,385.3 577.7,386.3 580.7,388.1 581.3,390.2 584.1,392.3 583.8,398.6 584.8,400.3 586.9,401.4 586.5,402.9 588.1,403.5 588.0,405.9 590.0,407.0 590.5,408.4 591.5,408.3 593.1,411.5 594.0,410.7 599.8,414.3 600.6,413.9 602.0,415.8 601.9,415.1 604.7,416.8 608.1,415.2 610.7,416.1Z"/>
+<path d="M584.8,400.3 583.5,398.7 579.5,401.7 577.8,400.3 577.5,398.7 575.9,400.3 571.9,400.4 571.1,399.5 569.0,399.9 562.6,398.2 559.8,400.7 565.4,402.3 565.3,405.9 568.4,405.8 571.0,408.2 571.7,410.8 570.9,411.5 569.9,411.1 568.8,412.5 562.8,411.4 560.7,417.3 562.2,418.8 562.7,421.0 562.1,425.1 562.9,426.9 562.1,428.5 564.4,429.0 564.3,431.9 568.1,432.7 567.7,433.4 570.4,434.6 571.7,439.5 570.4,440.9 571.2,443.0 569.8,446.5 568.7,444.9 566.9,444.6 563.2,447.3 561.9,449.5 559.8,450.5 558.5,452.6 557.7,449.8 555.2,452.0 554.7,449.5 553.7,449.3 550.0,452.5 549.0,452.5 548.2,450.7 546.3,453.0 544.1,452.5 543.7,454.8 546.5,457.1 545.5,464.4 543.2,465.2 545.3,467.8 546.8,464.8 547.7,464.9 548.2,468.2 549.2,469.0 549.7,468.1 549.6,469.2 550.6,468.8 551.5,469.8 550.9,472.4 551.9,473.1 551.8,475.3 553.9,473.8 555.2,478.3 557.3,479.2 557.0,477.3 558.5,476.1 559.7,471.3 561.0,469.4 564.2,469.6 565.1,466.8 570.3,466.2 574.3,469.3 575.8,467.7 577.3,467.7 578.5,466.5 576.3,463.8 577.2,462.3 576.3,461.0 578.7,460.6 579.6,461.5 580.1,459.9 581.8,459.7 582.9,459.9 583.0,460.9 587.8,461.3 590.2,463.8 596.7,464.0 600.8,467.1 600.6,468.3 603.4,468.8 604.1,471.5 606.4,469.3 610.4,469.9 613.6,466.2 614.3,468.3 615.5,466.5 613.8,469.8 614.4,472.4 616.0,471.4 616.4,473.1 617.4,472.9 624.0,465.1 623.6,468.4 625.5,468.3 626.6,470.3 624.9,471.4 626.9,472.9 624.6,476.7 625.9,477.2 626.0,480.1 627.8,479.6 629.1,481.0 631.7,477.6 634.6,477.0 635.5,474.5 638.8,475.3 641.1,473.9 642.5,474.5 644.6,473.9 645.4,472.5 644.5,473.1 644.0,472.3 646.2,470.5 648.6,471.7 648.0,468.3 650.7,469.6 653.5,467.2 654.2,465.2 656.6,465.0 660.3,467.5 663.8,465.6 662.8,458.1 660.2,456.0 660.4,452.0 658.1,448.8 658.4,447.5 659.4,447.4 659.7,445.3 662.9,443.5 659.7,439.7 658.3,440.4 656.4,438.5 655.3,439.8 653.1,435.9 652.0,435.8 652.0,434.7 650.1,435.0 649.9,431.8 648.8,430.8 647.7,432.7 646.6,432.3 646.1,433.4 643.6,433.7 640.6,431.3 639.4,431.7 639.8,427.8 635.2,427.9 633.7,426.0 630.5,428.0 630.0,426.0 628.4,426.2 626.9,423.3 626.6,415.1 625.3,415.1 621.8,417.8 618.4,414.7 617.6,415.7 615.5,414.8 615.0,415.7 611.0,416.2 608.1,415.2 604.7,416.8 594.0,410.7 593.1,411.5 591.5,408.3 590.5,408.4 590.0,407.0 588.0,405.9 588.1,403.5 586.5,402.9 586.9,401.4 584.8,400.3Z"/>
+<path d="M600.0,564.7 602.2,562.3 601.5,560.3 602.5,556.1 609.9,557.0 611.7,561.6 613.2,561.6 615.1,561.0 614.6,556.8 615.7,555.7 615.0,554.8 613.1,554.7 612.9,553.0 614.0,553.8 619.0,549.6 624.2,553.6 626.8,552.5 627.8,553.2 629.8,551.0 630.4,547.9 629.3,545.9 631.1,542.2 630.8,539.8 631.4,538.6 634.4,537.1 633.5,535.9 630.1,537.2 632.4,529.0 628.5,527.2 628.1,524.4 629.5,521.6 627.1,518.7 628.7,513.1 624.7,513.9 624.9,510.9 624.1,510.0 627.0,505.0 626.8,502.4 631.1,500.5 630.6,498.0 632.4,497.5 634.6,494.9 634.6,493.4 633.4,492.7 634.1,491.7 632.0,490.2 633.1,484.9 631.9,484.8 630.8,482.5 630.3,482.8 629.8,480.7 628.8,480.9 627.8,479.6 626.0,480.1 625.9,477.2 624.6,476.7 626.9,472.9 624.9,471.4 626.6,470.3 625.5,468.3 623.6,468.4 624.0,465.1 617.4,472.9 616.4,473.1 616.0,471.4 614.4,472.4 613.8,469.8 615.5,466.5 614.3,468.3 614.0,466.7 613.0,466.3 610.4,469.9 606.4,469.3 604.1,471.5 603.4,468.8 600.6,468.3 600.8,467.1 596.7,464.0 590.2,463.8 587.8,461.3 580.1,459.9 579.6,461.5 578.7,460.6 576.3,461.0 577.2,462.3 576.3,463.8 578.5,466.5 577.3,467.7 575.8,467.7 574.3,469.3 570.3,466.2 566.5,466.5 564.7,467.3 564.2,469.6 561.0,469.4 559.7,471.3 558.5,476.1 557.0,477.3 556.7,479.9 558.0,480.8 556.8,486.0 557.7,486.5 556.0,488.7 556.1,489.5 557.8,489.0 558.0,489.8 557.2,494.5 559.0,495.9 557.6,500.4 558.9,500.4 557.7,502.0 558.7,506.5 560.3,507.4 560.2,509.5 557.7,511.3 557.7,512.3 555.2,511.9 554.6,514.0 551.6,516.6 551.1,518.5 549.8,519.0 552.1,520.3 553.5,518.6 555.0,518.2 554.6,519.3 555.6,519.3 556.7,517.7 560.4,518.0 560.1,519.3 561.1,519.5 561.6,521.7 559.8,522.7 560.9,523.0 561.2,525.6 562.3,525.4 557.4,526.5 559.3,529.7 557.2,533.7 558.5,535.0 560.3,534.0 559.8,535.5 561.0,537.6 560.0,539.0 561.0,540.1 562.9,539.2 564.4,540.3 563.7,542.4 565.6,542.5 565.2,540.2 566.4,539.6 568.1,536.3 570.1,536.8 569.6,539.1 570.1,539.7 571.4,538.9 572.5,540.9 573.6,540.6 578.1,533.6 580.1,534.0 580.3,535.3 581.5,535.1 583.1,534.5 583.7,532.6 584.2,533.5 588.4,534.8 588.2,539.0 587.0,541.0 588.0,542.8 589.9,541.9 591.6,542.9 590.8,543.1 590.9,544.6 588.9,545.6 589.2,549.4 585.7,554.0 585.8,555.4 584.1,556.5 583.6,560.1 584.2,561.1 585.6,560.7 585.7,558.9 588.3,556.7 590.8,557.8 591.3,559.2 591.1,566.1 592.9,566.5 595.1,563.7 600.0,564.7Z"/>
+<path d="M623.8,614.0 625.5,609.6 624.1,610.1 626.6,607.7 625.7,603.9 626.5,603.7 629.0,609.5 630.3,608.2 636.6,606.4 638.6,609.6 640.4,608.1 639.4,606.7 640.1,605.7 638.7,605.3 641.7,602.7 642.3,606.8 644.1,606.6 644.4,607.6 647.4,602.7 649.2,603.0 649.2,602.1 651.5,603.0 652.1,604.8 655.2,605.4 655.7,603.4 654.6,603.4 656.4,601.2 658.0,601.8 659.1,603.8 662.6,601.6 663.4,602.2 666.5,599.6 669.6,600.0 670.7,598.3 670.5,596.0 674.3,594.7 673.9,592.5 675.5,588.8 680.3,587.7 680.3,586.3 678.1,585.1 676.6,580.6 676.3,576.6 677.3,575.6 676.2,574.8 675.1,570.1 673.5,568.5 674.4,566.3 671.1,566.3 670.0,567.3 667.6,563.4 667.9,562.0 665.5,563.6 664.7,562.0 662.8,562.5 660.1,560.8 660.3,562.0 659.0,561.4 658.0,564.5 659.3,568.1 656.9,568.5 652.6,563.6 651.8,564.8 650.4,564.5 647.8,566.1 647.1,565.4 644.8,566.2 644.2,568.1 642.0,567.2 641.6,568.9 641.0,567.7 637.3,569.6 636.8,568.1 633.3,565.7 635.9,564.5 636.8,560.6 639.4,558.1 642.1,557.2 641.3,556.2 642.2,554.3 639.1,551.5 636.6,553.4 633.6,553.4 631.3,554.7 630.7,551.0 628.9,551.1 627.8,553.2 626.8,552.5 624.2,553.6 618.7,549.7 614.0,553.8 612.9,553.0 613.1,554.7 615.0,554.8 615.7,555.7 614.6,556.8 615.1,561.0 613.2,561.6 611.7,561.6 609.9,557.0 602.5,556.1 601.5,560.3 602.2,562.3 598.7,565.7 600.5,572.5 597.7,574.7 598.7,579.3 597.4,580.1 596.7,582.9 594.3,582.4 593.6,586.1 591.6,586.4 591.5,588.2 590.3,589.5 589.6,593.1 589.9,597.0 590.8,597.9 589.6,600.8 587.5,603.5 585.0,603.9 584.9,605.5 580.2,607.2 580.1,609.1 579.2,608.8 580.8,612.6 579.8,612.3 578.6,613.8 579.1,614.7 578.3,615.2 577.2,614.3 576.4,615.3 575.0,614.0 574.4,614.9 574.0,614.3 574.6,620.2 568.5,620.4 567.2,624.6 566.1,625.2 565.1,624.5 564.6,625.6 565.2,628.7 567.1,629.2 566.5,630.5 564.8,630.8 563.2,639.0 564.6,645.0 566.8,647.8 566.4,649.8 567.4,653.0 568.4,652.1 571.2,652.8 574.0,652.1 577.0,648.9 575.8,643.8 574.6,643.8 574.7,641.2 571.4,639.7 571.8,636.6 572.3,637.3 575.1,633.9 578.3,633.4 580.5,630.5 583.0,630.3 584.6,629.0 588.5,628.1 588.5,629.4 591.0,627.6 594.2,627.6 595.5,625.7 596.4,625.7 596.7,626.8 599.2,625.8 600.0,625.2 598.9,623.8 601.7,622.1 603.3,623.9 605.1,623.8 606.5,621.9 609.7,622.8 611.9,619.6 614.1,621.2 615.9,619.0 616.5,615.6 619.3,620.6 620.3,618.9 624.0,616.6 623.8,614.0ZM612.9,623.2 612.7,622.5 610.6,624.4 611.7,624.5 611.0,625.6 611.7,626.6 612.9,623.2ZM575.3,634.3 577.0,636.0 578.4,633.5 575.3,634.3ZM576.6,636.1 573.3,635.9 571.7,638.8 574.9,637.8 576.9,639.1 577.2,636.4 576.6,636.1ZM673.7,642.1 675.3,642.7 675.6,643.8 673.4,645.4 675.1,645.6 676.1,642.9 675.5,642.0 673.7,642.1Z"/>
+<path d="M560.5,539.5 558.3,543.3 558.3,545.3 556.2,545.2 556.2,544.2 555.3,545.1 554.5,543.9 551.4,545.7 551.5,546.3 554.2,545.6 553.5,547.3 554.4,548.9 553.4,549.6 552.2,548.7 550.1,549.3 549.7,547.4 548.2,547.5 548.2,549.2 546.9,550.0 547.2,553.6 542.9,549.2 541.4,551.2 540.0,550.9 539.3,555.5 533.8,557.2 533.8,555.1 532.8,555.8 532.2,553.4 529.3,555.4 528.5,551.9 526.9,551.8 527.2,550.6 525.1,547.8 522.9,548.7 521.4,551.1 522.1,552.7 521.6,555.1 520.9,554.7 520.2,556.1 516.4,556.4 513.3,559.2 508.7,560.5 509.6,562.5 509.1,564.3 506.8,566.8 505.5,565.0 503.7,565.4 498.6,563.3 497.5,561.0 495.0,561.0 494.2,559.7 492.1,561.2 491.4,563.8 489.3,564.4 486.7,567.1 483.6,564.8 482.9,566.4 484.3,570.8 486.4,572.8 486.3,570.9 487.2,570.1 492.5,571.0 493.8,572.3 493.4,573.5 494.6,575.0 493.7,575.8 494.9,577.9 495.9,576.8 498.5,578.8 499.2,576.6 500.1,576.4 501.0,578.5 502.8,577.7 503.2,578.6 504.7,578.3 505.2,576.7 507.2,577.4 509.4,581.5 508.5,583.1 508.6,587.5 506.4,589.9 504.1,588.3 501.7,590.8 500.8,590.7 501.7,592.2 501.0,591.9 499.0,594.0 499.8,597.3 502.1,597.4 504.5,600.2 506.3,599.8 506.7,598.8 508.8,598.8 510.9,601.2 512.1,601.4 514.6,599.6 519.4,602.4 517.5,606.9 515.9,606.4 515.1,609.2 515.2,611.4 516.7,611.7 517.1,613.0 517.3,618.9 517.9,617.9 521.9,619.1 522.9,619.8 522.2,621.6 525.7,623.9 526.8,623.3 528.0,626.0 529.4,624.7 529.5,626.0 530.4,626.2 535.4,624.9 536.8,627.2 539.2,627.7 540.5,627.5 539.9,626.9 541.2,625.9 541.1,628.0 545.1,626.8 547.2,624.3 549.1,625.9 551.2,625.4 555.2,626.5 555.2,627.6 553.6,628.7 555.2,630.0 561.2,629.1 562.5,626.7 563.9,628.6 565.2,628.7 564.6,625.6 565.1,624.5 566.1,625.2 567.2,624.6 567.7,621.1 570.5,620.0 574.6,620.2 574.0,614.3 574.4,614.9 575.0,614.0 576.4,615.3 577.2,614.3 578.3,615.2 579.1,614.7 578.6,613.8 579.8,612.3 580.8,612.6 579.2,608.8 580.1,609.1 580.2,607.2 584.9,605.5 585.0,603.9 587.5,603.5 589.6,600.8 590.8,597.9 589.9,597.0 589.6,593.1 590.3,589.5 591.5,588.2 591.6,586.4 593.6,586.1 594.3,582.4 596.7,582.9 597.4,580.1 598.7,579.3 597.6,575.7 600.5,572.5 598.5,566.8 600.0,564.7 595.1,563.7 592.9,566.5 591.1,566.1 591.3,559.2 590.8,557.8 588.3,556.7 585.7,558.9 585.6,560.7 584.2,561.1 583.6,560.1 584.1,556.5 585.8,555.4 585.7,554.0 589.2,549.4 588.9,545.6 590.9,544.6 590.8,543.1 591.6,542.9 589.9,541.9 588.0,542.8 587.0,541.0 588.2,539.0 588.4,534.8 584.2,533.5 583.7,532.6 583.1,534.5 581.5,535.1 580.3,535.3 580.1,534.0 578.1,533.6 573.6,540.6 572.5,540.9 571.4,538.9 570.1,539.7 569.6,539.1 570.1,536.8 568.1,536.3 566.4,539.6 565.2,540.2 565.8,541.8 565.1,542.7 563.7,542.4 564.4,540.3 562.9,539.2 561.0,540.1 560.5,539.5Z"/>
+<path d="M570.2,656.6 568.5,657.5 563.2,656.9 561.2,658.2 560.8,659.6 557.7,658.7 555.5,661.2 555.3,662.9 547.5,669.8 546.7,673.8 547.5,686.6 551.2,688.0 552.2,690.0 554.7,689.8 555.2,690.9 557.5,690.9 562.1,693.3 564.7,692.3 565.2,689.5 569.6,688.8 570.4,686.2 572.4,684.2 576.3,683.4 576.3,681.4 577.5,680.8 579.1,671.0 582.8,665.8 585.0,664.7 584.8,661.7 583.6,656.7 581.1,656.4 579.2,653.9 576.7,655.6 573.5,655.0 573.0,656.0 570.8,655.6 570.2,656.6ZM619.3,888.6 621.1,886.4 620.6,885.2 619.3,888.6ZM629.1,898.7 631.6,900.1 636.4,898.1 637.2,895.7 639.1,893.8 639.1,892.1 637.1,892.0 629.1,898.7ZM560.2,903.9 561.0,904.3 564.0,900.6 567.7,900.4 565.7,899.4 563.2,899.7 560.2,903.9ZM669.3,844.4 669.0,846.1 671.8,845.6 669.7,845.3 669.9,843.8 669.3,844.4ZM567.6,894.0 568.4,894.7 569.3,894.1 569.8,892.1 567.6,894.0Z"/>
+<path d="M512.2,490.9 512.7,490.0 514.3,490.5 513.8,484.9 516.5,488.5 515.2,491.7 516.2,491.3 517.4,492.3 518.2,489.3 519.9,488.9 520.2,487.5 519.2,486.4 520.7,485.3 521.8,486.0 522.2,483.9 525.2,484.2 525.8,486.3 527.9,484.6 528.8,482.7 527.6,481.4 528.2,478.0 530.8,477.4 531.1,478.7 532.8,478.9 533.6,477.7 534.5,478.9 534.5,481.9 535.4,482.4 538.6,479.9 541.5,480.8 542.2,480.1 543.5,485.5 542.6,487.9 547.4,489.0 546.4,490.8 546.5,494.4 547.8,494.6 548.3,493.3 547.4,492.2 548.5,491.3 549.6,492.8 548.9,496.7 550.2,496.3 553.1,497.9 553.4,496.8 554.4,497.5 555.4,493.0 558.0,489.8 557.8,489.0 556.1,489.5 556.0,488.7 557.6,487.0 556.7,483.9 558.0,480.8 555.2,478.3 553.9,473.8 551.8,475.3 551.9,473.1 550.9,472.4 551.5,469.8 550.6,468.8 549.6,469.2 549.7,468.1 549.2,469.0 548.2,468.2 547.7,464.9 546.8,464.8 545.3,467.8 543.2,465.2 545.5,464.4 546.5,457.1 543.7,454.8 543.9,453.6 544.1,452.5 546.3,453.0 548.2,450.7 549.0,452.5 550.0,452.5 553.7,449.3 554.7,449.5 555.2,452.0 557.7,449.8 558.5,452.6 559.8,450.5 561.9,449.5 563.2,447.3 566.9,444.6 568.7,444.9 569.8,446.5 571.2,443.0 570.4,442.0 571.7,439.5 571.1,436.5 570.4,434.6 567.7,433.4 568.1,432.7 564.3,431.9 564.4,429.0 557.4,428.6 557.3,427.0 554.3,424.5 545.4,419.2 543.7,419.3 544.5,421.4 542.8,421.8 542.9,423.7 541.5,423.8 545.8,427.8 546.0,429.6 544.4,430.3 542.8,432.6 540.4,433.0 540.4,436.1 538.1,437.7 538.9,438.6 537.6,440.5 538.4,441.6 536.6,442.8 537.4,444.4 535.2,446.7 533.8,446.2 533.4,444.9 532.0,446.1 529.4,445.8 528.5,447.7 530.0,449.5 522.8,461.3 521.7,460.5 520.6,461.6 517.8,461.6 515.1,456.0 513.2,456.1 513.1,457.2 510.0,458.5 509.0,456.2 503.7,453.6 502.0,455.8 502.1,457.2 500.6,456.7 501.2,458.0 499.2,459.1 500.1,459.0 499.8,459.6 502.6,461.8 501.8,463.6 502.3,464.2 495.5,470.5 496.1,473.0 496.9,472.7 497.7,473.8 498.0,476.0 500.9,476.7 501.7,476.0 503.3,482.9 505.0,483.2 506.4,482.1 507.2,483.4 509.6,483.5 512.2,490.9Z"/>
+<path d="M431.3,516.7 430.9,520.2 432.8,521.5 432.9,522.5 434.4,522.9 434.8,526.0 435.9,525.9 436.0,524.8 436.7,525.1 435.9,528.3 434.9,528.6 438.6,532.5 439.0,533.4 437.8,534.7 438.5,535.7 440.2,535.8 441.7,539.2 443.2,538.1 445.9,538.8 448.1,536.0 453.1,533.0 454.2,534.1 453.6,535.2 455.3,536.0 457.9,533.0 459.8,532.9 459.6,530.7 460.6,529.3 458.2,522.3 458.0,514.8 458.9,512.7 459.6,513.4 462.0,512.4 467.4,505.1 468.4,501.5 466.5,500.2 468.7,496.6 469.8,496.0 470.7,497.2 473.4,494.9 472.0,490.9 473.0,488.1 474.6,489.4 479.3,488.2 480.2,489.1 482.0,488.9 479.4,490.7 479.7,494.4 480.2,495.1 481.3,494.7 482.5,496.4 481.6,497.2 482.3,498.9 480.1,500.1 484.2,504.2 489.1,502.8 490.6,499.9 491.8,499.2 493.5,499.7 493.8,501.2 495.1,501.2 494.5,503.2 495.7,504.8 495.1,505.1 495.7,506.9 498.8,505.6 500.6,507.6 511.2,504.8 511.5,502.0 509.6,498.5 507.9,497.9 504.8,498.8 503.7,495.1 503.1,494.6 502.2,495.8 500.8,494.8 500.6,491.0 502.4,489.1 504.6,489.5 505.9,486.3 512.3,491.8 509.6,483.5 507.2,483.4 506.4,482.1 505.0,483.2 503.3,482.9 501.7,476.0 500.9,476.7 498.0,476.0 497.7,473.8 496.9,472.7 496.1,473.0 495.5,470.5 502.3,464.2 501.8,463.6 502.6,461.8 499.8,459.6 500.1,459.0 499.2,459.1 501.2,458.0 500.6,456.7 502.1,457.2 502.0,455.8 503.7,453.6 509.0,456.2 510.0,458.5 513.1,457.2 513.2,456.1 515.1,456.0 517.8,461.6 520.6,461.6 521.6,460.4 522.8,461.3 530.0,449.5 528.5,447.7 529.4,445.8 532.0,446.1 533.4,444.9 533.8,446.2 535.2,446.7 537.4,444.4 536.6,442.8 538.4,441.6 537.6,440.5 538.9,438.6 538.1,437.7 540.4,436.1 540.4,433.0 542.8,432.6 544.4,430.3 546.0,429.6 545.8,427.8 541.5,423.8 543.2,423.3 542.8,421.8 544.5,421.4 543.2,419.8 544.9,419.6 545.4,418.3 542.3,418.6 541.2,417.8 540.3,418.8 537.8,419.0 537.2,420.3 532.5,415.4 529.0,415.0 528.7,412.8 527.9,412.6 526.0,415.3 525.2,414.8 523.2,412.5 523.0,409.3 517.8,408.7 513.0,411.1 508.3,409.1 507.1,406.3 503.7,407.0 503.7,408.1 500.1,409.5 498.1,405.0 496.8,406.0 497.8,408.8 493.7,411.1 492.6,411.5 491.3,410.4 489.0,411.4 488.1,410.2 485.3,410.2 479.9,406.8 479.8,404.7 482.0,403.4 480.6,402.9 481.2,401.5 480.1,397.7 481.9,397.2 479.9,397.1 478.8,395.7 478.1,391.9 476.1,390.2 471.9,390.8 469.0,389.7 467.9,390.4 467.9,387.9 465.3,389.1 463.7,387.7 462.4,387.9 461.7,383.4 462.6,382.6 461.4,380.6 459.4,380.1 458.4,378.0 453.6,381.2 454.4,382.6 451.1,382.4 450.4,384.7 446.4,384.8 448.2,386.8 448.1,388.3 449.3,388.9 448.7,389.6 449.6,389.5 449.7,391.8 451.7,393.0 451.5,394.9 448.3,395.6 447.3,397.1 447.4,399.3 446.1,398.0 445.7,399.6 441.6,401.3 441.8,400.0 440.7,398.4 442.4,397.5 443.4,395.0 441.9,391.9 439.0,396.1 438.8,397.3 440.2,398.2 438.6,401.6 436.3,399.2 435.0,399.2 434.7,400.6 433.4,398.5 431.6,398.4 430.7,399.3 431.6,402.8 430.7,405.4 432.4,407.0 431.2,410.2 429.9,409.8 427.7,411.4 423.9,409.9 424.2,411.2 423.5,411.1 423.2,412.9 421.7,412.0 419.7,408.8 419.1,409.5 419.4,408.4 417.2,408.6 416.4,411.3 414.9,410.6 415.1,406.8 411.3,402.7 410.9,404.8 409.5,405.1 408.8,408.8 403.5,405.6 401.8,406.0 400.7,402.9 395.5,400.7 393.9,398.2 394.3,396.4 392.2,392.9 392.3,391.0 388.5,386.7 388.3,382.5 382.6,381.7 380.6,380.0 376.9,381.6 377.5,383.4 376.4,385.7 372.7,386.3 372.4,387.7 373.1,391.8 374.7,392.4 375.2,394.5 378.3,395.6 374.2,400.3 374.7,403.8 372.4,404.5 372.0,405.7 374.1,410.4 385.5,416.4 385.5,418.5 388.9,423.0 388.6,426.4 395.9,435.3 394.1,437.8 392.1,436.0 391.5,438.9 394.7,442.7 394.5,445.0 397.0,447.2 396.2,448.5 398.7,463.5 397.6,468.4 399.4,476.9 400.2,492.8 403.5,497.6 404.5,493.3 403.9,490.5 406.1,489.0 407.4,485.2 408.8,484.6 409.4,487.4 413.0,490.8 414.4,492.8 414.1,493.9 415.9,494.8 415.6,497.1 413.5,498.2 416.3,502.4 415.8,502.9 418.0,503.8 418.0,506.5 420.1,503.7 421.7,504.8 423.8,502.6 429.4,516.3 431.3,516.7Z"/>
+<path d="M557.3,491.5 555.4,493.0 554.4,497.5 553.4,496.8 553.1,497.9 550.2,496.3 549.5,497.0 548.8,495.6 549.6,492.8 548.5,491.3 547.4,492.2 548.3,493.3 547.8,494.6 546.5,494.4 546.4,490.8 547.4,489.0 542.6,487.9 543.5,485.5 542.2,480.1 541.5,480.8 538.6,479.9 535.4,482.4 534.5,481.9 534.5,478.9 533.6,477.7 532.8,478.9 531.1,478.7 530.8,477.4 529.5,478.2 528.8,477.6 527.7,479.8 527.6,481.4 528.8,482.7 527.9,484.6 525.8,486.3 525.2,484.2 522.2,483.9 521.8,486.0 520.7,485.3 519.2,486.4 520.2,487.5 519.9,488.9 518.2,489.3 517.4,492.3 516.2,491.3 515.2,491.7 516.5,488.5 513.8,484.9 514.3,490.5 512.7,490.0 512.3,491.8 505.9,486.3 504.6,489.5 502.4,489.1 500.6,491.0 500.8,494.8 502.2,495.8 503.1,494.6 503.7,495.1 504.8,498.8 508.7,497.9 510.5,499.8 511.6,503.9 510.2,505.6 507.4,505.5 500.6,507.6 498.8,505.6 496.4,506.0 493.7,513.4 491.9,512.5 488.9,514.9 488.2,513.7 483.7,514.2 483.1,512.5 481.0,511.5 479.2,514.9 478.0,515.5 475.6,512.2 474.3,512.0 473.3,515.1 469.6,518.3 470.1,519.3 469.1,519.4 469.5,520.5 470.8,519.7 471.8,521.6 470.8,524.6 471.8,526.1 471.7,528.7 473.3,530.1 476.4,530.1 477.2,527.7 480.8,528.0 481.9,526.3 482.5,528.4 484.3,529.0 486.0,532.8 483.8,535.2 482.2,542.7 481.1,545.4 480.4,544.8 480.2,547.0 482.0,548.4 482.1,550.4 484.0,549.4 483.8,551.8 485.4,552.7 485.3,553.8 488.2,555.0 488.1,556.3 487.1,555.4 486.0,558.1 485.0,558.4 486.4,559.7 483.7,563.2 483.6,564.8 486.7,567.1 489.3,564.4 491.4,563.8 492.1,561.2 494.2,559.7 495.0,561.0 497.5,561.0 498.6,563.3 503.7,565.4 505.5,565.0 506.8,566.8 509.1,564.3 509.6,562.5 508.7,560.5 513.3,559.2 516.4,556.4 520.2,556.1 520.9,554.7 521.6,555.1 522.1,552.7 521.4,551.1 522.9,548.7 525.1,547.8 527.2,550.6 526.9,551.8 528.5,551.9 529.3,555.4 532.2,553.4 532.8,555.8 533.8,555.1 533.8,557.2 535.0,557.4 539.3,555.5 540.0,550.9 541.4,551.2 542.3,549.4 544.0,551.0 544.8,550.7 547.2,553.6 546.9,550.0 548.2,549.2 548.2,547.5 549.7,547.4 550.1,549.3 552.2,548.7 553.4,549.6 554.4,548.9 553.5,547.3 554.2,545.6 551.5,546.3 551.4,545.7 554.5,543.9 555.3,545.1 556.2,544.2 556.2,545.2 558.3,545.3 558.3,543.3 560.5,539.5 560.0,538.1 561.0,537.6 559.8,535.5 560.3,534.0 558.5,535.0 557.2,533.7 559.3,529.7 557.4,526.5 560.6,525.3 559.8,522.7 561.6,521.7 561.1,519.5 560.1,519.3 560.4,518.0 559.5,517.6 556.7,517.7 555.6,519.3 554.6,519.3 555.0,518.2 553.5,518.6 552.1,520.3 549.8,519.0 551.1,518.5 551.6,516.6 554.6,514.0 555.2,511.9 557.7,512.3 557.7,511.3 560.2,509.5 560.3,507.4 558.2,505.3 557.7,502.0 558.9,500.4 557.6,500.4 559.0,495.9 557.3,495.0 557.3,491.5Z"/>
+<path d="M495.7,506.9 495.1,505.1 495.7,504.8 494.5,503.2 495.1,501.2 493.8,501.2 493.5,499.7 491.8,499.2 490.6,499.9 489.1,502.8 484.2,504.2 483.2,503.5 480.1,500.1 482.3,498.9 481.6,497.2 482.3,495.9 481.3,494.7 480.2,495.1 479.3,493.2 479.4,490.7 482.0,488.9 480.2,489.1 479.3,488.2 474.6,489.4 473.0,488.1 472.0,490.9 473.4,494.9 470.7,497.2 469.8,496.0 468.7,496.6 466.5,500.2 468.4,501.5 467.4,505.1 462.0,512.4 459.6,513.4 458.9,512.7 458.0,514.8 458.2,522.3 460.6,529.3 459.4,533.5 457.9,533.0 455.3,536.0 453.6,535.2 454.2,534.1 453.1,533.0 448.1,536.0 445.9,538.8 443.2,538.1 441.7,539.2 441.3,537.1 437.8,534.7 439.0,533.4 438.6,532.5 434.9,528.6 435.9,528.3 436.7,525.1 436.0,524.8 435.9,525.9 434.8,526.0 434.4,522.9 432.9,522.5 432.8,521.5 430.9,520.2 431.3,516.7 429.4,516.3 423.8,502.6 421.7,504.8 420.1,503.7 418.0,506.5 418.0,503.8 415.8,502.9 416.3,502.4 413.5,498.2 415.6,497.1 415.9,494.8 414.1,493.9 414.4,492.8 413.0,490.8 409.4,487.4 408.8,484.6 407.4,485.2 406.1,489.0 403.9,490.5 404.5,493.3 403.5,497.6 400.2,492.8 399.4,477.3 397.1,478.4 397.9,480.9 396.5,482.0 396.4,483.8 397.2,484.9 395.4,485.5 394.3,481.6 391.8,482.4 392.8,486.7 391.4,488.1 391.9,491.6 393.6,494.3 393.2,496.6 388.2,498.9 386.8,493.6 385.4,494.1 386.3,496.4 384.8,497.1 384.2,501.3 387.1,510.5 388.8,509.9 389.0,507.6 393.1,509.8 394.3,528.0 392.6,535.4 393.3,537.6 392.4,538.4 392.3,537.4 391.1,537.8 393.1,542.9 392.1,544.0 390.4,543.2 388.4,548.0 387.0,549.0 384.8,547.5 384.3,552.2 381.2,555.4 379.6,554.3 377.8,558.0 377.9,561.4 379.0,562.6 375.1,564.7 374.8,570.5 377.0,570.3 377.7,572.1 376.9,573.3 378.5,574.1 378.3,575.9 374.8,580.5 376.7,582.2 383.6,577.4 390.6,576.6 391.4,577.5 395.8,576.2 396.0,577.2 392.6,579.9 392.5,583.0 394.3,583.4 395.8,586.5 394.6,588.1 396.3,590.3 396.0,594.5 398.6,595.4 399.3,596.9 401.6,597.1 403.1,596.1 405.9,597.3 406.4,600.1 405.9,600.6 404.6,599.9 404.9,601.6 402.6,603.7 403.6,608.5 401.6,610.4 402.0,611.4 400.1,615.0 401.1,615.9 405.2,615.6 411.2,617.5 411.2,616.8 412.8,617.1 412.3,621.6 413.1,623.9 415.8,624.7 414.9,626.2 415.8,628.2 420.0,627.2 420.7,628.7 422.2,628.8 424.6,627.5 426.7,624.5 430.7,622.6 431.0,626.7 432.0,626.7 432.2,627.9 431.0,629.6 432.5,631.7 432.2,633.0 433.2,634.1 437.0,632.7 438.1,633.1 438.1,634.2 439.2,633.8 440.6,634.7 441.7,632.7 440.1,631.0 440.5,626.2 441.6,625.6 440.3,623.4 440.7,621.4 439.6,619.3 438.2,618.7 437.2,613.5 438.5,612.6 439.2,608.8 440.8,608.2 442.7,610.6 442.8,609.6 445.0,609.2 446.5,610.4 448.5,609.9 450.6,605.8 450.2,604.9 452.2,603.0 453.1,604.4 453.7,603.9 457.1,606.0 458.7,608.7 460.3,609.5 462.7,607.2 462.8,605.5 464.2,604.9 464.8,602.4 466.7,603.4 468.0,606.5 469.8,602.6 474.8,608.3 477.2,602.3 479.4,601.7 479.6,603.7 481.2,604.6 484.6,601.6 486.8,602.0 488.5,600.0 487.8,596.5 489.1,595.4 490.1,595.6 492.3,593.5 494.6,593.5 495.9,591.0 499.3,595.0 500.1,592.5 501.7,592.2 500.8,590.7 501.7,590.8 504.1,588.3 506.4,589.9 508.6,587.5 508.5,583.1 509.4,581.5 506.4,576.8 505.2,576.7 504.7,578.3 503.2,578.6 502.8,577.7 501.0,578.5 500.1,576.4 499.2,576.6 498.5,578.8 495.9,576.8 494.9,577.9 493.7,575.8 494.6,575.0 493.4,573.5 493.8,572.3 492.5,571.0 487.2,570.1 486.3,570.9 486.4,572.8 484.3,570.8 482.9,566.4 483.7,563.2 486.4,559.7 485.0,558.4 486.0,558.1 487.1,555.4 488.1,556.3 488.2,555.0 485.3,553.8 485.4,552.7 483.8,551.8 484.0,549.4 482.1,550.4 482.0,548.4 480.2,547.0 480.4,544.8 481.1,545.4 482.2,542.7 482.5,538.4 483.5,537.9 484.5,533.9 485.6,533.6 485.7,531.6 484.0,528.6 482.5,528.4 481.9,526.3 480.8,528.0 477.2,527.7 476.4,530.1 472.5,529.8 470.8,524.6 471.8,521.6 470.8,519.7 469.5,520.5 469.1,519.4 470.1,519.3 469.6,518.3 473.3,515.1 474.3,512.0 475.6,512.2 478.0,515.5 479.2,514.9 481.0,511.5 484.8,514.6 488.2,513.7 488.9,514.9 491.9,512.5 493.7,513.4 495.7,506.9Z"/>
+<path d="M253.4,343.3 246.9,340.6 245.9,339.4 244.3,340.2 241.2,338.0 238.7,339.4 235.7,336.1 234.1,335.7 226.5,336.6 220.1,338.4 218.6,338.2 217.9,336.8 213.6,339.3 211.2,339.1 209.5,340.0 209.1,339.3 207.3,339.4 206.6,340.4 200.1,341.8 198.6,342.6 198.8,344.2 196.6,348.2 194.9,349.4 190.9,350.0 189.7,351.9 186.0,351.0 184.4,349.2 181.0,350.0 171.6,353.9 171.7,355.4 167.2,357.6 164.8,356.4 158.8,358.1 153.0,356.5 151.1,356.8 149.1,355.2 148.6,351.6 145.9,351.2 145.0,352.2 140.9,350.6 138.8,351.9 138.7,353.7 134.1,355.8 134.1,358.4 128.7,360.0 126.0,360.0 123.7,357.7 121.5,358.4 119.6,356.7 118.5,357.2 118.5,358.6 117.5,358.6 113.2,358.0 112.7,356.9 110.5,357.0 109.2,355.9 106.7,358.9 108.2,360.6 106.5,360.7 103.0,364.0 103.1,366.5 101.4,367.6 100.4,373.8 99.4,374.8 87.6,375.9 87.7,377.3 86.7,377.9 85.8,381.1 81.7,382.4 81.7,383.5 83.0,384.5 83.6,389.3 82.1,390.9 83.2,391.5 83.0,392.8 84.7,395.4 89.4,400.0 91.8,411.5 89.1,413.9 88.6,415.9 87.1,415.8 86.5,416.6 83.6,413.8 83.0,409.4 77.6,412.8 79.4,417.3 78.1,419.0 78.8,420.6 79.4,420.3 80.9,422.7 83.3,424.1 81.6,426.6 84.6,430.7 83.0,432.2 83.8,434.1 83.2,435.7 83.8,436.7 84.9,436.5 87.0,439.5 87.1,441.8 88.5,442.8 89.8,442.3 90.5,443.6 92.2,443.2 91.9,442.3 93.3,441.2 96.3,444.1 97.4,443.0 101.2,445.9 103.2,450.3 112.4,453.2 115.2,455.9 118.6,457.3 120.1,461.8 122.0,461.9 122.2,459.1 124.2,458.2 124.6,453.9 126.7,454.9 127.8,453.4 133.5,455.8 135.2,455.4 135.4,457.7 136.8,459.3 136.4,460.8 142.3,463.0 143.3,465.3 144.5,465.1 145.1,465.9 144.3,466.7 146.5,468.2 148.3,467.9 150.5,469.8 153.3,470.5 158.4,478.2 163.3,475.3 166.5,476.0 166.7,476.9 167.8,476.9 168.3,483.8 171.0,484.5 172.2,486.8 174.3,486.8 175.5,488.8 178.0,490.0 182.2,487.9 183.2,488.9 182.0,494.4 186.1,495.8 188.3,494.7 189.5,496.2 191.4,493.9 191.9,496.7 193.5,497.8 195.8,502.9 197.7,502.6 197.1,499.4 198.7,497.9 199.3,501.6 202.2,503.0 203.7,502.0 204.6,499.1 205.8,499.8 206.6,499.1 207.5,500.5 211.8,502.2 213.1,504.2 214.8,504.8 220.3,503.9 220.6,504.7 222.6,505.0 224.1,502.5 228.5,503.7 229.2,501.9 233.0,501.6 236.8,498.9 238.7,499.8 239.9,501.0 240.6,504.1 239.0,511.5 242.1,516.5 245.2,513.3 243.8,511.4 246.0,505.1 248.2,503.5 250.3,499.4 251.7,498.0 254.4,497.3 254.6,496.4 258.4,498.4 259.8,497.4 262.5,498.1 263.8,499.9 267.1,500.7 268.8,499.6 271.8,502.2 272.8,502.0 273.8,503.9 275.2,504.1 275.9,501.7 277.3,501.7 278.2,500.0 280.6,501.1 281.0,502.3 282.9,503.2 281.9,504.6 283.4,505.7 282.1,508.4 282.5,510.1 284.6,511.5 289.1,511.4 289.9,513.0 290.9,515.3 289.3,518.5 290.9,521.4 290.6,523.4 299.0,521.5 301.4,522.7 306.2,523.0 313.3,521.8 317.2,520.1 317.7,517.3 324.3,509.3 328.2,509.0 333.8,506.1 340.0,502.3 341.7,498.3 348.5,495.4 350.9,497.2 355.3,496.7 355.7,498.4 357.3,498.8 357.7,498.0 361.8,502.1 367.4,504.7 367.6,506.1 371.3,502.8 372.6,503.4 373.0,500.9 371.4,499.7 372.0,496.5 374.7,494.7 374.1,493.6 375.4,490.6 377.3,491.0 379.0,494.7 380.7,494.0 382.7,497.5 384.3,498.3 386.3,496.4 385.4,494.1 386.8,493.6 388.2,498.9 391.9,497.9 393.7,494.9 391.8,491.2 391.4,488.1 392.8,486.7 391.8,482.4 394.3,481.6 395.4,485.5 397.2,484.9 396.4,483.8 396.5,482.0 397.9,480.9 397.1,478.4 399.4,477.3 397.6,468.4 398.7,463.5 396.2,448.5 397.0,447.2 394.5,445.0 394.7,442.7 391.5,438.9 392.1,436.0 394.1,437.8 395.9,435.3 388.6,426.4 388.9,423.0 385.5,418.5 385.5,416.4 379.0,413.0 374.4,412.8 373.6,411.7 372.2,412.1 371.8,413.1 372.6,413.3 371.9,414.5 373.2,416.8 372.4,417.8 371.3,417.4 370.7,419.6 371.4,421.6 370.0,421.0 370.2,421.9 369.2,422.5 366.7,421.8 364.6,423.8 362.3,422.9 364.1,428.6 363.2,429.4 358.4,427.6 357.1,424.7 354.0,425.0 353.8,427.5 355.0,429.0 354.3,430.9 353.5,430.9 353.4,429.2 350.8,426.7 349.5,426.7 348.3,429.3 347.6,428.0 345.4,427.4 343.5,428.0 341.1,423.9 342.6,423.0 342.4,420.0 340.4,420.2 339.3,416.9 336.8,417.7 337.0,416.8 339.6,416.3 338.9,415.4 334.2,415.0 329.5,410.0 327.2,412.0 326.1,411.5 325.8,412.9 323.1,413.1 322.1,414.7 317.9,414.0 317.2,412.4 315.7,411.8 312.5,413.8 311.7,412.3 310.5,412.9 308.2,410.2 305.5,410.9 304.8,408.7 302.4,409.5 299.6,408.2 298.8,409.1 294.5,408.2 292.9,409.1 292.0,408.4 292.1,406.2 288.2,407.1 286.4,404.6 282.5,402.9 281.7,401.7 280.2,402.3 276.9,400.9 275.7,402.2 272.3,401.3 271.9,402.0 265.5,398.5 264.2,398.5 261.7,395.4 259.5,394.6 258.0,392.8 258.0,390.2 256.3,388.8 257.0,388.0 254.7,386.7 252.2,383.2 255.0,380.8 255.8,377.8 254.7,376.4 254.7,371.9 253.6,371.2 253.7,369.8 255.8,368.3 254.6,366.2 251.3,366.7 251.5,362.6 249.3,360.3 250.6,359.2 250.1,357.6 254.2,355.2 253.2,354.0 254.2,352.9 253.6,352.0 254.8,348.1 250.9,347.9 249.0,346.7 248.6,344.8 253.4,343.3Z"/>
+<path d="M574.4,372.4 573.1,372.2 572.1,370.6 572.1,366.9 574.3,362.0 574.4,359.7 578.0,352.3 575.5,341.9 576.3,333.8 574.7,331.9 575.5,330.7 574.5,325.2 575.2,325.5 579.3,320.0 578.5,317.1 580.0,316.9 580.9,314.7 580.6,312.4 579.5,311.9 580.0,310.6 576.7,307.0 576.5,302.4 577.5,300.3 580.1,299.0 582.6,296.0 582.2,293.9 584.3,288.8 583.8,287.2 586.2,285.4 587.9,280.7 585.1,278.8 586.2,275.2 582.1,277.0 579.5,281.3 577.8,281.1 576.7,279.2 575.3,279.2 574.5,280.6 570.9,277.8 571.9,281.1 568.0,282.5 567.0,281.3 566.6,281.9 567.9,282.9 566.9,283.9 567.3,284.5 566.2,284.2 564.8,285.5 563.3,287.0 562.7,289.5 561.5,290.4 561.0,289.9 558.3,292.4 558.7,293.9 557.3,294.0 553.9,297.7 552.1,302.1 554.1,304.3 554.1,305.7 552.0,307.6 549.9,305.2 549.6,312.3 541.3,312.6 539.6,313.5 537.9,313.0 537.2,310.3 532.6,308.3 531.6,310.5 529.7,310.7 529.5,311.9 528.0,312.1 528.5,312.7 526.8,313.7 527.7,314.2 525.9,319.1 527.2,322.4 526.1,323.7 526.8,327.3 529.4,327.4 530.3,329.0 532.4,328.9 536.0,330.5 536.5,332.3 537.6,331.8 538.4,333.6 540.0,334.1 540.9,332.8 540.7,333.9 542.8,334.2 544.6,336.9 545.4,335.9 547.6,337.6 548.2,344.7 547.6,346.1 545.2,347.6 545.9,352.8 547.2,354.2 547.0,358.2 545.1,359.3 542.8,358.8 541.2,359.6 540.2,358.7 536.7,359.8 533.5,358.5 532.1,359.8 535.3,364.6 531.9,365.9 530.7,365.2 530.1,366.4 526.4,366.0 525.9,366.9 523.2,364.2 520.4,362.8 514.8,363.0 513.9,364.9 515.3,369.1 513.5,370.4 513.7,371.8 511.3,372.8 511.6,374.0 514.4,374.1 517.6,376.9 516.5,379.4 514.6,378.4 514.1,379.5 515.1,379.6 515.5,381.2 514.2,382.1 512.8,385.9 513.8,386.5 513.9,389.8 515.4,392.4 514.8,393.6 513.5,393.2 513.4,391.7 509.3,393.0 507.8,391.6 506.0,391.7 504.9,392.8 503.7,396.2 501.9,396.2 503.3,398.6 505.9,399.6 505.9,400.6 504.8,400.8 505.1,403.7 500.8,406.0 498.6,405.3 499.6,409.0 503.0,408.5 503.7,407.0 507.1,406.3 508.3,409.1 513.0,411.1 517.8,408.7 523.0,409.3 523.2,412.5 526.0,415.3 527.9,412.6 528.7,412.8 529.0,415.0 532.5,415.4 537.2,420.3 537.8,419.0 540.3,418.8 541.2,417.8 542.3,418.6 544.8,417.8 548.0,421.1 554.3,424.5 557.3,427.0 557.4,428.6 562.1,428.5 562.9,426.9 562.1,425.1 562.7,421.0 562.2,418.8 560.7,417.3 562.8,411.4 568.8,412.5 569.9,411.1 570.9,411.5 571.7,410.8 570.2,406.9 567.1,405.5 565.3,405.9 565.4,402.3 559.8,400.7 561.0,399.0 562.4,399.0 562.6,398.2 573.8,400.5 575.9,400.3 577.0,398.6 579.5,401.7 581.4,399.7 582.9,399.6 584.5,397.2 584.1,392.3 581.3,390.2 580.7,388.1 577.7,386.3 578.9,385.3 577.7,383.7 578.5,381.0 575.4,379.4 576.4,377.5 574.1,374.0 574.4,372.4Z"/>
+<path d="M514.3,350.2 513.2,351.2 514.2,357.5 512.1,360.0 509.1,356.1 508.2,357.6 507.5,355.6 504.8,356.6 507.1,354.9 504.9,354.0 504.0,355.1 501.6,351.0 502.7,350.5 498.4,350.4 497.5,348.7 496.8,349.2 496.2,344.5 498.9,342.3 496.5,335.4 494.8,334.3 494.0,331.5 495.8,330.6 496.1,329.5 494.7,327.7 493.7,327.7 493.4,325.7 490.2,324.8 488.6,321.5 487.4,320.8 485.3,321.7 485.0,319.8 486.4,319.2 485.9,317.7 482.1,316.9 478.2,317.7 470.4,310.5 466.1,308.8 465.5,304.4 468.1,303.1 466.3,298.2 473.2,293.6 476.0,288.7 478.4,286.9 478.0,283.5 476.1,280.8 476.7,278.4 473.1,277.6 465.2,280.2 459.9,284.7 453.8,283.3 451.3,281.7 442.8,284.4 441.7,284.9 445.4,288.7 440.8,293.3 439.2,292.7 438.1,293.4 437.5,292.2 433.9,291.0 433.9,289.6 432.5,289.3 431.8,287.7 432.3,286.2 428.3,287.7 428.1,286.5 426.2,286.1 426.3,278.7 421.0,278.8 421.0,277.2 418.3,276.7 417.1,273.3 411.7,271.3 410.4,269.9 404.5,269.4 410.7,266.9 413.3,263.2 415.8,261.7 415.8,256.6 417.0,255.1 416.9,253.2 414.9,250.1 408.1,248.9 406.5,250.6 400.4,250.4 400.4,252.6 399.3,253.9 397.4,251.9 394.4,253.4 394.6,255.3 392.5,252.1 391.0,252.6 391.9,253.9 387.5,256.0 387.3,249.2 381.7,245.7 376.4,239.0 376.1,238.3 379.8,234.8 369.3,212.6 357.1,213.9 352.7,216.3 350.7,219.6 352.1,220.0 351.7,221.8 353.8,223.9 352.3,225.2 353.2,227.7 351.9,229.4 344.4,232.1 340.7,235.1 340.2,236.6 337.6,232.6 333.4,234.6 331.7,237.1 328.3,237.8 320.2,245.4 317.0,250.0 316.3,254.2 303.4,256.0 303.0,261.1 301.3,264.1 298.9,276.6 294.2,282.0 294.6,285.5 296.1,285.8 296.5,284.7 306.3,283.1 307.5,285.7 307.2,288.1 315.8,288.1 318.2,289.2 318.2,290.0 316.2,290.4 318.2,292.1 325.8,291.3 328.7,299.3 335.1,297.7 337.4,298.0 339.6,300.2 342.6,300.4 346.5,298.3 352.1,302.8 355.2,303.3 356.9,300.7 361.4,301.6 360.8,299.2 362.1,297.2 361.4,296.7 363.2,296.3 363.4,294.3 366.0,295.2 367.5,294.5 365.7,288.4 366.8,283.9 366.0,282.8 372.0,283.4 383.6,290.8 385.9,289.0 386.5,286.1 388.1,286.1 389.2,287.5 391.2,288.0 393.7,284.9 394.8,285.0 396.9,286.9 399.3,287.6 398.7,288.6 403.3,292.1 407.9,297.4 415.2,301.6 416.0,301.8 415.7,299.7 413.2,297.0 414.2,296.0 419.9,300.8 424.3,301.2 426.6,303.2 427.4,302.6 427.1,305.9 430.3,307.2 431.9,309.1 434.4,310.2 435.9,308.7 438.0,309.5 439.0,311.3 441.4,312.9 444.3,311.5 446.3,315.0 445.9,316.2 450.9,319.6 454.3,323.7 451.9,324.1 451.3,326.2 455.5,330.2 453.6,331.3 456.1,334.0 457.4,338.7 460.8,340.9 458.0,343.5 459.3,344.3 458.9,348.4 456.5,347.8 454.9,349.6 456.8,353.7 455.8,355.0 452.1,353.2 451.2,356.1 448.8,356.4 448.6,358.7 450.0,359.5 450.5,361.1 448.9,363.2 445.7,364.9 445.3,366.8 443.0,367.1 443.3,372.7 446.7,374.2 448.3,377.2 447.2,377.2 446.6,378.8 445.3,378.4 443.6,382.0 442.0,381.1 439.9,382.5 437.1,380.0 428.0,376.6 426.0,377.9 425.1,380.6 428.7,386.2 431.1,387.2 431.3,390.8 434.7,391.0 436.5,389.9 437.8,390.5 438.4,393.8 440.4,393.8 441.9,391.9 442.5,392.3 443.4,395.0 442.4,397.5 440.7,398.4 442.2,401.6 443.3,400.0 445.7,399.6 446.1,398.0 447.4,399.3 447.3,397.1 448.3,395.6 451.5,394.9 451.7,393.0 449.7,391.8 449.6,389.5 448.7,389.6 449.3,388.9 448.1,388.3 448.2,386.8 446.4,384.8 450.4,384.7 451.1,382.4 454.4,382.6 453.6,381.2 458.4,378.0 459.4,380.1 461.4,380.6 462.6,382.6 461.7,383.4 462.4,387.9 463.7,387.7 465.3,389.1 467.9,387.9 467.9,390.4 469.0,389.7 471.9,390.8 476.1,390.2 478.1,391.9 478.8,395.7 479.9,397.1 481.9,397.2 480.1,397.7 481.2,401.5 480.6,402.9 482.0,403.4 479.8,404.7 479.9,406.8 485.3,410.2 488.1,410.2 489.0,411.4 491.3,410.4 492.6,411.5 497.8,408.8 496.8,406.0 497.3,405.1 500.0,406.0 504.3,404.8 505.3,402.8 504.8,400.8 505.9,400.6 505.9,399.6 503.3,398.6 501.9,396.2 503.7,396.2 504.9,392.8 506.0,391.7 507.8,391.6 509.3,393.0 513.4,391.7 513.5,393.2 514.8,393.6 515.4,392.4 513.9,389.8 513.8,386.5 512.8,385.9 514.2,382.1 515.5,381.2 515.1,379.6 514.1,379.5 514.6,378.4 516.5,379.4 517.6,376.9 514.4,374.1 511.6,374.0 511.3,372.8 513.7,371.8 513.5,370.4 515.3,369.1 513.9,364.9 514.8,363.0 520.4,362.8 523.2,364.2 525.9,366.9 526.4,366.0 530.1,366.4 530.7,365.2 531.9,365.9 535.0,365.0 532.1,359.8 533.5,358.5 536.7,359.8 540.2,358.7 541.2,359.6 542.8,358.8 546.5,358.9 547.2,354.2 545.9,352.8 545.2,347.6 547.6,346.1 548.2,344.7 547.6,337.6 545.4,335.9 544.6,336.9 542.8,334.2 540.7,333.9 540.9,332.8 540.0,334.1 538.4,333.6 537.6,331.8 536.5,332.3 536.0,330.5 532.4,328.9 530.3,329.0 529.4,327.4 526.8,327.3 526.1,323.7 524.8,322.8 521.9,323.5 520.5,322.7 520.3,323.7 518.5,322.5 518.1,323.7 516.0,323.0 516.4,326.4 515.7,326.8 514.8,325.9 516.6,329.1 516.4,331.0 514.4,331.2 513.3,334.3 512.2,334.4 514.5,336.0 514.2,339.9 515.1,339.4 519.4,340.7 521.3,343.3 520.4,346.2 521.0,346.5 519.6,347.3 520.8,348.8 520.3,349.8 518.1,350.5 518.1,351.2 514.3,350.2Z"/>
+<path d="M457.2,338.0 456.1,334.0 453.6,331.3 455.5,330.2 451.3,326.2 451.9,324.1 454.3,323.7 453.6,322.2 445.9,316.2 446.3,315.0 444.3,311.5 441.4,312.9 439.0,311.3 438.0,309.5 435.9,308.7 434.4,310.2 431.9,309.1 430.3,307.2 427.1,305.9 427.4,302.6 426.6,303.2 424.3,301.2 419.9,300.8 414.2,296.0 413.2,297.0 415.7,299.7 416.0,301.8 415.2,301.6 407.9,297.4 403.3,292.1 398.7,288.6 399.3,287.6 396.9,286.9 394.8,285.0 393.7,284.9 391.2,288.0 389.2,287.5 388.1,286.1 386.5,286.1 385.9,289.0 383.6,290.8 372.0,283.4 366.0,282.8 366.8,283.9 365.7,288.4 367.5,294.5 366.0,295.2 363.4,294.3 363.2,296.3 361.4,296.7 362.1,297.2 360.8,299.2 361.4,301.6 356.9,300.7 355.2,303.3 352.1,302.8 346.5,298.3 342.6,300.4 339.6,300.2 337.4,298.0 335.1,297.7 328.7,299.3 325.8,291.3 318.2,292.1 316.2,290.4 318.2,290.0 318.2,289.2 315.8,288.1 307.2,288.1 307.5,285.7 306.3,283.1 297.4,284.5 294.8,286.6 280.3,290.3 278.0,291.6 268.1,293.0 264.5,296.5 259.6,296.8 259.6,298.0 260.7,298.4 260.0,299.5 262.2,301.5 263.3,301.6 263.5,300.3 266.1,299.9 265.9,311.4 269.9,313.0 272.7,316.3 274.5,316.3 276.4,321.6 277.8,322.4 278.1,325.4 276.2,325.1 274.0,327.0 271.1,327.3 269.2,329.0 269.4,333.7 274.0,334.8 273.8,338.8 275.3,342.9 274.7,343.4 273.1,343.0 271.1,344.8 268.1,342.5 261.5,342.0 257.9,339.7 257.0,343.8 253.4,343.3 251.7,344.4 248.8,344.2 249.0,346.7 250.9,347.9 254.8,348.1 253.6,352.0 254.2,352.9 253.2,354.0 254.2,355.2 250.1,357.6 250.6,359.2 249.3,360.3 251.5,362.6 251.3,366.7 254.6,366.2 255.8,368.3 253.7,369.8 253.6,371.2 254.7,371.9 254.7,376.4 255.8,377.8 255.0,380.8 252.2,383.2 254.7,386.7 257.0,388.0 256.4,389.2 257.6,389.5 258.0,392.8 259.5,394.6 261.7,395.4 263.5,398.2 265.5,398.5 268.8,401.0 275.7,402.2 276.9,400.9 280.2,402.3 281.7,401.7 282.5,402.9 286.4,404.6 288.2,407.1 292.1,406.2 292.0,408.4 292.9,409.1 294.5,408.2 298.8,409.1 299.6,408.2 302.4,409.5 304.8,408.7 305.5,410.9 308.2,410.2 310.5,412.9 311.7,412.3 312.5,413.8 315.7,411.8 317.2,412.4 317.9,414.0 322.1,414.7 323.1,413.1 325.8,412.9 326.1,411.5 327.2,412.0 329.5,410.0 334.2,415.0 338.9,415.4 339.6,416.3 337.0,416.8 336.8,417.7 339.3,416.9 340.4,420.2 342.4,420.0 342.6,423.0 341.1,423.9 343.5,428.0 345.4,427.4 347.6,428.0 348.3,429.3 349.5,426.7 350.8,426.7 354.3,430.9 355.0,429.0 353.8,427.5 354.0,425.0 355.0,424.5 357.1,424.7 357.8,427.1 359.9,428.7 360.6,428.2 363.2,429.4 364.1,428.6 362.3,422.9 364.6,423.8 366.7,421.8 369.2,422.5 370.2,421.9 370.0,421.0 371.4,421.6 370.7,419.6 371.3,417.4 372.4,417.8 373.2,416.8 371.8,412.5 373.6,411.7 374.4,412.8 378.0,412.8 373.2,409.4 372.0,405.7 372.4,404.5 374.7,403.8 374.2,400.3 378.3,395.6 375.2,394.5 374.7,392.4 373.1,391.8 372.4,387.2 372.7,386.3 376.4,385.7 377.5,383.4 376.9,381.6 379.2,380.1 385.3,382.5 388.3,382.5 388.5,386.7 392.3,391.0 392.2,392.9 394.3,396.4 393.9,398.2 395.5,400.7 400.7,402.9 401.8,406.0 403.5,405.6 408.8,408.8 409.5,405.1 410.9,404.8 411.3,402.7 415.1,406.8 415.4,409.0 414.6,410.1 416.4,411.3 417.2,408.6 419.4,408.4 419.1,409.5 419.7,408.8 421.7,412.0 423.2,412.9 423.5,411.1 424.2,411.2 423.9,409.9 427.7,411.4 429.9,409.8 431.2,410.2 432.4,407.0 430.7,405.4 431.6,402.8 430.7,399.3 431.6,398.4 433.4,398.5 434.7,400.6 435.0,399.2 436.3,399.2 438.6,401.6 440.2,398.2 438.8,397.3 439.0,396.1 440.7,394.7 440.8,393.2 438.4,393.8 437.8,390.5 436.5,389.9 434.7,391.0 431.3,390.8 431.1,387.2 428.7,386.2 425.1,380.6 426.0,377.9 428.0,376.6 429.6,377.8 431.7,377.6 433.8,379.4 438.4,380.6 440.2,382.6 442.0,381.1 443.6,382.0 445.3,378.4 446.6,378.8 447.2,377.2 448.3,377.2 446.7,374.2 443.3,372.7 443.0,367.1 445.3,366.8 445.7,364.9 448.9,363.2 450.5,361.1 450.0,359.5 448.6,358.7 448.8,356.4 451.2,356.1 452.1,353.2 455.8,355.0 456.8,353.7 454.9,349.6 456.5,347.8 458.9,348.4 459.3,344.3 458.0,343.5 460.8,340.9 457.2,338.0Z"/>
+<path d="M526.1,323.7 527.1,322.9 525.9,319.1 527.7,314.2 526.8,313.7 528.5,312.7 528.0,312.1 529.5,311.9 529.7,310.7 531.6,310.5 532.2,309.2 528.3,307.1 528.8,306.2 524.9,303.1 521.0,303.5 513.9,299.9 516.5,296.9 517.4,292.1 521.2,287.8 521.4,285.6 519.8,284.5 518.1,279.2 515.8,279.3 514.4,281.3 510.8,281.5 510.8,283.8 508.7,283.6 507.4,287.2 506.0,288.4 506.3,289.4 504.1,293.6 503.6,299.0 504.3,300.3 502.8,303.8 503.9,306.0 502.7,310.0 500.5,310.5 500.2,312.0 495.8,311.9 491.3,314.3 482.1,315.6 479.8,317.3 485.9,317.7 486.4,319.2 485.0,319.8 485.3,321.7 487.4,320.8 488.6,321.5 490.2,324.8 493.4,325.7 493.7,327.7 494.7,327.7 496.1,329.5 495.8,330.6 494.0,331.5 494.8,334.3 496.5,335.4 498.9,342.3 496.2,344.5 496.8,349.2 497.5,348.7 498.4,350.4 502.7,350.5 501.6,351.0 504.0,355.1 504.9,354.0 507.6,354.7 508.2,357.6 509.1,356.1 510.1,356.6 512.1,360.0 514.2,357.5 513.2,351.2 516.1,350.1 518.1,351.2 520.8,348.8 519.6,347.3 521.0,346.5 520.9,342.4 517.1,339.8 514.2,339.9 514.5,336.0 512.1,333.9 513.3,334.3 514.4,331.2 516.4,331.0 516.6,329.1 514.8,325.9 515.7,326.8 516.4,326.4 515.8,323.1 518.1,323.7 518.5,322.5 520.3,323.7 520.5,322.7 521.9,323.5 524.8,322.8 526.1,323.7Z"/>
+<path d="M357.1,213.9 356.7,210.6 349.2,203.2 348.9,200.5 343.7,189.0 340.6,188.6 342.0,183.3 335.5,184.2 331.2,182.5 329.4,180.4 325.6,179.1 323.3,176.1 312.4,170.3 302.7,168.7 292.7,169.3 289.8,167.9 282.1,168.2 280.4,166.6 279.3,167.5 275.4,165.4 271.6,165.9 271.8,164.8 270.4,163.9 269.9,161.2 268.3,160.1 268.4,158.3 269.0,155.4 273.8,149.7 271.8,144.0 274.6,139.2 273.7,138.8 274.2,136.1 272.5,134.0 271.9,131.4 269.8,130.8 266.6,126.6 265.1,120.9 263.2,118.2 263.8,118.1 260.0,116.5 258.9,113.4 254.2,114.3 251.2,110.4 243.5,111.4 241.4,108.9 239.6,109.1 236.7,107.6 235.7,105.7 236.2,104.6 234.9,103.3 233.6,103.5 231.7,101.8 226.4,99.9 228.2,97.1 224.1,95.5 222.8,94.0 225.4,92.0 224.2,90.6 224.0,88.3 219.3,88.8 218.0,90.2 213.0,88.6 209.5,89.1 207.1,91.7 208.5,94.6 207.4,95.8 207.9,96.9 204.7,100.6 200.5,101.5 199.2,102.7 192.5,103.0 189.3,107.4 188.5,110.2 189.7,120.9 190.8,122.3 191.1,125.0 188.7,129.5 184.5,129.3 179.5,133.4 176.3,130.5 163.6,131.2 158.1,129.5 154.9,127.2 153.1,127.3 151.5,126.0 149.5,126.4 147.2,134.6 140.8,150.5 138.9,151.4 137.7,157.5 138.0,159.1 142.1,161.3 142.9,162.9 142.3,165.6 141.2,166.1 138.2,164.8 132.4,165.1 130.3,162.2 116.5,167.2 113.9,166.6 111.8,167.6 110.2,167.2 108.1,168.8 104.3,168.6 100.8,171.4 102.0,172.0 102.5,173.7 105.2,172.7 105.6,174.4 108.7,176.9 108.0,179.7 108.6,186.7 110.6,192.7 114.3,199.0 113.2,202.1 114.6,202.6 115.0,205.2 114.9,206.0 111.7,206.0 108.4,208.0 111.9,210.7 106.6,212.0 105.1,215.9 106.6,218.3 105.7,219.7 107.1,223.1 105.1,224.2 104.7,225.2 105.5,226.5 104.7,227.5 101.3,227.3 99.0,230.2 92.1,231.8 90.4,233.5 82.3,237.1 81.6,238.5 74.0,240.2 73.5,243.2 68.9,244.6 68.0,247.2 58.5,247.5 56.0,246.2 54.1,247.1 52.2,248.5 51.8,251.2 50.4,252.3 50.6,255.0 48.8,258.1 45.6,260.4 44.7,258.6 43.1,259.7 40.2,259.7 39.2,261.4 37.8,260.7 35.9,261.7 35.3,260.0 36.2,257.9 34.9,257.1 34.2,254.3 28.6,258.4 24.8,258.3 22.4,257.0 21.7,258.5 23.4,260.5 20.2,260.4 19.8,261.7 18.3,262.1 14.9,265.4 13.4,264.7 9.7,265.5 6.9,270.4 8.6,274.9 7.3,277.2 3.3,277.5 1.6,279.1 5.3,286.1 6.8,286.5 6.6,288.2 5.3,287.9 4.7,289.4 6.2,294.2 9.5,295.9 10.7,295.6 11.6,292.9 15.9,293.5 22.7,296.7 22.8,298.3 21.6,299.8 21.8,302.9 23.7,305.8 23.6,309.1 25.0,310.6 23.2,312.6 23.9,314.7 26.9,316.7 27.0,318.7 23.5,321.1 22.0,321.4 20.6,320.1 19.7,321.0 17.3,320.9 16.5,322.8 17.1,324.2 18.1,325.0 20.3,324.0 20.8,325.1 22.5,324.5 23.2,326.8 25.4,325.3 31.3,326.5 32.0,331.1 34.7,330.1 38.4,332.1 40.9,337.1 40.3,338.3 41.3,340.7 39.4,342.5 39.6,343.8 41.9,344.7 42.9,348.5 46.1,348.5 46.1,347.8 49.1,346.6 49.6,349.6 51.2,350.0 52.3,351.9 53.6,351.6 59.0,354.5 60.7,354.1 62.1,355.5 66.7,355.9 68.6,354.5 70.1,355.6 73.6,355.0 71.7,357.5 71.7,360.2 75.1,366.9 74.8,370.1 75.6,370.4 75.8,372.0 78.1,372.5 78.2,373.5 79.9,372.9 80.5,374.3 82.5,373.9 85.4,377.2 86.4,376.6 87.6,377.6 87.2,376.3 89.5,375.5 99.4,374.8 100.4,373.8 101.4,367.6 103.1,366.5 103.0,364.0 106.5,360.7 108.2,360.6 106.7,358.9 109.2,355.9 110.5,357.0 112.7,356.9 113.2,358.0 117.5,358.6 118.5,358.6 118.5,357.2 119.6,356.7 121.5,358.4 123.7,357.7 126.0,360.0 128.7,360.0 134.1,358.4 134.1,355.8 138.7,353.7 138.8,351.9 140.9,350.6 145.0,352.2 145.9,351.2 148.6,351.6 149.1,355.2 151.1,356.8 153.0,356.5 158.8,358.1 164.8,356.4 167.2,357.6 171.7,355.4 171.6,353.9 181.0,350.0 184.4,349.2 186.0,351.0 189.7,351.9 190.9,350.0 194.9,349.4 196.6,348.2 198.8,344.2 198.6,342.6 206.6,340.4 207.3,339.4 209.1,339.3 209.5,340.0 211.2,339.1 213.6,339.3 216.9,336.9 220.1,338.4 226.5,336.6 234.1,335.7 235.7,336.1 238.7,339.4 241.2,338.0 244.3,340.2 245.9,339.4 246.9,340.6 254.2,343.7 257.0,343.8 258.5,339.7 261.5,342.0 268.1,342.5 271.1,344.8 273.1,343.0 275.3,342.9 273.8,338.8 274.0,334.8 269.4,333.7 269.2,329.0 271.1,327.3 274.0,327.0 276.2,325.1 278.1,325.4 277.8,322.4 276.4,321.6 274.5,316.3 272.7,316.3 269.9,313.0 265.9,311.4 266.1,299.9 263.5,300.3 263.3,301.6 262.2,301.5 260.0,299.5 260.7,298.4 259.6,298.0 259.6,296.8 264.5,296.5 268.1,293.0 278.0,291.6 280.3,290.3 295.4,286.4 294.2,282.0 298.9,276.6 301.3,264.1 303.0,261.1 303.4,256.0 316.3,254.2 317.0,250.0 320.2,245.4 328.3,237.8 331.7,237.1 333.4,234.6 337.6,232.6 340.2,236.6 340.7,235.1 344.4,232.1 351.9,229.4 353.2,227.7 352.3,225.2 353.8,223.9 351.7,221.8 352.1,220.0 350.7,219.6 352.7,216.3 357.1,213.9Z"/>
+<path d="M730.8,609.5 733.8,613.4 734.8,619.5 737.2,620.4 739.1,607.8 739.9,605.4 742.7,603.1 746.1,595.9 749.4,577.2 753.2,568.8 752.5,562.8 755.1,559.6 753.7,556.9 751.0,556.5 748.5,553.6 746.3,554.3 745.2,556.5 739.8,558.8 737.7,564.1 734.6,567.4 727.7,582.2 725.5,584.9 725.6,592.0 724.2,597.2 726.0,598.6 728.1,607.2 730.8,609.5Z"/>
+<path d="M631.2,608.3 629.4,610.0 629.4,610.9 631.1,611.3 629.1,612.1 628.3,614.4 630.6,614.1 631.8,611.7 634.8,614.2 634.8,612.4 635.5,613.0 635.1,610.6 636.2,611.5 637.0,609.6 635.7,608.8 634.1,609.8 636.0,608.3 634.7,607.4 631.2,608.3Z"/>
+<path d="M763.0,589.6 767.2,567.7 763.0,589.6ZM742.1,641.4 753.5,623.9 742.1,641.4ZM715.7,696.0 724.2,675.8 715.7,696.0ZM709.5,753.8 709.3,734.0 709.3,754.6 709.5,753.8ZM703.5,828.9 701.1,834.5 703.8,829.1 708.1,813.1 703.5,828.9ZM654.7,907.7 665.6,891.2 654.7,907.7ZM604.4,978.2 596.2,980.7 607.7,977.3 612.9,974.0 604.4,978.2ZM541.5,928.3 542.2,929.9 540.8,919.6 541.1,908.9 540.5,919.6 541.5,928.3ZM570.5,825.4 569.5,827.9 572.6,820.8 573.6,808.2 573.0,817.2 570.5,825.4ZM565.9,750.1 566.3,751.8 563.7,741.4 557.6,731.0 563.5,741.6 565.9,750.1Z"/>
+              </g>
+              <g class="marker-g" id="marker-g">
+                <g class="mk" transform="translate(668,269)"><circle class="pulse" r="6"/><circle class="dot" r="4"/><text x="12" y="-8">北京</text></g>
+                <g class="mk" transform="translate(825,154)"><circle class="pulse" r="6"/><circle class="dot" r="4"/><text x="12" y="-8">哈尔滨</text></g>
+                <g class="mk" transform="translate(552,378)"><circle class="pulse" r="6"/><circle class="dot" r="4"/><text x="12" y="-8">西安</text></g>
+                <g class="mk" transform="translate(635,451)"><circle class="pulse" r="6"/><circle class="dot" r="4"/><text x="12" y="-8">武汉</text></g>
+                <g class="mk" transform="translate(619,596)"><circle class="pulse" r="6"/><circle class="dot" r="4"/><text x="12" y="-8">广州</text></g>
+                <g class="mk" transform="translate(476,449)"><circle class="pulse" r="6"/><circle class="dot" r="4"/><text x="12" y="-8">成都</text></g>
+              </g>
+            </g>
+          </svg>
+          <h3 class="sec-title" style="margin-top:-4px"><i></i>生源省份 TOP 5<span class="en">PROVINCE</span></h3>
+          <div class="source-list">
+            <div class="source-row"><span>河北</span><div class="bar"><i style="width:92%"></i></div><b>26%</b></div>
+            <div class="source-row"><span>山东</span><div class="bar"><i style="width:64%"></i></div><b>18%</b></div>
+            <div class="source-row"><span>河南</span><div class="bar"><i style="width:50%"></i></div><b>14%</b></div>
+            <div class="source-row"><span>山西</span><div class="bar"><i style="width:36%"></i></div><b>10%</b></div>
+            <div class="source-row"><span>辽宁</span><div class="bar"><i style="width:29%"></i></div><b>8%</b></div>
+          </div>
+        </div>
+        <div class="panel-foot"><span>生源地数据 · 演示</span><span>24 PROVINCES</span></div>
+      </section>
+    </aside>
+
+    <!-- 天气面板 -->
+    <div class="float-card" id="weather-card">
+      <div class="fc-head"><span class="tri"></span>天气模拟面板<button class="fc-close" data-close="weather">×</button></div>
+      <div class="wx-title">天气模拟</div>
+      <div class="wx-icons">
+        <button class="wx-btn active" data-wx="sunny" title="晴天">
+          <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3.6"/><path d="M12 2.6v2.2M12 19.2v2.2M2.6 12h2.2M19.2 12h2.2M5.3 5.3l1.6 1.6M17.1 17.1l1.6 1.6M18.7 5.3l-1.6 1.6M6.9 17.1l-1.6 1.6"/></svg>
+          <span>晴天</span>
+        </button>
+        <button class="wx-btn" data-wx="rain" title="雨天">
+          <svg viewBox="0 0 24 24"><path d="M6.5 15.5A4.5 4.5 0 016 6.7a5.4 5.4 0 0110.2 1.1 4 4 0 01.3 7.7"/><path d="M8.5 18.5l-1 2M12.5 18.5l-1 2M16.5 18.5l-1 2"/></svg>
+          <span>雨天</span>
+        </button>
+        <button class="wx-btn" data-wx="snow" title="雪天">
+          <svg viewBox="0 0 24 24"><path d="M6.5 15.5A4.5 4.5 0 016 6.7a5.4 5.4 0 0110.2 1.1 4 4 0 01.3 7.7"/><path d="M8.4 18v3M7 19.4l2.8 1.2M9.8 19.4L7 20.6M15.6 18v3M14.2 19.4l2.8 1.2M17 19.4l-2.8 1.2"/></svg>
+          <span>雪天</span>
+        </button>
+      </div>
+      <div class="wx-title">时间模拟</div>
+      <div class="time-row">
+        <svg class="sun-ic" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2v2.2M12 19.8V22M2 12h2.2M19.8 12H22M4.9 4.9l1.6 1.6M17.5 17.5l1.6 1.6M19.1 4.9l-1.6 1.6M6.5 17.5l-1.6 1.6"/></svg>
+        <input type="range" id="time-slider" min="0" max="24" step="0.1" value="20" />
+        <span class="time-val" id="time-val">20:00</span>
+      </div>
+    </div>
+
+    <!-- 监控选择 -->
+    <div class="float-card" id="camera-card">
+      <div class="fc-head"><span class="tri"></span>视频监控选择<button class="fc-close" data-close="camera">×</button></div>
+      <div class="cam-grid">
+        <button data-cam="1" class="active">监控1</button>
+        <button data-cam="2">监控2</button>
+        <button data-cam="3">监控3</button>
+        <button data-cam="4">监控4</button>
+      </div>
+    </div>
+
+    <!-- 设置 -->
+    <div class="float-card" id="settings-card">
+      <div class="fc-head"><span class="tri"></span>设置<button class="fc-close" data-close="settings">×</button></div>
+      <div class="set-row"><span>实时阴影</span><div class="switch on" data-set="shadows"><i></i></div></div>
+      <div class="set-row"><span>显示网格</span><div class="switch" data-set="grid"><i></i></div></div>
+      <div class="set-row"><span>高画质渲染</span><div class="switch on" data-set="quality"><i></i></div></div>
+      <div class="set-row"><span>视角灵敏度</span><div class="sens"><input type="range" id="sens-range" min="0.4" max="1.6" step="0.05" value="1"/></div></div>
+    </div>
+
+    <!-- 操作提示 -->
+    <div id="hint-card">
+      <div class="hc-title"><span class="tri"></span><span id="hint-title">视角移动模式</span></div>
+      <div class="hc-line" id="hint-line">按住鼠标右键，左右滑动旋转视角<br/>WASD 前后左右移动，QE 上下升降</div>
+    </div>
+
+    <!-- POI 层 -->
+    <div id="poi-layer">
+      <div id="poi-hover"></div>
+      <div id="poi-card">
+        <div class="pc-head"><span class="tri"></span><b id="pc-title">操场</b><button class="pc-close" id="pc-close">×</button></div>
+        <div class="pc-body">
+          <div id="pc-desc"></div>
+          <div class="pc-metrics" id="pc-metrics"></div>
+        </div>
+      </div>
+      <div id="floor-tags">
+        <div class="floor-tag" data-i="0">阶梯教室</div>
+        <div class="floor-tag" data-i="1">教室走廊</div>
+        <div class="floor-tag" data-i="2">专业教室</div>
+        <div class="floor-tag" data-i="3">媒体教室</div>
+      </div>
+    </div>
+
+    <div id="toast"></div>
+
+    <div id="loading">
+      <div class="load-inner">
+        <svg class="load-logo" viewBox="0 0 64 64">
+          <defs><linearGradient id="lg2" x1="0" y1="1" x2="1" y2="0">
+            <stop offset="0" stop-color="#0c6f68"/><stop offset=".55" stop-color="#2fe3c4"/><stop offset="1" stop-color="#c9fff4"/>
+          </linearGradient></defs>
+          <path d="M5 47c11-19 28-32 54-39-14 10-24 21-29 34-5-7-12-10-19-9 5-3 9-7 12-12-8 5-14 14-18 26z" fill="url(#lg2)"/>
+          <path d="M17 55c8-12 21-21 38-25-8 7-14 14-17 24-4-4-9-6-14-5 3-2 5-5 7-8-6 3-10 8-14 14z" fill="url(#lg2)" opacity=".55"/>
+        </svg>
+        <h2>智慧校园综合管理平台</h2>
+        <p>SMART CAMPUS INTEGRATED PLATFORM</p>
+        <div class="load-bar"><i></i></div>
+        <div id="load-text">正在加载数字孪生场景…</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script type="module">
+/* ============================================================
+   智慧校园 3D 平台 · 单文件 Web 原型
+   React Three Fiber 版的视觉与交互预演（原生 Three.js 实现）
+   ============================================================ */
+let THREE;
+try {
+  THREE = await import('https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js');
+} catch (err) {
+  document.getElementById('load-text').textContent = 'Three.js 加载失败，请检查网络后刷新';
+  throw err;
+}
+
+const $ = (s, el = document) => el.querySelector(s);
+const $$ = (s, el = document) => Array.from(el.querySelectorAll(s));
+const clamp = (v, a, b) => Math.min(b, Math.max(a, v));
+const lerp = (a, b, t) => a + (b - a) * t;
+const smoothstep = (a, b, x) => { const t = clamp((x - a) / (b - a), 0, 1); return t * t * (3 - 2 * t); };
+const easeInOut = t => t < .5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2;
+
+/* 舞台自适应 */
+const stage = $('#stage');
+function fitStage() {
+  const s = Math.min(window.innerWidth / 1920, window.innerHeight / 1080);
+  if (CSS.supports('zoom', '1')) {
+    stage.style.transform = 'none';
+    stage.style.zoom = s;
+  } else {
+    stage.style.transform = `scale(${s})`;
+  }
+}
+fitStage();
+addEventListener('resize', fitStage);
+
+/* 时钟 */
+function pad(n) { return String(n).padStart(2, '0'); }
+function tickClock() {
+  const d = new Date();
+  $('#clock').textContent = `${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`;
+  $('#date').textContent = `${d.getFullYear()}/${pad(d.getMonth() + 1)}/${pad(d.getDate())}`;
+}
+setInterval(tickClock, 1000); tickClock();
+
+/* ============================================================
+   Three.js 基础
+   ============================================================ */
+const canvas = $('#scene');
+const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, powerPreference: 'high-performance' });
+renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+renderer.setSize(1920, 1080, false);
+renderer.shadowMap.enabled = true;
+renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+renderer.toneMapping = THREE.ACESFilmicToneMapping;
+renderer.toneMappingExposure = 1.05;
+
+const scene = new THREE.Scene();
+scene.fog = new THREE.Fog(0x0a1416, 280, 820);
+const camera = new THREE.PerspectiveCamera(46, 1920 / 1080, 0.5, 2400);
+
+/* 天空 */
+const skyUniforms = {
+  top: { value: new THREE.Color(0x0a2230) },
+  bottom: { value: new THREE.Color(0x123033) }
+};
+const sky = new THREE.Mesh(
+  new THREE.SphereGeometry(900, 32, 16),
+  new THREE.ShaderMaterial({
+    uniforms: skyUniforms,
+    vertexShader: `varying vec3 vPos; void main(){ vPos = position; gl_Position = projectionMatrix * modelViewMatrix * vec4(position,1.0); }`,
+    fragmentShader: `uniform vec3 top; uniform vec3 bottom; varying vec3 vPos;
+      void main(){ float h = normalize(vPos).y * .5 + .5;
+      vec3 c = mix(bottom, top, pow(clamp(h,0.,1.), .75));
+      gl_FragColor = vec4(c, 1.0); }`,
+    side: THREE.BackSide, depthWrite: false, fog: false
+  })
+);
+sky.renderOrder = -10;
+scene.add(sky);
+
+/* 星星 */
+function circleTexture(color = '#ffffff') {
+  const c = document.createElement('canvas'); c.width = c.height = 32;
+  const g = c.getContext('2d');
+  const grd = g.createRadialGradient(16, 16, 0, 16, 16, 16);
+  grd.addColorStop(0, color); grd.addColorStop(.45, color); grd.addColorStop(1, 'rgba(255,255,255,0)');
+  g.fillStyle = grd; g.fillRect(0, 0, 32, 32);
+  const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace; return t;
+}
+const starGeo = new THREE.BufferGeometry();
+{
+  const n = 900, arr = new Float32Array(n * 3);
+  for (let i = 0; i < n; i++) {
+    const r = 700, th = Math.random() * Math.PI * 2, ph = Math.acos(Math.random() * .95);
+    arr[i * 3] = Math.sin(ph) * Math.cos(th) * r;
+    arr[i * 3 + 1] = Math.cos(ph) * r * .65 + 60;
+    arr[i * 3 + 2] = Math.sin(ph) * Math.sin(th) * r;
+  }
+  starGeo.setAttribute('position', new THREE.BufferAttribute(arr, 3));
+}
+const stars = new THREE.Points(starGeo, new THREE.PointsMaterial({
+  size: 4, map: circleTexture(), transparent: true, opacity: .8, depthWrite: false,
+  blending: THREE.AdditiveBlending, color: 0xcdeaff
+}));
+stars.renderOrder = -5;
+scene.add(stars);
+
+/* 光照 */
+const hemi = new THREE.HemisphereLight(0xbdd9e2, 0x253529, .72);
+scene.add(hemi);
+const sun = new THREE.DirectionalLight(0xfff0d0, 2.35);
+sun.position.set(120, 220, 110);
+sun.castShadow = true;
+sun.shadow.mapSize.set(2048, 2048);
+sun.shadow.camera.left = -220; sun.shadow.camera.right = 220;
+sun.shadow.camera.top = 220; sun.shadow.camera.bottom = -220;
+sun.shadow.camera.near = 10; sun.shadow.camera.far = 650;
+sun.shadow.bias = -0.0008;
+scene.add(sun);
+const moon = new THREE.DirectionalLight(0x8fb8ff, 0);
+moon.position.set(-100, 180, -140);
+scene.add(moon);
+scene.add(new THREE.AmbientLight(0x22343a, .62));
+const fill = new THREE.DirectionalLight(0xbfe3e8, .5);
+fill.position.set(190, 120, 210);
+scene.add(fill);
+
+/* ============================================================
+   程序化材质
+   ============================================================ */
+function makeGrassTexture() {
+  const c = document.createElement('canvas'); c.width = c.height = 256;
+  const g = c.getContext('2d');
+  g.fillStyle = '#3c5434'; g.fillRect(0, 0, 256, 256);
+  for (let i = 0; i < 5000; i++) {
+    const x = Math.random() * 256, y = Math.random() * 256;
+    g.fillStyle = `rgba(${65 + Math.random() * 55},${96 + Math.random() * 60},${56 + Math.random() * 40},${.18 + Math.random() * .32})`;
+    g.fillRect(x, y, 1.4, 1.4);
+  }
+  const t = new THREE.CanvasTexture(c);
+  t.wrapS = t.wrapT = THREE.RepeatWrapping;
+  t.repeat.set(244, 244);
+  t.colorSpace = THREE.SRGBColorSpace;
+  t.anisotropy = 4;
+  return t;
+}
+
+function makeFacade(cols, rows, wall = '#6d6153', litProb = .38) {
+  const W = 512, H = 256;
+  const cm = document.createElement('canvas'); cm.width = W; cm.height = H;
+  const gm = cm.getContext('2d');
+  gm.fillStyle = wall; gm.fillRect(0, 0, W, H);
+  for (let i = 0; i < 1400; i++) {
+    gm.fillStyle = `rgba(0,0,0,${Math.random() * .06})`;
+    gm.fillRect(Math.random() * W, Math.random() * H, 2, 2);
+  }
+  // 横向分层线
+  gm.fillStyle = 'rgba(0,0,0,.18)';
+  gm.fillRect(0, 0, W, 10); gm.fillRect(0, H - 10, W, 10);
+
+  const mx = 22, my = 16, gx = 12, gy = 14;
+  const w = (W - mx * 2 - gx * (cols - 1)) / cols;
+  const h = (H - my * 2 - gy * (rows - 1)) / rows;
+  const ce = document.createElement('canvas'); ce.width = W; ce.height = H;
+  const ge = ce.getContext('2d');
+  ge.fillStyle = '#000'; ge.fillRect(0, 0, W, H);
+
+  for (let r = 0; r < rows; r++) {
+    for (let c = 0; c < cols; c++) {
+      const x = mx + c * (w + gx), y = my + r * (h + gy);
+      gm.fillStyle = '#15262c'; gm.fillRect(x, y, w, h);
+      gm.fillStyle = 'rgba(120,210,220,.12)'; gm.fillRect(x, y, w, 2);
+      gm.strokeStyle = 'rgba(0,0,0,.5)'; gm.lineWidth = 2; gm.strokeRect(x, y, w, h);
+      if (Math.random() < litProb) {
+        const warm = Math.random() < .8;
+        ge.fillStyle = warm ? 'rgba(255,205,140,.92)' : 'rgba(160,235,255,.85)';
+        ge.fillRect(x + 2, y + 2, w - 4, h - 4);
+        gm.fillStyle = 'rgba(120,170,180,.45)';
+        gm.fillRect(x + 2, y + 2, w - 4, h - 4);
+      }
+    }
+  }
+  const map = new THREE.CanvasTexture(cm); map.colorSpace = THREE.SRGBColorSpace; map.anisotropy = 4;
+  const emissive = new THREE.CanvasTexture(ce); emissive.colorSpace = THREE.SRGBColorSpace;
+  return { map, emissive };
+}
+
+const windowMats = [];
+function facadeMaterial(cols, rows, wall, litProb) {
+  const { map, emissive } = makeFacade(cols, rows, wall, litProb);
+  const m = new THREE.MeshStandardMaterial({
+    map, emissiveMap: emissive, emissive: new THREE.Color(0xffd9a0), emissiveIntensity: .12,
+    roughness: .86, metalness: .06
+  });
+  windowMats.push(m);
+  return m;
+}
+const roofMat = new THREE.MeshStandardMaterial({ color: 0x3c4442, roughness: .92 });
+const slabMat = new THREE.MeshStandardMaterial({ color: 0x2b3333, roughness: .9 });
+const pathMat = new THREE.MeshStandardMaterial({ color: 0x808b87, roughness: .95 });
+const curbMat = new THREE.MeshStandardMaterial({ color: 0xa7b1ab, roughness: .9 });
+const glassMat = new THREE.MeshStandardMaterial({ color: 0x3d6f78, roughness: .25, metalness: .5, transparent: true, opacity: .82 });
+
+/* ============================================================
+   校园场景
+   ============================================================ */
+const world = new THREE.Group();
+scene.add(world);
+const hitboxes = [];
+const poiMarkers = [];
+const poiData = {};
+const lampLights = [];
+const lampBulbs = [];
+
+/* 地面 */
+const grassTex = makeGrassTexture();
+const groundMat = new THREE.MeshStandardMaterial({ map: grassTex, roughness: 1 });
+const ground = new THREE.Mesh(new THREE.PlaneGeometry(1600, 1600), groundMat);
+ground.rotation.x = -Math.PI / 2;
+ground.receiveShadow = true;
+world.add(ground);
+
+const outerLand = new THREE.Mesh(new THREE.PlaneGeometry(1400, 1400),
+  new THREE.MeshStandardMaterial({ color: 0x0a1411, roughness: 1 }));
+outerLand.rotation.x = -Math.PI / 2;
+outerLand.position.y = -.25;
+world.add(outerLand);
+
+/* 雪地/雨地覆盖层 */
+const snowOverlay = new THREE.Mesh(new THREE.PlaneGeometry(1600, 1600),
+  new THREE.MeshStandardMaterial({ color: 0xe8f2f4, transparent: true, opacity: 0, roughness: 1, depthWrite: false }));
+snowOverlay.rotation.x = -Math.PI / 2;
+snowOverlay.position.y = .09;
+world.add(snowOverlay);
+const rainOverlay = new THREE.Mesh(new THREE.PlaneGeometry(1600, 1600),
+  new THREE.MeshStandardMaterial({ color: 0x0a1c22, transparent: true, opacity: 0, roughness: .6, depthWrite: false }));
+rainOverlay.rotation.x = -Math.PI / 2;
+rainOverlay.position.y = .1;
+world.add(rainOverlay);
+
+/* 道路 */
+function addPath(x, z, w, d, rotY = 0) {
+  const m = new THREE.Mesh(new THREE.PlaneGeometry(w, d), pathMat);
+  m.rotation.x = -Math.PI / 2; m.rotation.z = rotY;
+  m.position.set(x, .06, z);
+  m.receiveShadow = true;
+  world.add(m);
+  return m;
+}
+addPath(0, 88, 14, 78);            // 大门 → 广场
+addPath(0, 26, 60, 10);            // 广场东西向
+addPath(6, -12, 10, 46);           // 广场 → 教学楼
+addPath(55, 22, 86, 9);            // 东侧道路
+addPath(-48, 40, 60, 8);           // 西侧道路
+addPath(-66, 66, 10, 52, -0.5);    // 公园小径
+addPath(72, -40, 9, 60);           // 教学楼 → 食堂
+
+/* 广场 */
+const plaza = new THREE.Mesh(new THREE.CircleGeometry(1, 64), pathMat);
+plaza.scale.set(27, 27, 1);
+plaza.rotation.x = -Math.PI / 2;
+plaza.position.set(0, .07, 30);
+plaza.receiveShadow = true;
+world.add(plaza);
+const plazaRing = new THREE.Mesh(new THREE.RingGeometry(.86, 1, 64),
+  new THREE.MeshStandardMaterial({ color: 0xb8c6bf, roughness: .9 }));
+plazaRing.scale.set(27, 27, 1);
+plazaRing.rotation.x = -Math.PI / 2;
+plazaRing.position.set(0, .08, 30);
+world.add(plazaRing);
+
+/* 操场 */
+function ellipseMesh(geo, rx, rz, color, y = .04) {
+  const m = new THREE.Mesh(geo, color);
+  m.scale.set(rx, rz, 1);
+  m.rotation.x = -Math.PI / 2;
+  m.position.set(-88, y, -10);
+  m.receiveShadow = true;
+  world.add(m);
+  return m;
+}
+ellipseMesh(new THREE.CircleGeometry(1, 80), 35, 22,
+  new THREE.MeshStandardMaterial({ color: 0x3f6b34, roughness: 1 }));
+ellipseMesh(new THREE.RingGeometry(.79, 1, 80), 44, 29,
+  new THREE.MeshStandardMaterial({ color: 0xa8523c, roughness: 1 }), .045);
+// 白色跑道线
+[0.84, 0.90, 0.96].forEach(k => {
+  ellipseMesh(new THREE.RingGeometry(k, k + 0.008, 80), 44, 29,
+    new THREE.MeshStandardMaterial({ color: 0xd8ddd6, roughness: .9, transparent: true, opacity: .85 }), .05);
+});
+/* 足球场白线 */
+{
+  const lineMat = new THREE.MeshBasicMaterial({ color: 0xd6ded6, transparent: true, opacity: .75 });
+  const mid = new THREE.Mesh(new THREE.PlaneGeometry(.5, 36), lineMat);
+  mid.rotation.x = -Math.PI / 2; mid.position.set(-88, .055, -10); world.add(mid);
+  const circle = new THREE.Mesh(new THREE.RingGeometry(5, 5.3, 48), lineMat);
+  circle.rotation.x = -Math.PI / 2; circle.position.set(-88, .055, -10); world.add(circle);
+}
+
+/* 建筑 */
+function addBuilding(cfg) {
+  const { x, z, w, d, h, cols, rows, wall, lit, name } = cfg;
+  const grp = new THREE.Group();
+  const side = facadeMaterial(cols, rows, wall, lit);
+  const box = new THREE.Mesh(new THREE.BoxGeometry(w, h, d),
+    [side, side, roofMat, slabMat, side, side]);
+  box.position.y = h / 2;
+  box.castShadow = true; box.receiveShadow = true;
+  grp.add(box);
+
+  // 女儿墙
+  const t = .55, ph = .9;
+  [[0, h + ph / 2, -d / 2 + t / 2, w, ph, t], [0, h + ph / 2, d / 2 - t / 2, w, ph, t],
+   [-w / 2 + t / 2, h + ph / 2, 0, t, ph, d - t * 2], [w / 2 - t / 2, h + ph / 2, 0, t, ph, d - t * 2]]
+  .forEach(p => {
+    const m = new THREE.Mesh(new THREE.BoxGeometry(p[3], p[4], p[5]), slabMat);
+    m.position.set(p[0], p[1], p[2]); m.castShadow = true; grp.add(m);
+  });
+  // 屋顶设备
+  const ac = new THREE.Mesh(new THREE.BoxGeometry(Math.min(w * .16, 8), 2.2, Math.min(d * .2, 5)),
+    new THREE.MeshStandardMaterial({ color: 0x56605d, roughness: .8 }));
+  ac.position.set(w * .18, h + 1.1, -d * .12); ac.castShadow = true; grp.add(ac);
+  // 楼体灯带
+  const strip = new THREE.Mesh(new THREE.BoxGeometry(w * .5, .18, .18),
+    new THREE.MeshBasicMaterial({ color: 0x38e8c6, transparent: true, opacity: .5 }));
+  strip.position.set(0, h - .5, d / 2 + .05); grp.add(strip);
+
+  grp.position.set(x, 0, z);
+  world.add(grp);
+  return grp;
+}
+
+addBuilding({ x: 26, z: 0, w: 34, d: 17, h: 9.4, cols: 7, rows: 3, wall: '#8a7a66', lit: .4 });
+addBuilding({ x: 95, z: 6, w: 30, d: 30, h: 13, cols: 6, rows: 4, wall: '#61787c', lit: .5 });
+addBuilding({ x: 95, z: -70, w: 38, d: 24, h: 7, cols: 8, rows: 2, wall: '#8f7e6a', lit: .45 });
+addBuilding({ x: -103, z: 38, w: 22, d: 46, h: 16.5, cols: 4, rows: 5, wall: '#94856f', lit: .42 });
+addBuilding({ x: -103, z: 96, w: 22, d: 30, h: 13.5, cols: 4, rows: 4, wall: '#94856f', lit: .38 });
+
+/* 教学楼（可拆解：4 层） */
+const teachingFloors = [];
+const floorBaseY = [];
+{
+  const cfg = { x: 30, z: -66, w: 82, d: 22 };
+  const perFloor = 3.3;
+  for (let i = 0; i < 4; i++) {
+    const grp = new THREE.Group();
+    const side = facadeMaterial(14, 1, i === 0 ? '#7b6d5c' : '#81735f', .46);
+    const box = new THREE.Mesh(new THREE.BoxGeometry(cfg.w, perFloor, cfg.d),
+      [side, side, slabMat, slabMat, side, side]);
+    box.position.y = perFloor / 2;
+    box.castShadow = true; box.receiveShadow = true;
+    grp.add(box);
+    // 层间楼板
+    const slab = new THREE.Mesh(new THREE.BoxGeometry(cfg.w + .8, .28, cfg.d + .8), slabMat);
+    slab.position.y = perFloor;
+    slab.castShadow = true;
+    grp.add(slab);
+    // 拆解时的高亮层板
+    const tint = new THREE.Mesh(new THREE.BoxGeometry(cfg.w + .7, perFloor + .15, cfg.d + .7),
+      new THREE.MeshBasicMaterial({ color: [0x4fd8a8, 0x3fb7c4, 0x3f6fd8, 0x9a5fe0][i], transparent: true, opacity: 0, depthWrite: false }));
+    tint.position.y = perFloor / 2;
+    grp.add(tint);
+    grp.userData.tint = tint;
+    const cap = new THREE.Mesh(new THREE.BoxGeometry(cfg.w + .35, .18, cfg.d + .35),
+      new THREE.MeshBasicMaterial({ color: [0x6effc8, 0x4fe3f0, 0x5f8eff, 0xbd7cff][i], transparent: true, opacity: 0, depthWrite: false }));
+    cap.position.y = perFloor - .06;
+    grp.add(cap);
+    grp.userData.cap = cap;
+    const baseY = i * perFloor;
+    grp.position.set(cfg.x, baseY, cfg.z);
+    grp.userData.baseY = baseY;
+    floorBaseY.push(baseY);
+    world.add(grp);
+    teachingFloors.push(grp);
+  }
+  // 屋顶
+  const roof = new THREE.Mesh(new THREE.BoxGeometry(cfg.w + 1, .5, cfg.d + 1), roofMat);
+  roof.position.set(cfg.x, 4 * perFloor + .25, cfg.z);
+  roof.castShadow = true;
+  world.add(roof);
+  // L 形翼楼
+  const wing = addBuilding({ x: -4, z: -47, w: 22, d: 36, h: 13.2, cols: 4, rows: 4, wall: '#6c6152', lit: .4 });
+  // 入口雨棚
+  const canopy = new THREE.Mesh(new THREE.BoxGeometry(22, .4, 6),
+    new THREE.MeshStandardMaterial({ color: 0x46504e, roughness: .85 }));
+  canopy.position.set(30, 4.2, -54);
+  canopy.castShadow = true;
+  world.add(canopy);
+  for (let i = -1; i <= 1; i += 2) {
+    const col = new THREE.Mesh(new THREE.CylinderGeometry(.18, .18, 4.2, 8), slabMat);
+    col.position.set(30 + i * 9, 2.1, -52);
+    col.castShadow = true;
+    world.add(col);
+  }
+  // 门前台阶
+  for (let s = 0; s < 3; s++) {
+    const st = new THREE.Mesh(new THREE.BoxGeometry(26 - s * 2, .25, 1.4), pathMat);
+    st.position.set(30, .12 + s * .25, -53 + s * .9);
+    st.receiveShadow = true;
+    world.add(st);
+  }
+}
+
+/* 校门 */
+{
+  const gate = new THREE.Group();
+  const pillarMat = new THREE.MeshStandardMaterial({ color: 0x6e6355, roughness: .9 });
+  for (const x of [-14, 14]) {
+    const p = new THREE.Mesh(new THREE.BoxGeometry(3, 8, 3), pillarMat);
+    p.position.set(x, 4, 0); p.castShadow = true; gate.add(p);
+  }
+  const beam = new THREE.Mesh(new THREE.BoxGeometry(31, 1.2, 2.2), slabMat);
+  beam.position.set(0, 8.2, 0); beam.castShadow = true; gate.add(beam);
+  // 招牌
+  const c = document.createElement('canvas'); c.width = 1024; c.height = 160;
+  const g = c.getContext('2d');
+  g.fillStyle = 'rgba(3,16,18,.92)'; g.fillRect(0, 0, 1024, 160);
+  g.strokeStyle = 'rgba(56,232,198,.9)'; g.lineWidth = 6; g.strokeRect(6, 6, 1012, 148);
+  g.font = 'bold 84px "Microsoft YaHei"'; g.textAlign = 'center'; g.textBaseline = 'middle';
+  g.shadowColor = '#38e8c6'; g.shadowBlur = 26;
+  g.fillStyle = '#eafff9'; g.fillText('智 慧 校 园', 512, 86);
+  const tex = new THREE.CanvasTexture(c); tex.colorSpace = THREE.SRGBColorSpace;
+  const signMat = new THREE.MeshStandardMaterial({ map: tex, emissiveMap: tex, emissive: 0xffffff, emissiveIntensity: .25, roughness: .6 });
+  const sign = new THREE.Mesh(new THREE.PlaneGeometry(26, 4.1), signMat);
+  sign.position.set(0, 8.2, 1.2);
+  gate.add(sign);
+  // 围墙
+  for (const side of [-1, 1]) {
+    const wall = new THREE.Mesh(new THREE.BoxGeometry(66, 2.4, .5),
+      new THREE.MeshStandardMaterial({ color: 0x8a8071, roughness: .95 }));
+    wall.position.set(side * 47, 1.2, 0); wall.castShadow = true; wall.receiveShadow = true; gate.add(wall);
+    for (let i = 0; i < 9; i++) {
+      const bar = new THREE.Mesh(new THREE.BoxGeometry(.12, 2.6, .12),
+        new THREE.MeshStandardMaterial({ color: 0x3e4a47, roughness: .7, metalness: .4 }));
+      bar.position.set(side * (18 + i * 6), 1.3, .2); gate.add(bar);
+    }
+  }
+  gate.position.set(0, 0, 128);
+  world.add(gate);
+
+  // 门卫室
+  addBuilding({ x: -22, z: 122, w: 9, d: 8, h: 4.2, cols: 2, rows: 1, wall: '#75695a', lit: .6 });
+}
+
+/* 旗杆 */
+{
+  const pole = new THREE.Mesh(new THREE.CylinderGeometry(.12, .16, 18, 8),
+    new THREE.MeshStandardMaterial({ color: 0xd7ded9, metalness: .6, roughness: .35 }));
+  pole.position.set(0, 9, 32); pole.castShadow = true; world.add(pole);
+  const flag = new THREE.Mesh(new THREE.PlaneGeometry(5.4, 3.4),
+    new THREE.MeshStandardMaterial({ color: 0xc7332e, side: THREE.DoubleSide, roughness: .8 }));
+  flag.position.set(2.8, 15.6, 32); flag.rotation.y = -.08; world.add(flag);
+  // 旗杆基座
+  const base = new THREE.Mesh(new THREE.CylinderGeometry(2.2, 2.6, .5, 24),
+    new THREE.MeshStandardMaterial({ color: 0xb9c3bd, roughness: .9 }));
+  base.position.set(0, .25, 32); base.receiveShadow = true; world.add(base);
+}
+
+/* 树木（Instanced） */
+{
+  const treeCount = 96;
+  const trunkGeo = new THREE.CylinderGeometry(.22, .34, 3, 6);
+  const trunkMat = new THREE.MeshStandardMaterial({ color: 0x4b3b2c, roughness: 1 });
+  const crownGeo = new THREE.IcosahedronGeometry(2.3, 0);
+  const crownMat = new THREE.MeshStandardMaterial({ color: 0x416c3c, roughness: 1, flatShading: true });
+  const crownGeo2 = new THREE.IcosahedronGeometry(1.55, 0);
+  const crownMat2 = new THREE.MeshStandardMaterial({ color: 0x547f47, roughness: 1, flatShading: true });
+  const trunks = new THREE.InstancedMesh(trunkGeo, trunkMat, treeCount);
+  const crowns = new THREE.InstancedMesh(crownGeo, crownMat, treeCount);
+  const crowns2 = new THREE.InstancedMesh(crownGeo2, crownMat2, treeCount);
+  trunks.castShadow = crowns.castShadow = crowns2.castShadow = true;
+  trunks.receiveShadow = crowns.receiveShadow = crowns2.receiveShadow = true;
+
+  let seed = 20260807;
+  const rnd = () => { seed = (seed * 9301 + 49297) % 233280; return seed / 233280; };
+  const m = new THREE.Matrix4(), q = new THREE.Quaternion(), s = new THREE.Vector3(), p = new THREE.Vector3();
+  const exclusions = [
+    [-88, -10, 95, 65], [30, -66, 100, 28], [26, 0, 44, 25], [95, 6, 40, 40],
+    [95, -70, 48, 34], [-103, 38, 30, 54], [-103, 96, 30, 38], [0, 88, 20, 90], [0, 30, 60, 20]
+  ];
+  const blocked = (x, z) => exclusions.some(e =>
+    Math.abs(x - e[0]) < e[2] / 2 + 3 && Math.abs(z - e[1]) < e[3] / 2 + 3);
+  let placed = 0, guard = 0;
+  while (placed < treeCount && guard++ < 4000) {
+    const x = (rnd() - .5) * 300;
+    const z = (rnd() - .5) * 300;
+    if (Math.abs(x) > 152 || Math.abs(z) > 152) continue;
+    if (blocked(x, z)) continue;
+    if (z > 110) continue;
+    const sc = .8 + rnd() * .7;
+    p.set(x, 0, z);
+    s.set(sc, sc, sc);
+    m.compose(p, q, s); trunks.setMatrixAt(placed, m);
+    p.set(x, 3 * sc + .4, z); s.set(sc * (.9 + rnd() * .25), sc * (1 + rnd() * .3), sc * (.9 + rnd() * .25));
+    m.compose(p, q, s); crowns.setMatrixAt(placed, m);
+    p.set(x + (rnd() - .5) * 1.4, 5.1 * sc, z + (rnd() - .5) * 1.4); s.set(sc, sc, sc);
+    m.compose(p, q, s); crowns2.setMatrixAt(placed, m);
+    placed++;
+  }
+  trunks.count = crowns.count = crowns2.count = placed;
+  world.add(trunks, crowns, crowns2);
+}
+
+/* 路灯 */
+{
+  const poleGeo = new THREE.CylinderGeometry(.12, .16, 6.2, 6);
+  const poleMat = new THREE.MeshStandardMaterial({ color: 0x2f3836, metalness: .5, roughness: .6 });
+  const bulbGeo = new THREE.SphereGeometry(.34, 12, 8);
+  const positions = [
+    [-6, 92], [6, 74], [-6, 52], [16, 27], [-18, 27], [40, 21], [70, 21],
+    [-62, 38], [-80, 58], [56, -38], [30, -48], [-30, 14]
+  ];
+  positions.forEach(([x, z], idx) => {
+    const pole = new THREE.Mesh(poleGeo, poleMat);
+    pole.position.set(x, 3.1, z); pole.castShadow = true; world.add(pole);
+    const bulbMat = new THREE.MeshStandardMaterial({ color: 0xffe0b0, emissive: 0xffd9a0, emissiveIntensity: .3 });
+    const bulb = new THREE.Mesh(bulbGeo, bulbMat);
+    bulb.position.set(x, 6.3, z); world.add(bulb);
+    lampBulbs.push(bulbMat);
+    if (idx < 6) {
+      const pl = new THREE.PointLight(0xffd3a0, 0, 34, 2);
+      pl.position.set(x, 6.1, z);
+      world.add(pl);
+      lampLights.push(pl);
+    }
+  });
+}
+
+/* 公园小景（长椅 + 水池） */
+{
+  const pond = new THREE.Mesh(new THREE.CircleGeometry(8, 32),
+    new THREE.MeshStandardMaterial({ color: 0x1b4a55, roughness: .2, metalness: .3, transparent: true, opacity: .9 }));
+  pond.rotation.x = -Math.PI / 2; pond.position.set(-48, .12, 54); world.add(pond);
+  const pondEdge = new THREE.Mesh(new THREE.RingGeometry(8, 8.7, 32),
+    new THREE.MeshStandardMaterial({ color: 0x8b948d, roughness: .9 }));
+  pondEdge.rotation.x = -Math.PI / 2; pondEdge.position.set(-48, .13, 54); world.add(pondEdge);
+  for (let i = 0; i < 4; i++) {
+    const bench = new THREE.Group();
+    const seat = new THREE.Mesh(new THREE.BoxGeometry(3.6, .18, .9),
+      new THREE.MeshStandardMaterial({ color: 0x7a5a3e, roughness: .9 }));
+    seat.position.y = .55;
+    const back = new THREE.Mesh(new THREE.BoxGeometry(3.6, .8, .12),
+      new THREE.MeshStandardMaterial({ color: 0x6d4f36, roughness: .9 }));
+    back.position.set(0, .95, -.42);
+    bench.add(seat, back);
+    bench.position.set(-58 + i * 7, 0, 64);
+    bench.rotation.y = -.2;
+    world.add(bench);
+  }
+}
+
+/* ============================================================
+   POI 与交互热点
+   ============================================================ */
+function makeMarkerTexture() {
+  const c = document.createElement('canvas'); c.width = c.height = 128;
+  const g = c.getContext('2d');
+  g.translate(64, 64); g.rotate(Math.PI / 4);
+  g.strokeStyle = 'rgba(120,255,225,.95)'; g.lineWidth = 6;
+  g.strokeRect(-20, -20, 40, 40);
+  g.strokeStyle = 'rgba(56,232,198,.35)'; g.lineWidth = 2;
+  g.strokeRect(-32, -32, 64, 64);
+  const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace; return t;
+}
+const markerTex = makeMarkerTexture();
+
+function addPoi(id, name, pos, desc, metrics, hit) {
+  poiData[id] = { id, name, pos: new THREE.Vector3(...pos), desc, metrics };
+  const mat = new THREE.SpriteMaterial({ map: markerTex, color: 0x9dffe8, transparent: true, depthWrite: false, opacity: .9 });
+  const sp = new THREE.Sprite(mat);
+  sp.position.set(...pos);
+  sp.scale.set(4.6, 4.6, 1);
+  sp.userData.poiId = id;
+  world.add(sp);
+  poiMarkers.push(sp);
+  if (hit) {
+    const { x, z, y = 6, w, d, h = 12 } = hit;
+    const hb = new THREE.Mesh(new THREE.BoxGeometry(w, h, d),
+      new THREE.MeshBasicMaterial({ transparent: true, opacity: 0, depthWrite: false }));
+    hb.position.set(x, y + h / 2, z);
+    hb.userData.poiId = id;
+    world.add(hb);
+    hitboxes.push(hb);
+  }
+}
+
+addPoi('track', '操场', [-88, 12, -10],
+  '朱红色塑胶跑道环绕着翠绿人工草坪，边缘绿植错落排布。四季景致分明，设施环保安全，是师生挥洒汗水、绽放青春活力的理想天地。',
+  [['跑道', '400m'], ['场地', '标准']], { x: -88, z: -10, y: 1, w: 94, d: 62, h: 10 });
+addPoi('teaching', '教学楼', [30, 24, -62],
+  '四层教学空间，涵盖阶梯教室、教室走廊、专业教室与媒体教室，满足日常授课、实训与公开课等多种教学场景。',
+  [['教室', '24 间'], ['楼层', '4 层']], { x: 30, z: -62, y: 1, w: 88, d: 28, h: 24 });
+addPoi('office', '办公楼', [26, 18, 2],
+  '米白色外立面庄重规整，内部动线清晰。各职能部门在此集中办公，访客接待、行政协同与教学管理高效运转。',
+  [['部门', '8 个'], ['楼层', '3 层']], { x: 26, z: 0, y: 1, w: 40, d: 23, h: 16 });
+addPoi('library', '图书馆', [95, 21, 8],
+  '藏书与自习空间一体化，支持校园借阅、数字阅读与小组研讨，是校园学习的重要场所。',
+  [['藏书', '12 万册'], ['座位', '320']], { x: 95, z: 6, y: 1, w: 36, d: 36, h: 20 });
+addPoi('canteen', '食堂', [95, 16, -68],
+  '提供师生餐饮服务，支持错峰就餐与线上充值，后厨明档可视化。',
+  [['餐位', '800'], ['楼层', '2 层']], { x: 95, z: -70, y: 1, w: 44, d: 30, h: 12 });
+addPoi('park', '校公园', [-42, 12, 50],
+  '教学楼与办公楼之间的绿化带，树木成荫，设有步道、长椅与水景，是课间休憩与交流的场所。',
+  [['面积', '1.2 万㎡'], ['步道', '600m']], { x: -44, z: 48, y: 1, w: 56, d: 52, h: 10 });
+addPoi('gate', '校门', [0, 16, 128],
+  '校园主入口，连接城市道路，配备访客登记、人车分流与 24 小时门岗值守。',
+  [['岗亭', '1 个'], ['通道', '4 条']], { x: 0, z: 128, y: 1, w: 46, d: 12, h: 18 });
+
+/* 人物（第三人称） */
+const person = new THREE.Group();
+let legL, legR, armL, armR;
+{
+  const suit = new THREE.MeshStandardMaterial({ color: 0x14181c, roughness: .8 });
+  const skin = new THREE.MeshStandardMaterial({ color: 0xc7a189, roughness: .9 });
+  const torso = new THREE.Mesh(new THREE.CapsuleGeometry(.34, .95, 4, 8), suit);
+  torso.position.y = 1.25; torso.castShadow = true; person.add(torso);
+  const head = new THREE.Mesh(new THREE.SphereGeometry(.27, 16, 12), skin);
+  head.position.y = 2.05; head.castShadow = true; person.add(head);
+  const hair = new THREE.Mesh(new THREE.SphereGeometry(.28, 16, 12, 0, Math.PI * 2, 0, Math.PI * .55),
+    new THREE.MeshStandardMaterial({ color: 0x17181a, roughness: 1 }));
+  hair.position.y = 2.08; person.add(hair);
+  const legGeo = new THREE.CylinderGeometry(.13, .11, .9, 8);
+  legL = new THREE.Mesh(legGeo, suit); legL.position.set(-.16, .45, 0); legL.castShadow = true; person.add(legL);
+  legR = new THREE.Mesh(legGeo, suit); legR.position.set(.16, .45, 0); legR.castShadow = true; person.add(legR);
+  const armGeo = new THREE.CylinderGeometry(.1, .085, .95, 8);
+  armL = new THREE.Mesh(armGeo, suit); armL.position.set(-.45, 1.35, 0); armL.castShadow = true; person.add(armL);
+  armR = new THREE.Mesh(armGeo, suit); armR.position.set(.45, 1.35, 0); armR.castShadow = true; person.add(armR);
+  person.position.set(0, 0, 102);
+  person.visible = false;
+  world.add(person);
+}
+
+/* ============================================================
+   天气粒子
+   ============================================================ */
+const snowCount = 1800;
+const snowSpeeds = new Float32Array(snowCount);
+const snowGeo = new THREE.BufferGeometry();
+{
+  const arr = new Float32Array(snowCount * 3);
+  for (let i = 0; i < snowCount; i++) {
+    arr[i * 3] = (Math.random() - .5) * 330;
+    arr[i * 3 + 1] = Math.random() * 120 + 2;
+    arr[i * 3 + 2] = (Math.random() - .5) * 330;
+    snowSpeeds[i] = 1.6 + Math.random() * 2.6;
+  }
+  snowGeo.setAttribute('position', new THREE.BufferAttribute(arr, 3));
+}
+const snow = new THREE.Points(snowGeo, new THREE.PointsMaterial({
+  size: 1.3, map: circleTexture('rgba(240,255,255,.95)'), transparent: true,
+  opacity: .9, depthWrite: false, color: 0xffffff
+}));
+snow.visible = false;
+world.add(snow);
+
+const rainCount = 1100;
+const rainGeo = new THREE.BufferGeometry();
+const rainSpd = new Float32Array(rainCount);
+{
+  const arr = new Float32Array(rainCount * 6);
+  for (let i = 0; i < rainCount; i++) {
+    const x = (Math.random() - .5) * 320, y = Math.random() * 110, z = (Math.random() - .5) * 320;
+    arr[i * 6] = x; arr[i * 6 + 1] = y; arr[i * 6 + 2] = z;
+    arr[i * 6 + 3] = x; arr[i * 6 + 4] = y - 2.6; arr[i * 6 + 5] = z;
+    rainSpd[i] = 36 + Math.random() * 30;
+  }
+  rainGeo.setAttribute('position', new THREE.BufferAttribute(arr, 3));
+}
+const rain = new THREE.LineSegments(rainGeo, new THREE.LineBasicMaterial({
+  color: 0x9ad6e6, transparent: true, opacity: .38, depthWrite: false
+}));
+rain.visible = false;
+world.add(rain);
+
+/* ============================================================
+   相机控制
+   ============================================================ */
+const HOME = { yaw: .62, pitch: .62, dist: 232, tx: 0, ty: 6, tz: -6 };
+const cam = {
+  yaw: HOME.yaw, pitch: HOME.pitch, dist: HOME.dist,
+  target: new THREE.Vector3(HOME.tx, HOME.ty, HOME.tz),
+  freePos: new THREE.Vector3(),
+  tween: null
+};
+camera.position.set(
+  cam.target.x + Math.sin(cam.yaw) * Math.cos(cam.pitch) * cam.dist,
+  cam.target.y + Math.sin(cam.pitch) * cam.dist,
+  cam.target.z + Math.cos(cam.yaw) * Math.cos(cam.pitch) * cam.dist
+);
+camera.lookAt(cam.target);
+
+const state = {
+  tab: 'home', mode: 'orbit', weather: 'sunny', hour: 20, camIndex: 1,
+  poi: null, floors: false, sensitivity: 1,
+  charYaw: 0, charPos: new THREE.Vector3(0, 0, 102), moving: false
+};
+
+let dragging = false, dragMoved = false, lastX = 0, lastY = 0, dragButton = 0;
+const pointer = { x: 0, y: 0, inside: false };
+
+canvas.addEventListener('pointerdown', e => {
+  if (e.button !== 0 && e.button !== 2) return;
+  dragging = true; dragMoved = false; dragButton = e.button;
+  lastX = e.clientX; lastY = e.clientY;
+  canvas.setPointerCapture(e.pointerId);
+  e.preventDefault();
+});
+canvas.addEventListener('pointermove', e => {
+  const r = canvas.getBoundingClientRect();
+  pointer.x = (e.clientX - r.left) / r.width * 2 - 1;
+  pointer.y = -((e.clientY - r.top) / r.height * 2 - 1);
+  pointer.inside = true;
+  if (!dragging) return;
+  const dx = e.clientX - lastX, dy = e.clientY - lastY;
+  if (Math.abs(dx) + Math.abs(dy) > 2) dragMoved = true;
+  lastX = e.clientX; lastY = e.clientY;
+  const s = .0048 * state.sensitivity;
+  if (state.mode === 'third') {
+    cam.yaw -= dx * s;
+    cam.pitch = clamp(cam.pitch + dy * s * .8, .05, .95);
+  } else if (state.mode === 'orbit') {
+    cam.yaw -= dx * s;
+    cam.pitch = clamp(cam.pitch + dy * s, .12, 1.36);
+  } else {
+    cam.yaw -= dx * s;
+    cam.pitch = clamp(cam.pitch + dy * s, -.9, .9);
+  }
+});
+canvas.addEventListener('pointerup', e => {
+  if (dragging && !dragMoved && e.button === 0 && state.mode !== 'third') {
+    const r = canvas.getBoundingClientRect();
+    const nx = ((e.clientX - r.left) / r.width) * 2 - 1;
+    const ny = -(((e.clientY - r.top) / r.height) * 2 - 1);
+    pickPoi(nx, ny);
+  }
+  dragging = false;
+});
+canvas.addEventListener('pointerleave', () => { pointer.inside = false; });
+canvas.addEventListener('contextmenu', e => e.preventDefault());
+canvas.addEventListener('wheel', e => {
+  e.preventDefault();
+  if (state.mode === 'orbit') {
+    cam.dist = clamp(cam.dist * (1 + Math.sign(e.deltaY) * .08), 70, 360);
+  }
+}, { passive: false });
+
+const keys = new Set();
+addEventListener('keydown', e => {
+  if (e.target.tagName === 'INPUT') return;
+  keys.add(e.code);
+  if (e.code === 'Escape') {
+    closePoi();
+    hideAllCards();
+  }
+  if (['KeyW', 'KeyA', 'KeyS', 'KeyD', 'KeyQ', 'KeyE'].includes(e.code)) e.preventDefault();
+});
+addEventListener('keyup', e => keys.delete(e.code));
+
+function forwardVector(yaw) { return new THREE.Vector3(-Math.sin(yaw), 0, -Math.cos(yaw)); }
+function rightVector(yaw) { return new THREE.Vector3(Math.cos(yaw), 0, -Math.sin(yaw)); }
+
+function updateControls(dt) {
+  if (cam.tween) {
+    cam.tween.t += dt * 1000 / cam.tween.ms;
+    const p = easeInOut(clamp(cam.tween.t, 0, 1));
+    cam.yaw = lerp(cam.tween.a.yaw, cam.tween.b.yaw, p);
+    cam.pitch = lerp(cam.tween.a.pitch, cam.tween.b.pitch, p);
+    cam.dist = lerp(cam.tween.a.dist, cam.tween.b.dist, p);
+    cam.target.lerpVectors(cam.tween.a.target, cam.tween.b.target, p);
+    if (cam.tween.t >= 1) cam.tween = null;
+    return;
+  }
+  if (state.mode === 'third') {
+    updateThirdPerson(dt);
+    return;
+  }
+  const f = forwardVector(cam.yaw), r = rightVector(cam.yaw);
+  const speed = (state.mode === 'free' ? 34 : 46) * dt;
+  if (state.mode === 'orbit') {
+    if (keys.has('KeyW')) cam.target.addScaledVector(f, speed);
+    if (keys.has('KeyS')) cam.target.addScaledVector(f, -speed);
+    if (keys.has('KeyA')) cam.target.addScaledVector(r, -speed);
+    if (keys.has('KeyD')) cam.target.addScaledVector(r, speed);
+    if (keys.has('KeyQ')) cam.target.y += speed;
+    if (keys.has('KeyE')) cam.target.y = Math.max(2, cam.target.y - speed);
+    cam.target.x = clamp(cam.target.x, -150, 150);
+    cam.target.z = clamp(cam.target.z, -150, 150);
+    const desired = new THREE.Vector3(
+      cam.target.x + Math.sin(cam.yaw) * Math.cos(cam.pitch) * cam.dist,
+      cam.target.y + Math.sin(cam.pitch) * cam.dist,
+      cam.target.z + Math.cos(cam.yaw) * Math.cos(cam.pitch) * cam.dist
+    );
+    camera.position.lerp(desired, 1 - Math.exp(-10 * dt));
+    camera.lookAt(cam.target);
+  } else {
+    if (keys.has('KeyW')) cam.freePos.addScaledVector(f, speed);
+    if (keys.has('KeyS')) cam.freePos.addScaledVector(f, -speed);
+    if (keys.has('KeyA')) cam.freePos.addScaledVector(r, -speed);
+    if (keys.has('KeyD')) cam.freePos.addScaledVector(r, speed);
+    if (keys.has('KeyQ')) cam.freePos.y += speed;
+    if (keys.has('KeyE')) cam.freePos.y = Math.max(2, cam.freePos.y - speed);
+    cam.freePos.x = clamp(cam.freePos.x, -155, 155);
+    cam.freePos.z = clamp(cam.freePos.z, -155, 155);
+    camera.position.copy(cam.freePos);
+    const dir = new THREE.Vector3(
+      -Math.sin(cam.yaw) * Math.cos(cam.pitch),
+      Math.sin(cam.pitch),
+      -Math.cos(cam.yaw) * Math.cos(cam.pitch)
+    );
+    camera.lookAt(cam.freePos.clone().add(dir));
+  }
+}
+
+let walkPhase = 0;
+function updateThirdPerson(dt) {
+  const f = forwardVector(cam.yaw), r = rightVector(cam.yaw);
+  const speed = (keys.has('ShiftLeft') ? 13 : 7) * dt;
+  const move = new THREE.Vector3();
+  if (keys.has('KeyW')) move.add(f);
+  if (keys.has('KeyS')) move.sub(f);
+  if (keys.has('KeyD')) move.add(r);
+  if (keys.has('KeyA')) move.sub(r);
+  state.moving = move.lengthSq() > 0;
+  if (state.moving) {
+    move.normalize();
+    state.charPos.addScaledVector(move, speed);
+    state.charPos.x = clamp(state.charPos.x, -145, 145);
+    state.charPos.z = clamp(state.charPos.z, -145, 145);
+    person.rotation.y = Math.atan2(move.x, move.z);
+    walkPhase += dt * 11;
+    legL.rotation.x = Math.sin(walkPhase) * .6;
+    legR.rotation.x = -Math.sin(walkPhase) * .6;
+    armL.rotation.x = -Math.sin(walkPhase) * .45;
+    armR.rotation.x = Math.sin(walkPhase) * .45;
+  } else {
+    legL.rotation.x = lerp(legL.rotation.x, 0, .15);
+    legR.rotation.x = lerp(legR.rotation.x, 0, .15);
+    armL.rotation.x = lerp(armL.rotation.x, 0, .15);
+    armR.rotation.x = lerp(armR.rotation.x, 0, .15);
+  }
+  person.position.copy(state.charPos);
+  person.visible = true;
+
+  const back = new THREE.Vector3(Math.sin(cam.yaw), 0, Math.cos(cam.yaw));
+  const desired = state.charPos.clone()
+    .add(back.multiplyScalar(6.4))
+    .add(new THREE.Vector3(0, 3.2 + cam.pitch * 2.2, 0));
+  camera.position.lerp(desired, 1 - Math.exp(-7 * dt));
+  camera.lookAt(state.charPos.x, state.charPos.y + 1.75, state.charPos.z);
+}
+
+function flyTo(cfg, ms = 1200) {
+  cam.tween = {
+    a: { yaw: cam.yaw, pitch: cam.pitch, dist: cam.dist, target: cam.target.clone() },
+    b: { yaw: cfg.yaw, pitch: cfg.pitch, dist: cfg.dist, target: new THREE.Vector3(cfg.tx, cfg.ty, cfg.tz) },
+    t: 0, ms
+  };
+}
+
+function setMode(mode) {
+  state.mode = mode;
+  if (mode === 'free') {
+    cam.freePos.copy(camera.position);
+    hint('视角移动模式', '按住鼠标右键，左右滑动旋转视角<br/>WASD 前后左右移动，QE 上下升降');
+    toast('已切换到自由视角');
+  } else if (mode === 'orbit') {
+    cam.target.copy(camera.position.clone().add(forwardVector(cam.yaw).multiplyScalar(-cam.dist * .6)));
+    hint('视角移动模式', '按住鼠标右键，左右滑动旋转视角<br/>WASD 平移目标点，滚轮缩放');
+    toast('已切换到环绕视角');
+  } else if (mode === 'third') {
+    state.charPos.set(0, 0, 102);
+    cam.yaw = 0;
+    cam.pitch = .25;
+    person.visible = true;
+    hint('实景游览模式', '鼠标左右滑动旋转视角<br/>WASD 前后左右移动，Shift 加速');
+    toast('已进入第三人称漫游');
+  }
+  if (mode !== 'third') person.visible = false;
+}
+
+function resetCamera() {
+  if (state.mode === 'third') setMode('orbit');
+  cam.tween = null;
+  cam.yaw = HOME.yaw; cam.pitch = HOME.pitch; cam.dist = HOME.dist;
+  cam.target.set(HOME.tx, HOME.ty, HOME.tz);
+  toast('视角已复位');
+}
+
+/* 机位 */
+const cams = {
+  1: { yaw: .08, pitch: .2, dist: 96, tx: 0, ty: 4, tz: 105 },
+  2: { yaw: .92, pitch: .3, dist: 110, tx: 30, ty: 12, tz: -58 },
+  3: { yaw: 2.9, pitch: .24, dist: 92, tx: 70, ty: 4, tz: -110 },
+  4: { yaw: .42, pitch: .55, dist: 150, tx: -85, ty: 2, tz: -10 }
+};
+function setCamera(i) {
+  state.camIndex = i;
+  if (state.mode === 'third') setMode('orbit');
+  const c = cams[i];
+  flyTo(c, 1300);
+  $$('#camera-card .cam-grid button').forEach(b => b.classList.toggle('active', +b.dataset.cam === i));
+  toast(`已切换至监控 ${i}`);
+}
+
+/* ============================================================
+   拾取 / POI
+   ============================================================ */
+const raycaster = new THREE.Raycaster();
+function pickPoi(nx, ny) {
+  raycaster.setFromCamera(new THREE.Vector2(nx, ny), camera);
+  const hits = raycaster.intersectObjects(hitboxes, false);
+  if (hits.length) {
+    const id = hits[0].object.userData.poiId;
+    if (id) selectPoi(id, hits[0].point);
+  } else {
+    closePoi();
+  }
+}
+
+function selectPoi(id) {
+  state.poi = id;
+  const d = poiData[id];
+  if (!d) return;
+  $('#pc-title').textContent = d.name;
+  $('#pc-desc').textContent = d.desc;
+  $('#pc-metrics').innerHTML = d.metrics.map(m => `<div><span>${m[0]}</span><em>${m[1]}</em></div>`).join('');
+  $('#poi-card').style.display = 'block';
+  $('#poi-hover').style.display = 'none';
+  updatePoiCard();
+}
+function closePoi() {
+  state.poi = null;
+  $('#poi-card').style.display = 'none';
+}
+$('#pc-close').onclick = closePoi;
+
+function projectToStage(v3) {
+  const p = v3.clone().project(camera);
+  if (p.z > 1) return null;
+  return { x: (p.x * .5 + .5) * 1920, y: (-p.y * .5 + .5) * 1080 };
+}
+
+function updatePoiCard() {
+  const card = $('#poi-card');
+  if (!state.poi) { card.style.display = 'none'; return; }
+  const d = poiData[state.poi];
+  const pt = projectToStage(d.pos.clone().add(new THREE.Vector3(0, 2.5, 0)));
+  if (!pt) { card.style.display = 'none'; return; }
+  const x = clamp(pt.x + 34, 20, 1120);
+  const y = clamp(pt.y - 150, 110, 1080 - 280);
+  card.style.display = 'block';
+  card.style.left = x + 'px';
+  card.style.top = y + 'px';
+}
+
+/* 悬浮标签 */
+let hoverId = null;
+canvas.addEventListener('pointermove', () => {
+  if (dragging || state.mode === 'third') return;
+  raycaster.setFromCamera(new THREE.Vector2(pointer.x, pointer.y), camera);
+  const hits = raycaster.intersectObjects(hitboxes, false);
+  const id = hits.length ? hits[0].object.userData.poiId : null;
+  if (id !== hoverId) {
+    hoverId = id;
+    canvas.style.cursor = id ? 'pointer' : 'default';
+    const el = $('#poi-hover');
+    if (id && id !== state.poi) {
+      el.textContent = poiData[id].name;
+      el.style.display = 'block';
+    } else {
+      el.style.display = 'none';
+    }
+  }
+});
+function updateHoverLabel() {
+  const el = $('#poi-hover');
+  if (!hoverId || dragging || state.poi === hoverId) { el.style.display = 'none'; return; }
+  const pt = projectToStage(poiData[hoverId].pos);
+  if (!pt) { el.style.display = 'none'; return; }
+  el.style.display = 'block';
+  el.style.left = clamp(pt.x, 60, 1860) + 'px';
+  el.style.top = pt.y + 'px';
+}
+
+/* 楼层标签 */
+function updateFloorTags(progress) {
+  const tags = $$('#floor-tags .floor-tag');
+  tags.forEach((tag, i) => {
+    const grp = teachingFloors[i];
+    if (!grp) return;
+    const worldPos = new THREE.Vector3(grp.position.x - 38, grp.position.y + 2.4, grp.position.z + 12);
+    const pt = projectToStage(worldPos);
+    if (!pt || progress < .04) { tag.style.opacity = 0; return; }
+    tag.style.opacity = clamp(progress * 1.3, 0, 1);
+    tag.style.left = pt.x + 'px';
+    tag.style.top = pt.y + 'px';
+  });
+}
+
+/* ============================================================
+   时间 / 天气
+   ============================================================ */
+const dayTop = new THREE.Color(0x4f86a8);
+const dayBottom = new THREE.Color(0xa9c7c3);
+const duskTop = new THREE.Color(0x2c4a66);
+const duskBottom = new THREE.Color(0xe59a63);
+const nightTop = new THREE.Color(0x030912);
+const nightBottom = new THREE.Color(0x081a1d);
+const fogNight = new THREE.Color(0x07100f);
+const fogDay = new THREE.Color(0x9fb9b4);
+const tmpColor = new THREE.Color();
+
+function setTime(hour, updateSlider = true) {
+  state.hour = clamp(hour, 0, 24);
+  const h = state.hour;
+  const day = smoothstep(5.3, 7.2, h) * (1 - smoothstep(17.7, 19.6, h));
+  const dusk = Math.max(0, 1 - Math.abs(h - 18.0) / 2.2);
+  const dawn = Math.max(0, 1 - Math.abs(h - 6.4) / 1.8);
+  const night = 1 - day;
+
+  // 天空
+  const top = tmpColor.copy(nightTop).lerp(dayTop, day);
+  if (dusk > 0) top.lerp(duskTop, dusk * .55);
+  if (dawn > 0) top.lerp(duskTop, dawn * .4);
+  skyUniforms.top.value.copy(top);
+  const bottom = new THREE.Color().copy(nightBottom).lerp(dayBottom, day);
+  if (dusk > 0) bottom.lerp(duskBottom, dusk * .6);
+  if (dawn > 0) bottom.lerp(duskBottom, dawn * .45);
+  skyUniforms.bottom.value.copy(bottom);
+
+  // 太阳/月亮
+  const angle = (h - 6) / 12 * Math.PI;
+  const sy = Math.sin(angle), sx = Math.cos(angle);
+  sun.position.set(sx * 260, Math.max(sy, 0) * 280 + 10, 150);
+  sun.intensity = day * 2.6;
+  sun.color.setHSL(.1, .35 + dusk * .3, .55 + dusk * .08);
+  moon.intensity = night * .5;
+  hemi.intensity = .2 + day * .55;
+  fill.intensity = .28 + day * .6;
+  hemi.color.setHSL(.55, .22, .55 + day * .2);
+  hemi.groundColor.setHSL(.25, .18, .2);
+
+  // 窗户、灯光
+  const glow = .08 + night * 1.35;
+  windowMats.forEach(m => { m.emissiveIntensity = glow; });
+  lampLights.forEach(l => { l.intensity = night * 2.2; });
+  lampBulbs.forEach(m => { m.emissiveIntensity = .2 + night * 2.2; });
+  stars.material.opacity = night * .95;
+
+  // 雾与曝光
+  scene.fog.color.copy(fogNight).lerp(fogDay, day * .55);
+  scene.fog.near = 260 - day * 60;
+  scene.fog.far = 860 + day * 80;
+  renderer.toneMappingExposure = 1.0 + night * .12;
+
+  // 滑块
+  if (updateSlider) {
+    $('#time-slider').value = h;
+    $('#time-val').textContent = `${pad(Math.floor(h))}:${pad(Math.round((h % 1) * 60))}`;
+  }
+}
+
+function setWeather(w) {
+  state.weather = w;
+  snow.visible = w === 'snow';
+  rain.visible = w === 'rain';
+  snowOverlay.material.opacity = w === 'snow' ? .55 : 0;
+  rainOverlay.material.opacity = w === 'rain' ? .22 : 0;
+  $$('.wx-btn').forEach(b => b.classList.toggle('active', b.dataset.wx === w));
+  const map = {
+    sunny: ['晴', '16℃'],
+    rain: ['雨', '12℃'],
+    snow: ['雪', '-3℃']
+  };
+  $('#stat-weather').textContent = map[w][0];
+  $('#stat-temp').textContent = map[w][1];
+  if (w === 'snow') {
+    toast('已切换为雪天，可拖动时间滑杆查看夜景');
+    if (state.hour > 8 && state.hour < 18) setTime(20.5);
+  } else if (w === 'rain') {
+    toast('已切换为雨天');
+    if (state.hour > 8 && state.hour < 18) setTime(19.2);
+  } else {
+    toast('已切换为晴天');
+  }
+}
+
+$('#time-slider').addEventListener('input', e => setTime(+e.target.value));
+$$('.wx-btn').forEach(b => b.addEventListener('click', () => setWeather(b.dataset.wx)));
+
+/* 粒子动画 */
+function updateWeather(dt) {
+  if (snow.visible) {
+    const pos = snowGeo.attributes.position;
+    for (let i = 0; i < snowCount; i++) {
+      let y = pos.array[i * 3 + 1] - snowSpeeds[i] * dt;
+      if (y < .6) y = 118;
+      pos.array[i * 3 + 1] = y;
+      pos.array[i * 3] += Math.sin((performance.now() * .001) + i) * dt * .5;
+    }
+    pos.needsUpdate = true;
+  }
+  if (rain.visible) {
+    const pos = rainGeo.attributes.position;
+    for (let i = 0; i < rainCount; i++) {
+      const dy = rainSpd[i] * dt;
+      pos.array[i * 6 + 1] -= dy;
+      pos.array[i * 6 + 4] -= dy;
+      if (pos.array[i * 6 + 1] < 1) {
+        const ny = 110 + Math.random() * 20;
+        pos.array[i * 6 + 1] = ny;
+        pos.array[i * 6 + 4] = ny - 2.6;
+      }
+    }
+    pos.needsUpdate = true;
+  }
+}
+
+/* ============================================================
+   HUD 交互
+   ============================================================ */
+const TAB_PANEL = {
+  home: 'panel-security', base: 'panel-security', student: 'panel-student',
+  video: 'panel-video', source: 'panel-source', ai: 'panel-ai'
+};
+function setTab(tab) {
+  state.tab = tab;
+  closePoi();
+  $$('.nav-item').forEach(b => b.classList.toggle('active', b.dataset.tab === tab));
+  $$('.panel').forEach(p => p.classList.toggle('active', p.id === TAB_PANEL[tab]));
+  $$('.dock-btn').forEach(b => {
+    if (['home', 'data', 'cctv'].includes(b.dataset.act)) b.classList.remove('active');
+  });
+  if (tab === 'home') $('.dock-btn[data-act="home"]').classList.add('active');
+  if (tab === 'base') $('.dock-btn[data-act="data"]').classList.add('active');
+  if (tab === 'video') $('.dock-btn[data-act="cctv"]').classList.add('active');
+  if (tab === 'ai') setTimeout(() => $('#ai-input').focus(), 150);
+}
+$$('.nav-item').forEach(b => b.addEventListener('click', () => setTab(b.dataset.tab)));
+
+function toast(msg) {
+  const el = $('#toast');
+  el.textContent = msg;
+  el.classList.add('show');
+  clearTimeout(toast._t);
+  toast._t = setTimeout(() => el.classList.remove('show'), 2200);
+}
+function hint(title, line) {
+  $('#hint-title').textContent = title;
+  $('#hint-line').innerHTML = line;
+}
+function hideAllCards() {
+  ['weather', 'camera', 'settings'].forEach(id => $('#' + id + '-card').classList.remove('show'));
+}
+function toggleCard(id) {
+  const el = $('#' + id + '-card');
+  const willShow = !el.classList.contains('show');
+  hideAllCards();
+  el.classList.toggle('show', willShow);
+}
+$$('[data-close]').forEach(b => b.addEventListener('click', e => {
+  e.stopPropagation();
+  $('#' + b.dataset.close + '-card').classList.remove('show');
+}));
+
+/* Dock */
+$$('.dock-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    const act = btn.dataset.act;
+    if (act === 'home') { setMode('orbit'); resetCamera(); setTab('home'); }
+    if (act === 'data') { setTab('base'); }
+    if (act === 'view') {
+      setMode(state.mode === 'free' ? 'orbit' : 'free');
+      $$('.dock-btn[data-act="view"]').forEach(b => b.classList.toggle('active', state.mode === 'free'));
+    }
+    if (act === 'settings') { toggleCard('settings'); $$('.dock-btn[data-act="settings"]').forEach(b => b.classList.toggle('active', $('#settings-card').classList.contains('show'))); }
+    if (act === 'walk') {
+      if (state.mode === 'third') { setMode('orbit'); $$('.dock-btn[data-act="walk"]').forEach(b => b.classList.remove('active')); }
+      else { setMode('third'); $$('.dock-btn[data-act="walk"]').forEach(b => b.classList.add('active')); }
+    }
+    if (act === 'cctv') { setTab('video'); toggleCard('camera'); $$('.dock-btn[data-act="cctv"]').forEach(b => b.classList.toggle('active', $('#camera-card').classList.contains('show'))); }
+    if (act === 'floors') { toggleFloors(); }
+    if (act === 'weather') { toggleCard('weather'); }
+    if (act === 'reset') { setMode('orbit'); resetCamera(); }
+  });
+});
+
+/* 楼层拆解 */
+const floorAnim = { from: 0, to: 0, t: 1, ms: 1100 };
+function toggleFloors() {
+  state.floors = !state.floors;
+  floorAnim.from = 0; floorAnim.to = state.floors ? 1 : 0; floorAnim.t = 0;
+  $('.dock-btn[data-act="floors"]').classList.toggle('active', state.floors);
+  if (state.floors) {
+    setMode('orbit');
+    flyTo({ yaw: .35, pitch: .42, dist: 200, tx: 20, ty: 22, tz: -66 }, 1200);
+    toast('教学楼已按楼层拆解');
+  } else {
+    toast('楼层已复位');
+  }
+}
+function updateFloors(dt) {
+  if (floorAnim.t >= 1) return;
+  floorAnim.t = clamp(floorAnim.t + dt * 1000 / floorAnim.ms, 0, 1);
+  const p = easeInOut(floorAnim.t);
+  const v = lerp(floorAnim.from, floorAnim.to, p);
+  teachingFloors.forEach((g, i) => {
+    g.position.y = g.userData.baseY + i * 9.2 * v;
+    g.userData.tint.material.opacity = v * .13;
+    g.userData.cap.material.opacity = v * .62;
+  });
+  updateFloorTags(v);
+}
+
+/* 设置 */
+$$('[data-set]').forEach(sw => {
+  sw.addEventListener('click', () => {
+    sw.classList.toggle('on');
+    const on = sw.classList.contains('on');
+    if (sw.dataset.set === 'shadows') {
+      renderer.shadowMap.enabled = on;
+      sun.castShadow = on;
+      scene.traverse(o => { if (o.material) o.material.needsUpdate = true; });
+    }
+    if (sw.dataset.set === 'grid') {
+      world.getObjectByName('gridHelper') ? world.remove(world.getObjectByName('gridHelper')) : (() => {
+        const grid = new THREE.GridHelper(340, 48, 0x2a5a57, 0x183533);
+        grid.position.y = .12; grid.name = 'gridHelper'; world.add(grid);
+      })();
+    }
+    if (sw.dataset.set === 'quality') {
+      renderer.setPixelRatio(on ? Math.min(window.devicePixelRatio || 1, 2) : 1);
+    }
+  });
+});
+$('#sens-range').addEventListener('input', e => { state.sensitivity = +e.target.value; });
+
+/* 监控卡 */
+$$('#camera-card .cam-grid button').forEach(b => b.addEventListener('click', () => setCamera(+b.dataset.cam)));
+
+/* AI */
+const aiChat = $('#ai-chat');
+const aiInput = $('#ai-input');
+function addMsg(role, html) {
+  const div = document.createElement('div');
+  div.className = 'msg ' + role;
+  div.innerHTML = html;
+  aiChat.appendChild(div);
+  aiChat.scrollIntoView({ block: 'end' });
+  const body = aiChat.parentElement;
+  body.scrollTop = body.scrollHeight;
+  return div;
+}
+function aiAnswer(q) {
+  const text = q.toLowerCase();
+  if (/天气|气温|下雨|雪/.test(text)) return '当前唐山为晴天，气温 16℃，南风 3 级。你可以在左侧「天气与时间」面板切换到雨天或雪天，并拖动时间滑杆查看昼夜变化。';
+  if (/监控|摄像头|画面/.test(text)) return '校园目前接入 4 路监控：学校大门、教学楼、后门和操场。可在「视频监控」面板查看，或点击左侧监控图标快速切换机位。';
+  if (/学生|人数|出勤|请假/.test(text)) return '当前应到校 500 人，实际到校 450 人，缺勤 50 人，出勤率 90%。可以在「学生信息」面板查看年级分布与班级概览。';
+  if (/楼|教室|拆解/.test(text)) return '教学楼共 4 层，包含阶梯教室、教室走廊、专业教室和媒体教室。点击左侧「楼层拆解」可以查看分层结构。';
+  if (/生源|来源|省份|地图/.test(text)) return '生源主要来自河北、山东、河南、山西、辽宁等地，可在「生源信息」面板查看中国地图与省份占比。';
+  if (/介绍|校园|平台/.test(text)) return '智慧校园综合管理平台整合了校园 3D 数字孪生、安防巡查、学生信息、视频监控、生源分布与 AI 助手，可在三维场景中自由浏览并查看建筑详情。';
+  return '我是接入 DeepSeek 的校园助手（演示模式），可以回答校园数据、监控、天气、楼层拆解和生源分布相关的问题。';
+}
+function sendAi() {
+  const q = aiInput.value.trim();
+  if (!q) return;
+  addMsg('user', q.replace(/</g, '&lt;'));
+  aiInput.value = '';
+  const typing = addMsg('assistant', '<span class="typing"><i></i><i></i><i></i></span>');
+  setTimeout(() => {
+    typing.innerHTML = aiAnswer(q);
+    const body = aiChat.parentElement;
+    body.scrollTop = body.scrollHeight;
+  }, 850);
+}
+$('#ai-send').onclick = sendAi;
+aiInput.addEventListener('keydown', e => { if (e.key === 'Enter') sendAi(); });
+
+/* ============================================================
+   图表
+   ============================================================ */
+function renderLineChart(el) {
+  const W = 400, H = 156, pl = 32, pr = 8, pt = 10, pb = 22;
+  const labels = ['周一', '周二', '周三', '周四', '周五', '周六', '周日'];
+  const series = [
+    { color: '#7ff0d8', data: [500, 500, 500, 500, 500, 500, 500] },
+    { color: '#35e0c0', data: [432, 446, 452, 438, 458, 452, 450], area: true },
+    { color: '#ffd36a', data: [50, 44, 50, 52, 44, 50, 50] }
+  ];
+  const max = 600;
+  const x = i => pl + (W - pl - pr) * i / (labels.length - 1);
+  const y = v => pt + (H - pt - pb) * (1 - v / max);
+  let grid = '';
+  [0, 200, 400, 600].forEach(v => {
+    grid += `<line x1="${pl}" y1="${y(v)}" x2="${W - pr}" y2="${y(v)}" stroke="rgba(56,232,198,.1)" stroke-width="1"/>`;
+    grid += `<text x="${pl - 6}" y="${y(v) + 3}" fill="#5f827a" font-size="8" text-anchor="end">${v}</text>`;
+  });
+  labels.forEach((l, i) => {
+    grid += `<text x="${x(i)}" y="${H - 6}" fill="#6c8d84" font-size="8.5" text-anchor="middle">${l}</text>`;
+  });
+  let paths = '';
+  series.forEach((s, si) => {
+    const pts = s.data.map((v, i) => `${x(i)},${y(v)}`).join(' ');
+    if (s.area) {
+      const area = `M ${x(0)} ${y(s.data[0])} L ` + s.data.map((v, i) => `${x(i)} ${y(v)}`).join(' L ') +
+        ` L ${x(s.data.length - 1)} ${H - pb} L ${x(0)} ${H - pb} Z`;
+      paths += `<path d="${area}" fill="url(#areaGrad)" opacity=".55"/>`;
+    }
+    paths += `<polyline points="${pts}" fill="none" stroke="${s.color}" stroke-width="1.9" stroke-linejoin="round" stroke-linecap="round" filter="url(#glow)"/>`;
+    s.data.forEach((v, i) => {
+      if (i === 2 || i === 4) paths += `<circle cx="${x(i)}" cy="${y(v)}" r="2.6" fill="#05191b" stroke="${s.color}" stroke-width="1.4"/>`;
+    });
+  });
+  el.innerHTML = `<svg viewBox="0 0 ${W} ${H}" style="width:100%;height:100%">
+    <defs>
+      <linearGradient id="areaGrad" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0" stop-color="#35e0c0" stop-opacity=".5"/>
+        <stop offset="1" stop-color="#35e0c0" stop-opacity=".02"/>
+      </linearGradient>
+      <filter id="glow" x="-30%" y="-30%" width="160%" height="160%">
+        <feGaussianBlur stdDeviation="2.2" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+      </filter>
+    </defs>
+    ${grid}${paths}
+  </svg>`;
+}
+
+function renderDonut(el, data, centerTop, centerSub) {
+  const W = 200, H = 200, cx = 100, cy = 100, r = 66, sw = 22;
+  const total = data.reduce((a, b) => a + b.value, 0);
+  let a0 = -Math.PI / 2;
+  let paths = '';
+  data.forEach(d => {
+    const ang = d.value / total * Math.PI * 2;
+    const a1 = a0 + ang - .04;
+    const x1 = cx + Math.cos(a0) * r, y1 = cy + Math.sin(a0) * r;
+    const x2 = cx + Math.cos(a1) * r, y2 = cy + Math.sin(a1) * r;
+    const large = ang > Math.PI ? 1 : 0;
+    paths += `<path d="M ${x1} ${y1} A ${r} ${r} 0 ${large} 1 ${x2} ${y2}" fill="none" stroke="${d.color}" stroke-width="${sw}" stroke-linecap="butt"/>`;
+    const mid = a0 + ang / 2;
+    const lx = cx + Math.cos(mid) * (r + 20), ly = cy + Math.sin(mid) * (r + 20);
+    paths += `<text x="${lx}" y="${ly + 4}" fill="#9fc9bd" font-size="11" text-anchor="middle">${Math.round(d.value / total * 100)}%</text>`;
+    a0 += ang;
+  });
+  el.innerHTML = `<svg viewBox="0 0 ${W} ${H}" style="width:100%;height:100%;filter:drop-shadow(0 0 8px rgba(56,232,198,.15))">
+    ${paths}
+    <text x="${cx}" y="${cy - 4}" fill="#eafff9" font-size="24" font-weight="600" text-anchor="middle">${centerTop}</text>
+    <text x="${cx}" y="${cy + 16}" fill="#7fa79f" font-size="9" letter-spacing="2" text-anchor="middle">${centerSub}</text>
+  </svg>`;
+}
+
+renderLineChart($('#chart-line'));
+renderDonut($('#chart-donut'), [
+  { value: 31, color: '#38e8c6' }, { value: 27, color: '#2f9c8a' }, { value: 25, color: '#22616c' }
+], '83', '教职工总数');
+renderDonut($('#chart-gender'), [
+  { value: 260, color: '#38e8c6' }, { value: 240, color: '#2f9c8a' }
+], '52%', '男生占比');
+
+/* ============================================================
+   监控视频模拟
+   ============================================================ */
+const feedCanvases = $$('.feed canvas');
+const feedCtx = feedCanvases.map(c => { c.width = 480; c.height = 240; return c.getContext('2d'); });
+const feedPalettes = [
+  { sky: ['#253c46', '#4a6068'], ground: '#3c3f3b', road: '#5b5e58' },
+  { sky: ['#1d3340', '#3e5966'], ground: '#2f3b32', road: '#555e55' },
+  { sky: ['#212d38', '#3b4a55'], ground: '#353a34', road: '#5a5d56' },
+  { sky: ['#223843', '#45606b'], ground: '#3a4a34', road: '#4f5b49' }
+];
+let feedTime = 0;
+function drawFeed(i, t) {
+  const g = feedCtx[i], W = 480, H = 240, pal = feedPalettes[i];
+  const sky = g.createLinearGradient(0, 0, 0, H * .62);
+  sky.addColorStop(0, pal.sky[0]); sky.addColorStop(1, pal.sky[1]);
+  g.fillStyle = sky; g.fillRect(0, 0, W, H * .62);
+  g.fillStyle = pal.ground; g.fillRect(0, H * .62, W, H);
+  // 远处建筑
+  for (let b = 0; b < 7; b++) {
+    const bw = 30 + (b * 37 % 60), bh = 26 + (b * 23 % 70);
+    const bx = (b * 77) % (W - bw);
+    g.fillStyle = `rgba(${30 + b * 8},${44 + b * 6},${48 + b * 4},.85)`;
+    g.fillRect(bx, H * .62 - bh, bw, bh);
+    g.fillStyle = 'rgba(255,210,150,.55)';
+    for (let wy = 0; wy < bh - 8; wy += 12) {
+      for (let wx = 4; wx < bw - 6; wx += 12) {
+        if ((wx + wy + b) % 3 === 0) g.fillRect(bx + wx, H * .62 - bh + wy + 4, 3, 4);
+      }
+    }
+  }
+  // 道路
+  g.fillStyle = pal.road;
+  g.beginPath(); g.moveTo(W * .42, H); g.lineTo(W * .48, H * .62); g.lineTo(W * .55, H * .62); g.lineTo(W * .62, H); g.fill();
+  g.strokeStyle = 'rgba(220,235,225,.35)'; g.lineWidth = 2; g.setLineDash([12, 12]);
+  g.beginPath(); g.moveTo(W * .515, H); g.lineTo(W * .515, H * .64); g.stroke(); g.setLineDash([]);
+  // 移动车辆
+  const carX = ((t * 34 + i * 90) % (W + 100)) - 50;
+  g.fillStyle = 'rgba(210,220,215,.8)';
+  g.fillRect(carX, H * .77, 22, 9);
+  g.fillStyle = 'rgba(255,245,220,.9)';
+  g.fillRect(carX + 17, H * .79, 4, 3);
+  const car2 = W - (((t * 22 + i * 130) % (W + 80)) - 40);
+  g.fillStyle = 'rgba(60,70,75,.9)';
+  g.fillRect(car2, H * .68, 18, 7);
+  // 噪点
+  for (let n = 0; n < 110; n++) {
+    g.fillStyle = `rgba(255,255,255,${Math.random() * .06})`;
+    g.fillRect(Math.random() * W, Math.random() * H, 2, 1);
+  }
+  // 暗角
+  const vg = g.createRadialGradient(W / 2, H / 2, 40, W / 2, H / 2, W * .65);
+  vg.addColorStop(0, 'rgba(0,0,0,0)'); vg.addColorStop(1, 'rgba(0,0,0,.45)');
+  g.fillStyle = vg; g.fillRect(0, 0, W, H);
+}
+function updateFeeds(dt) {
+  feedTime += dt;
+  if (Math.floor(feedTime * 8) === Math.floor((feedTime - dt) * 8)) return;
+  for (let i = 0; i < feedCanvases.length; i++) drawFeed(i, feedTime);
+  $$('.feed .f-time').forEach(el => {
+    const d = new Date();
+    el.textContent = `${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`;
+  });
+}
+
+/* ============================================================
+   主循环
+   ============================================================ */
+const clock = new THREE.Clock();
+let elapsed = 0;
+function animate() {
+  requestAnimationFrame(animate);
+  const dt = Math.min(clock.getDelta(), .05);
+  elapsed += dt;
+  updateControls(dt);
+  updateWeather(dt);
+  updateFloors(dt);
+  updateFeeds(dt);
+  updatePoiCard();
+  updateHoverLabel();
+  // 热点呼吸
+  poiMarkers.forEach((m, i) => {
+    const s = 6.2 + Math.sin(elapsed * 2 + i) * .45;
+    m.scale.set(s, s, 1);
+    m.material.opacity = .8 + Math.sin(elapsed * 2 + i) * .14;
+  });
+  renderer.render(scene, camera);
+}
+
+setTime(16, true);
+setWeather('sunny');
+animate();
+
+/* 加载结束 */
+setTimeout(() => {
+  $('#loading').classList.add('hide');
+}, 900);
+setTimeout(() => toast('提示：点击建筑查看详情，左侧图标可切换天气 / 漫游 / 楼层拆解'), 1800);
+</script>
+</body>
+</html>
