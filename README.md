@@ -1,60 +1,83 @@
 # School Vista 3D · 智慧校园 3D 平台
 
-> 智慧校园综合管理平台（SMART CAMPUS INTEGRATED PLATFORM）的 Web 原型：用 Three.js 在浏览器中还原 Unity 数字孪生课程里的 3D 校园与 HUD 体验。
+> 用 React + React Three Fiber 在浏览器中还原智慧校园数字孪生：3D 校园、科技感 HUD、数据面板与 AI 助手。
 
-## 功能特性
+## 当前状态
 
-- **程序化 3D 校园**：塑胶跑道、草坪、4 层教学楼（支持分层拆解）、办公楼、阶梯教室、门卫室、树木与道路，无需外部模型文件
-- **科技感 HUD**：顶部导航、左侧图标工具栏、右侧数据面板、POI 标签与建筑详情卡，按 1920×1080 等比适配
-- **数据可视化**：Canvas 手绘出勤折线面积图、教师构成环形图
-- **天气与昼夜**：晴 / 雨 / 雪切换与粒子效果，0–24 小时时间滑杆联动光照与天空
-- **视频监控**：4 路程序化模拟画面、REC/时间戳/噪点扫描线，场景内机位一键切换
-- **多视角漫游**：全局环绕、自由视角（WASD + QE）、第三人称行走
-- **楼层拆解**：点击教学楼按层展开，标注阶梯教室 / 教室走廊 / 专业教室 / 媒体教室
-- **AI 小助手**：本地规则知识库模拟问答，预留 DeepSeek API 接入位
-- **零构建**：单 HTML 文件，浏览器直接打开即可运行
+- **工程骨架已落地**：Vite + React + TypeScript + three / R3F / drei，1920×1080 等比舞台、顶部导航、左侧工具栏、右侧数据面板、实时时钟。
+- **布局已冻结**：三个 GLB 按 `src/data/layout.json` 摆放，支持 POI 标签、详情卡、5 个相机预设、加载进度和性能读数。
+- **资产已接入**：教学楼群、操场、教室使用 Meshopt 压缩，外景常驻、室内按需加载。
+- **原型仍保留**：`docs/智慧校园3D平台_原型资料/prototype.html` 是交互与视觉参考，不是最终技术栈。
+
+详细方案见 [docs/项目开发方案.md](docs/项目开发方案.md)，资产规范见 [docs/Blender三维资产接入方案.md](docs/Blender三维资产接入方案.md)。
 
 ## 快速开始
 
-直接双击打开 `docs/智慧校园3D平台_原型资料/prototype.html`（需联网加载 Three.js CDN）。
-
-或启动本地静态服务：
-
 ```bash
-npx serve docs/智慧校园3D平台_原型资料
+npm install
+npm run dev
 ```
 
-调试入口（URL hash）：
+打开 http://127.0.0.1:5173/。
 
-| Hash | 状态 |
+常用命令：
+
+| 命令 | 说明 |
 | --- | --- |
-| `#video` | 视频监控面板 |
-| `#home&explode` | 楼层拆解 |
-| `#home&night&snow` | 夜间雪天 |
-| `#video&rain` | 雨天监控 |
-| `#cam2` | 2 号监控机位 |
+| `npm run dev` | 启动开发服务器 |
+| `npm run build` | 类型检查 + 生产构建 |
+| `npm run preview` | 预览生产构建 |
+| `npm run measure` | 输出 GLB 包围盒、锚点、材质统计 |
+| `npm run verify:ui` | 无头浏览器截图与交互验证 |
+
+`verify:ui` 默认查找本机 Chrome / Edge，也可通过 `CHROME_PATH` 指定可执行文件。
 
 ## 目录结构
 
-```
+```text
 .
-├─ docs/智慧校园3D平台_原型资料/
-│  ├─ prototype.html          # 单文件 Web 原型（Three.js）
-│  ├─ 01_核心功能与原型说明.md  # 功能拆解、视觉规范、技术映射
-│  └─ 03_原型截图/             # 26 张界面与交互参考截图
-├─ model/                     # Blender 教室场景（日/夜）与渲染图
+├─ src/
+│  ├─ scene/                 # R3F 场景、模型加载、POI、相机、性能探针
+│  ├─ ui/                    # HUD、面板、POI 卡片、加载遮罩
+│  ├─ stage/                 # 1920×1080 等比舞台
+│  ├─ store/                 # Zustand 状态
+│  ├─ data/layout.json       # 布局冻结（模型、POI、相机、道路）
+│  ├─ types/                 # 布局类型
+│  └─ styles/                # 全局 token 与重置样式
+├─ public/assets/
+│  ├─ campus/                # 教学楼群、操场
+│  └─ interior/              # 教室
+├─ tools/
+│  ├─ asset-pipeline/        # GLB 实测脚本
+│  └─ verify/                # 无头浏览器验证
+├─ docs/                     # 原型资料、资产方案、项目开发方案
+├─ model/                    # Blender 源文件与原始贴图
 └─ README.md
 ```
 
 ## 技术栈
 
-- Three.js 0.160（ESM / jsDelivr CDN）
-- 原生 HTML / CSS / JavaScript，无构建工具
-- Canvas 2D 绘制图表与监控画面
-- Blender 场景资产（暂未接入 Web）
+- Vite + React + TypeScript
+- three + `@react-three/fiber` + `@react-three/drei`
+- Zustand
+- CSS Modules + CSS Variables
+- Blender + glTF 2.0 + gltf-transform + Meshopt
+- ECharts、hls.js / flv.js（后续面板与监控接入）
+
+## 资产与预算
+
+| 资产 | 文件 | 体积 | 三角面 | draw call |
+| --- | --- | --- | --- | --- |
+| 教学楼群 | `public/assets/campus/teachBuilding.glb` | 2.42MB | 122,136 | 78 |
+| 操场 | `public/assets/campus/playground.glb` | 4.18MB | 43,290 | 12 |
+| 教室 | `public/assets/interior/classroom.glb` | 9.68MB | 92,722 | 58 |
+
+- 1 单位 = 1 米，Y 轴向上，地面 `y = 0`。
+- 外景合计 6.60MB / 16.5 万面 / 90 draw call。
+- 教室按需加载，不占首屏。
 
 ## 说明
 
 - `docs/` 资料整理自 B 站课程《从零做智慧校园3D平台｜Unity数字孪生项目实战教学》（siki 学院），版权归原作者所有，仅供学习交流。
-- `model/` 中的 Blender 教室场景独立于 Web 原型，后续可用于替换程序化建模。
-- AI 面板当前为本地模拟回答；接入真实接口时请通过服务端代理，避免在前端暴露 API Key。
+- `model/` 中的 Blender 场景与贴图为源资产，公开部署前需确认素材授权。
+- AI 面板当前为骨架占位；接入真实接口时通过服务端 BFF 代理，避免在前端暴露 API Key。

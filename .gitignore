@@ -1,3 +1,9 @@
+# 依赖与构建产物
+node_modules/
+dist/
+.vite/
+*.log
+
 # 本地 AI 记忆与工具缓存
 .workbuddy/
 

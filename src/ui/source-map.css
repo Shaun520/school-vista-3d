@@ -1,0 +1,54 @@
+.china-map {
+  display: block;
+  width: 100%;
+  height: 436px;
+  margin: -6px 0 6px;
+  filter: drop-shadow(0 0 14px rgba(56, 232, 198, 0.12));
+}
+
+.china-map .province-g path {
+  fill: rgba(11, 42, 52, 0.82);
+  stroke: rgba(56, 232, 198, 0.55);
+  stroke-width: 1.1;
+  transition: fill 0.2s;
+}
+
+.china-map .province-g path:hover {
+  fill: rgba(30, 104, 108, 0.75);
+}
+
+.mk .pulse {
+  fill: rgba(56, 232, 198, 0.16);
+  stroke: rgba(56, 232, 198, 0.7);
+  stroke-width: 1;
+  animation: map-pulse 2.4s infinite;
+}
+
+.mk .dot {
+  fill: #9dffe8;
+  filter: drop-shadow(0 0 5px #38e8c6);
+}
+
+.mk text {
+  fill: #c8f5e9;
+  font-size: 17px;
+  letter-spacing: 1px;
+  paint-order: stroke;
+  stroke: #041013;
+  stroke-width: 5;
+}
+
+@keyframes map-pulse {
+  0% {
+    r: 6;
+    opacity: 0.9;
+  }
+  70% {
+    r: 18;
+    opacity: 0;
+  }
+  100% {
+    r: 18;
+    opacity: 0;
+  }
+}
