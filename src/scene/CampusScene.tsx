@@ -4,9 +4,11 @@ import { OrbitControls } from '@react-three/drei'
 import * as THREE from 'three'
 import { layout } from '../data/layout'
 import { CameraRig } from './CameraRig'
+import { GreeneryLayer } from './GreeneryLayer'
 import { GroundLayer } from './GroundLayer'
 import { ModelLayer } from './ModelLayer'
 import { PerfProbe } from './PerfProbe'
+import { PlaceholderLayer } from './PlaceholderLayer'
 import { PoiLayer } from './PoiLayer'
 
 export function CampusScene() {
@@ -15,6 +17,7 @@ export function CampusScene() {
   return (
     <Canvas
       shadows
+      resize={{ offsetSize: true }}
       dpr={[1, 1.75]}
       camera={{ fov: 45, near: 0.5, far: 2000, position: home.position }}
       gl={{ antialias: true }}
@@ -24,27 +27,29 @@ export function CampusScene() {
       }}
     >
       <color attach="background" args={['#081316']} />
-      <fog attach="fog" args={['#081316', 320, 900]} />
+      <fog attach="fog" args={['#081316', 420, 1100]} />
 
       <ambientLight intensity={0.9} />
       <hemisphereLight args={['#cfe9ff', '#1c2b26', 0.9]} />
       <directionalLight
-        position={[140, 190, 110]}
+        position={[160, 220, 140]}
         intensity={2.6}
         castShadow
         shadow-mapSize={[2048, 2048]}
-        shadow-camera-left={-260}
-        shadow-camera-right={260}
-        shadow-camera-top={260}
-        shadow-camera-bottom={-260}
+        shadow-camera-left={-320}
+        shadow-camera-right={320}
+        shadow-camera-top={320}
+        shadow-camera-bottom={-320}
         shadow-camera-near={1}
-        shadow-camera-far={800}
+        shadow-camera-far={900}
         shadow-normalBias={0.02}
       />
       <directionalLight position={[-160, 120, -120]} intensity={0.65} />
 
       <Suspense fallback={null}>
         <GroundLayer />
+        <GreeneryLayer />
+        <PlaceholderLayer />
         <ModelLayer />
         <PoiLayer />
       </Suspense>

@@ -1,3 +1,4 @@
+export type Vec2 = [number, number]
 export type Vec3 = [number, number, number]
 
 export interface LayoutModel {
@@ -19,6 +20,17 @@ export interface InteriorModel extends LayoutModel {
   lookAt: Vec3
 }
 
+export interface PlaceholderBuilding {
+  id: string
+  name: string
+  position: Vec3
+  size: Vec3
+  rotationY: number
+  floors: number
+  color: string
+  roofColor: string
+}
+
 export interface Poi {
   id: string
   name: string
@@ -33,6 +45,18 @@ export interface Road {
   center: Vec3
   size: [number, number]
   rotationY: number
+}
+
+export interface GroundPatch {
+  center: Vec2
+  size: [number, number]
+  rotationY?: number
+}
+
+export interface Plaza {
+  id: string
+  center: Vec2
+  radius: number
 }
 
 export interface CameraPreset {
@@ -50,9 +74,16 @@ export interface CampusLayout {
   }
   models: LayoutModel[]
   interiors: InteriorModel[]
+  placeholders: PlaceholderBuilding[]
   pois: Poi[]
   roads: Road[]
-  plaza: { center: Vec3; radius: number }
+  paths: Road[]
+  lawns: GroundPatch[]
+  trees: Vec2[]
+  flowers: GroundPatch[]
+  parking: { center: Vec2; size: [number, number]; rotationY: number }
+  plazas: Plaza[]
+  fountain: { center: Vec2; radius: number }
   gate: { position: Vec3; width: number; height: number; depth: number }
   cameras: Record<string, CameraPreset>
 }

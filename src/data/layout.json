@@ -1,29 +1,41 @@
 {
-  "version": 1,
+  "version": 2,
   "units": "meter",
   "axes": { "up": "Y", "ground": 0 },
   "campus": {
-    "bounds": { "min": [-83, 0, -156], "max": [224, 0, 155] },
+    "bounds": { "min": [-180, 0, -165], "max": [230, 0, 165] },
     "groundSize": 600
   },
   "models": [
     {
-      "id": "teaching",
-      "name": "教学楼群",
-      "url": "/assets/campus/teachBuilding.glb",
-      "position": [0, 0, -78],
+      "id": "teaching-1",
+      "name": "第一教学楼",
+      "url": "/assets/campus/teaching-1.glb",
+      "position": [-86, 0, -63],
       "rotationY": 0,
       "centerXZ": true,
       "snapToGround": true,
       "castShadow": true,
-      "bounds": { "size": [125.17, 18.74, 116.05] },
-      "cost": { "bytes": 2541608, "triangles": 122136, "drawCalls": 78 }
+      "bounds": { "size": [54.82, 18.46, 37.42] },
+      "cost": { "bytes": 5124448, "triangles": 72274, "drawCalls": 10 }
+    },
+    {
+      "id": "teaching-2",
+      "name": "第二教学楼",
+      "url": "/assets/campus/teaching-2.glb",
+      "position": [135, 0, -63],
+      "rotationY": 0,
+      "centerXZ": true,
+      "snapToGround": true,
+      "castShadow": true,
+      "bounds": { "size": [56.38, 18.35, 38.06] },
+      "cost": { "bytes": 2949392, "triangles": 47056, "drawCalls": 8 }
     },
     {
       "id": "playground",
       "name": "操场",
       "url": "/assets/campus/playground.glb",
-      "position": [110, 0, 55],
+      "position": [135, 0, 60],
       "rotationY": 0,
       "centerXZ": true,
       "snapToGround": true,
@@ -49,36 +61,152 @@
       "cost": { "bytes": 10153440, "triangles": 92722, "drawCalls": 58 }
     }
   ],
+  "placeholders": [
+    {
+      "id": "library",
+      "name": "图书馆",
+      "position": [0, 0, 88],
+      "size": [54, 19, 30],
+      "rotationY": 0,
+      "floors": 4,
+      "color": "#24223F",
+      "roofColor": "#4E4A8C"
+    },
+    {
+      "id": "history",
+      "name": "校史馆",
+      "position": [-66, 0, 106],
+      "size": [40, 8, 24],
+      "rotationY": 0,
+      "floors": 2,
+      "color": "#32242F",
+      "roofColor": "#6E4058"
+    },
+    {
+      "id": "lab",
+      "name": "综合实验楼",
+      "position": [0, 0, -125],
+      "size": [64, 21, 24],
+      "rotationY": 0,
+      "floors": 5,
+      "color": "#24223F",
+      "roofColor": "#4E4A8C"
+    },
+    {
+      "id": "gym",
+      "name": "体育馆",
+      "position": [135, 0, 140],
+      "size": [52, 16, 30],
+      "rotationY": 0,
+      "floors": 2,
+      "color": "#30231D",
+      "roofColor": "#7A3A2C"
+    },
+    {
+      "id": "canteen",
+      "name": "食堂",
+      "position": [-92, 0, 50],
+      "size": [50, 10, 34],
+      "rotationY": 0,
+      "floors": 2,
+      "color": "#2E2716",
+      "roofColor": "#6B5420"
+    },
+    {
+      "id": "dorm",
+      "name": "宿舍区",
+      "position": [-142, 0, -20],
+      "size": [38, 21, 64],
+      "rotationY": 0,
+      "floors": 6,
+      "color": "#2E2716",
+      "roofColor": "#6B5420"
+    }
+  ],
   "pois": [
     {
-      "id": "teaching",
-      "name": "教学楼群",
-      "anchor": "POI_Teaching",
+      "id": "teaching-1",
+      "name": "第一教学楼",
       "scope": "exterior",
-      "position": [0, 21, -78],
-      "description": "6 层建筑群 · 125 × 116m · 122k 三角面"
+      "position": [-86, 20, -63],
+      "description": "双栋板楼 · 54.8 × 37.4m · 6F + 4F"
+    },
+    {
+      "id": "teaching-2",
+      "name": "第二教学楼",
+      "scope": "exterior",
+      "position": [135, 20, -63],
+      "description": "双栋板楼 · 56.4 × 38.1m · 6F + 5F"
+    },
+    {
+      "id": "library",
+      "name": "图书馆",
+      "scope": "exterior",
+      "position": [0, 21, 88],
+      "description": "4F · 54 × 30m · 占位体块待接入"
+    },
+    {
+      "id": "history",
+      "name": "校史馆",
+      "scope": "exterior",
+      "position": [-66, 9, 106],
+      "description": "2F · 40 × 24m · 占位体块待接入"
+    },
+    {
+      "id": "lab",
+      "name": "综合实验楼",
+      "scope": "exterior",
+      "position": [0, 23, -125],
+      "description": "5F · 64 × 24m · 占位体块待接入"
+    },
+    {
+      "id": "gym",
+      "name": "体育馆",
+      "scope": "exterior",
+      "position": [135, 18, 140],
+      "description": "2F · 52 × 30m · 占位体块待接入"
+    },
+    {
+      "id": "canteen",
+      "name": "食堂",
+      "scope": "exterior",
+      "position": [-92, 11, 50],
+      "description": "2F · 50 × 34m · 占位体块待接入"
+    },
+    {
+      "id": "dorm",
+      "name": "宿舍区",
+      "scope": "exterior",
+      "position": [-142, 23, -20],
+      "description": "6F · 38 × 64m · 占位体块待接入"
     },
     {
       "id": "playground",
       "name": "操场",
-      "anchor": "POI_Playground",
       "scope": "exterior",
-      "position": [110, 5, 55],
-      "description": "188 × 101m · 草地与球场 · 43k 三角面"
+      "position": [135, 5, 60],
+      "description": "188 × 101m · 400m 田径场"
     },
     {
       "id": "gate",
       "name": "校门",
       "scope": "exterior",
-      "position": [0, 7, 132],
-      "description": "南侧主入口 · 连接中心广场"
+      "position": [0, 9, 155],
+      "description": "南侧主入口 · 28m 宽 · 轴线起点"
+    },
+    {
+      "id": "entry",
+      "name": "入口广场",
+      "scope": "exterior",
+      "position": [0, 2, 128],
+      "description": "校前集散 · 半径 20m · 水景"
     },
     {
       "id": "plaza",
       "name": "中心广场",
       "scope": "exterior",
-      "position": [0, 2, -2],
-      "description": "教学楼与操场之间的集散广场"
+      "position": [0, 2, 48],
+      "description": "旗杆广场 · 半径 16m"
     },
     {
       "id": "classroom",
@@ -90,16 +218,75 @@
     }
   ],
   "roads": [
-    { "id": "main", "center": [0, 0.02, 64], "size": [14, 136], "rotationY": 0 },
-    { "id": "cross", "center": [75, 0.02, 0], "size": [280, 10], "rotationY": 0 }
+    { "id": "north", "center": [26, 0.02, -148], "size": [396, 8], "rotationY": 0 },
+    { "id": "west", "center": [-168, 0.02, -6], "size": [8, 292], "rotationY": 0 },
+    { "id": "south-west", "center": [-102, 0.02, 118], "size": [124, 8], "rotationY": 0 },
+    { "id": "south-east", "center": [132, 0.02, 118], "size": [184, 8], "rotationY": 0 },
+    { "id": "entry", "center": [0, 0.02, 145], "size": [12, 20], "rotationY": 0 },
+    { "id": "canteen", "center": [-140.5, 0.02, 54], "size": [47, 8], "rotationY": 0 },
+    { "id": "parking-access", "center": [-161, 0.02, 137], "size": [6, 6], "rotationY": 0 },
+    { "id": "gym-access", "center": [192, 0.02, 141], "size": [64, 8], "rotationY": 0 },
+    { "id": "gym-link", "center": [192, 0.02, 129.5], "size": [8, 15], "rotationY": 0 }
   ],
-  "plaza": { "center": [0, 0.03, -2], "radius": 14 },
-  "gate": { "position": [0, 0, 132], "width": 22, "height": 6.5, "depth": 2.5 },
+  "paths": [
+    { "id": "spine", "center": [0, 0.04, -32], "size": [8, 160], "rotationY": 0 },
+    { "id": "bypass-w", "center": [-33, 0.04, 98], "size": [6, 60], "rotationY": 0 },
+    { "id": "bypass-e", "center": [33, 0.04, 98], "size": [6, 60], "rotationY": 0 },
+    { "id": "academic", "center": [41, 0.04, -10], "size": [318, 6], "rotationY": 0 },
+    { "id": "teach-w", "center": [-29.5, 0.04, -50], "size": [59, 6], "rotationY": 0 },
+    { "id": "teach-e", "center": [53.5, 0.04, -50], "size": [107, 6], "rotationY": 0 },
+    { "id": "canteen-plaza", "center": [-41.5, 0.04, 54], "size": [51, 6], "rotationY": 0 },
+    { "id": "history-plaza", "center": [-33, 0.04, 106], "size": [26, 6], "rotationY": 0 }
+  ],
+  "lawns": [
+    { "center": [-5, -151], "size": [344, 22] },
+    { "center": [-149, -96], "size": [56, 82] },
+    { "center": [-142, 97.5], "size": [38, 51] },
+    { "center": [197.5, -78], "size": [59, 168] },
+    { "center": [0.5, 14], "size": [73, 34] },
+    { "center": [-86, -63], "size": [52, 14] },
+    { "center": [135, -63], "size": [54, 14] },
+    { "center": [-32, 132], "size": [24, 28] },
+    { "center": [190, 141], "size": [47, 31] }
+  ],
+  "trees": [
+    [-153.7, -154.8], [-95.2, -154.8], [-36.6, -154.8], [22, -154.8], [80.5, -154.8], [139.1, -154.8], [197.7, -154.8],
+    [-175.7, -125.5], [-175.7, -110.9], [-175.7, -74.3], [-175.7, -37.7], [-175.7, -1.1], [-175.7, 35.5], [-175.7, 72.1], [-175.7, 108.7], [-175.7, 138],
+    [-153.7, -118.2], [-131.8, -118.2], [-153.7, -81.6], [-131.8, -81.6],
+    [-22, 110.2], [22, 110.2], [-22, 121.9], [22, 121.9],
+    [-38.1, 80.9], [38.1, 80.9], [-38.1, 94.1], [38.1, 94.1],
+    [-22, 41.4], [22, 41.4],
+    [-25.6, 6.2], [25.6, 6.2], [-25.6, 20.9], [25.6, 20.9],
+    [-108.3, -63.3], [-74.7, -63.3], [-58.6, -63.3],
+    [112.7, -63.3], [146.4, -63.3], [162.5, -63.3],
+    [183, -132.9], [212.3, -132.9], [183, -88.9], [212.3, -88.9], [183, -45], [212.3, -45], [183, -15.7], [212.3, -15.7],
+    [-153.7, 83.1], [-131.8, 83.1],
+    [175.7, 127], [197.7, 127],
+    [51.2, 1.8], [80.5, 1.8], [109.8, 1.8], [139.1, 1.8], [168.4, 1.8], [197.7, 1.8],
+    [-39.5, 123.4], [-27.8, 123.4]
+  ],
+  "flowers": [
+    { "center": [-15.3, 69.5], "size": [16, 3.7] },
+    { "center": [15.3, 69.5], "size": [16, 3.7] },
+    { "center": [-30.7, 138.7], "size": [14.6, 4.4] },
+    { "center": [30.7, 138.7], "size": [14.6, 4.4] },
+    { "center": [-92.2, 29.7], "size": [32.2, 2.9] },
+    { "center": [-68.8, 121.9], "size": [20.5, 2.9] },
+    { "center": [-142.7, 16.5], "size": [24.9, 2.9] },
+    { "center": [124.5, 6.3], "size": [14.6, 2.9] }
+  ],
+  "parking": { "center": [-140, 140], "size": [36, 24], "rotationY": 0 },
+  "plazas": [
+    { "id": "entry", "center": [0, 128], "radius": 20 },
+    { "id": "center", "center": [0, 48], "radius": 16 }
+  ],
+  "fountain": { "center": [0, 128], "radius": 7 },
+  "gate": { "position": [0, 0, 155], "width": 28, "height": 7.5, "depth": 2.5 },
   "cameras": {
-    "home": { "position": [185, 135, 220], "target": [50, 2, -8] },
-    "teaching": { "position": [78, 34, 28], "target": [0, 8, -78] },
-    "playground": { "position": [110, 62, 178], "target": [110, 0, 55] },
-    "gate": { "position": [0, 12, 162], "target": [0, 4, 95] },
-    "plaza": { "position": [0, 16, 55], "target": [0, 4, -8] }
+    "home": { "position": [300, 200, 340], "target": [20, 0, 0] },
+    "teaching": { "position": [-15, 45, 15], "target": [-86, 8, -63] },
+    "playground": { "position": [260, 80, 10], "target": [135, 0, 60] },
+    "gate": { "position": [90, 26, 215], "target": [0, 5, 140] },
+    "plaza": { "position": [70, 38, 16], "target": [0, 4, 48] }
   }
 }
