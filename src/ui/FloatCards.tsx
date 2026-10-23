@@ -1,8 +1,19 @@
+import { layout } from '../data/layout'
 import { useCampusStore, type Weather } from '../store/useCampusStore'
 import type { CameraPresetId } from '../types/layout'
 import styles from './Hud.module.css'
 
 const CAMERA_PRESETS: CameraPresetId[] = ['gate', 'teaching', 'playground', 'plaza']
+
+const EXTERIOR_PLACES = layout.pois.filter((poi) => poi.scope === 'exterior' && poi.camera)
+
+const INTERIOR_PLACES = [
+  { id: 'classroom', name: '教室内' },
+  { id: 'canteen-interior', name: '食堂内' },
+  { id: 'history-interior', name: '校史馆内' },
+  { id: 'library-interior', name: '图书馆内' },
+  { id: 'gym-interior', name: '体育馆内' },
+]
 
 function pad(value: number) {
   return String(value).padStart(2, '0')
@@ -153,6 +164,58 @@ export function FloatCards() {
               }}
             >
               监控{index}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      <div
+        className={`${styles.floatCard} ${styles.placesCard} ${openCard === 'places' ? styles.floatCardShow : ''}`}
+        data-float-card="places"
+      >
+        <div className={styles.fcHead}>
+          <span className={styles.tri} />
+          地点建筑
+          <button
+            type="button"
+            className={styles.fcClose}
+            aria-label="关闭地点建筑"
+            onClick={closeCard}
+          >
+            ×
+          </button>
+        </div>
+        <div className={styles.placeGroup}>室外</div>
+        <div className={styles.placeGrid}>
+          {EXTERIOR_PLACES.map((poi) => (
+            <button
+              key={poi.id}
+              type="button"
+              className={styles.placeButton}
+              data-place={poi.id}
+              onClick={() => {
+                if (!poi.camera) return
+                setCameraPreset(poi.camera)
+                showToast(`已定位：${poi.name}`)
+              }}
+            >
+              {poi.name}
+            </button>
+          ))}
+        </div>
+        <div className={styles.placeGroup}>室内</div>
+        <div className={`${styles.placeGrid} ${styles.placeGridInterior}`}>
+          {INTERIOR_PLACES.map((place) => (
+            <button
+              key={place.id}
+              type="button"
+              className={`${styles.placeButton} ${styles.placeButtonPending}`}
+              data-place={place.id}
+              data-pending="true"
+              onClick={() => showToast('室内场景模型待接入，暂未开放跳转')}
+            >
+              {place.name}
+              <span className={styles.placePending}>待实现</span>
             </button>
           ))}
         </div>

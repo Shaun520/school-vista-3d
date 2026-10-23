@@ -151,6 +151,21 @@ export function LeftDock() {
 
       <button
         type="button"
+        className={`${styles.dockButton} ${openCard === 'places' ? styles.dockButtonActive : ''}`}
+        data-act="places"
+        aria-label="地点建筑"
+        onClick={() => toggleCard('places')}
+      >
+        <svg viewBox="0 0 24 24">
+          <path d="M4 21V7l8-4 8 4v14" />
+          <path d="M9 21v-5h6v5" />
+          <path d="M8 10h.01M12 10h.01M16 10h.01M8 13.5h.01M12 13.5h.01M16 13.5h.01" />
+        </svg>
+        <span className={styles.tip}>地点建筑</span>
+      </button>
+
+      <button
+        type="button"
         className={styles.dockButton}
         data-act="floors"
         aria-label="楼层拆解"

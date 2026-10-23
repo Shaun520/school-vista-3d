@@ -38,6 +38,7 @@ export interface Poi {
   scope: 'exterior' | 'interior'
   position: Vec3
   description: string
+  camera?: CameraPresetId
 }
 
 export interface Road {
@@ -88,4 +89,17 @@ export interface CampusLayout {
   cameras: Record<string, CameraPreset>
 }
 
-export type CameraPresetId = 'home' | 'teaching' | 'playground' | 'gate' | 'plaza'
+export type CameraPresetId =
+  | 'home'
+  | 'teaching'
+  | 'playground'
+  | 'gate'
+  | 'plaza'
+  | 'teaching2'
+  | 'library'
+  | 'history'
+  | 'lab'
+  | 'gym'
+  | 'canteen'
+  | 'dorm'
+  | 'entry'
