@@ -13,6 +13,7 @@ export function CameraRig() {
   const camera = useThree((state) => state.camera)
   const controls = useThree((state) => state.controls) as ControlsLike | null
   const preset = useCampusStore((state) => state.cameraPreset)
+  const moveId = useCampusStore((state) => state.cameraMoveId)
 
   useEffect(() => {
     const config = layout.cameras[preset]
@@ -22,7 +23,7 @@ export function CameraRig() {
       controls.target.set(...config.target)
       controls.update()
     }
-  }, [camera, controls, preset])
+  }, [camera, controls, preset, moveId])
 
   return null
 }

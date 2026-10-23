@@ -3,7 +3,7 @@ import type { CameraPresetId } from '../types/layout'
 
 export type Tab = 'home' | 'base' | 'student' | 'video' | 'source' | 'ai'
 export type Weather = 'sunny' | 'rain' | 'snow'
-export type CardId = 'weather' | 'camera' | 'settings'
+export type CardId = 'weather' | 'camera' | 'settings' | 'places'
 export type ViewMode = 'orbit' | 'free' | 'third'
 
 interface CampusState {
@@ -13,6 +13,7 @@ interface CampusState {
   setSelectedPoi: (id: string | null) => void
   cameraPreset: CameraPresetId
   setCameraPreset: (preset: CameraPresetId) => void
+  cameraMoveId: number
   weather: Weather
   setWeather: (weather: Weather) => void
   timeOfDay: number
@@ -48,7 +49,9 @@ export const useCampusStore = create<CampusState>((set) => ({
   selectedPoi: null,
   setSelectedPoi: (selectedPoi) => set({ selectedPoi }),
   cameraPreset: 'home',
-  setCameraPreset: (cameraPreset) => set({ cameraPreset }),
+  cameraMoveId: 0,
+  setCameraPreset: (cameraPreset) =>
+    set((state) => ({ cameraPreset, cameraMoveId: state.cameraMoveId + 1 })),
   weather: 'sunny',
   setWeather: (weather) => set({ weather }),
   timeOfDay: 20,

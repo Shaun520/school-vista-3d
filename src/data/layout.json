@@ -128,6 +128,7 @@
       "id": "teaching-1",
       "name": "第一教学楼",
       "scope": "exterior",
+      "camera": "teaching",
       "position": [-86, 20, -63],
       "description": "双栋板楼 · 54.8 × 37.4m · 6F + 4F"
     },
@@ -135,6 +136,7 @@
       "id": "teaching-2",
       "name": "第二教学楼",
       "scope": "exterior",
+      "camera": "teaching2",
       "position": [135, 20, -63],
       "description": "双栋板楼 · 56.4 × 38.1m · 6F + 5F"
     },
@@ -142,6 +144,7 @@
       "id": "library",
       "name": "图书馆",
       "scope": "exterior",
+      "camera": "library",
       "position": [0, 21, 88],
       "description": "4F · 54 × 30m · 占位体块待接入"
     },
@@ -149,6 +152,7 @@
       "id": "history",
       "name": "校史馆",
       "scope": "exterior",
+      "camera": "history",
       "position": [-66, 9, 106],
       "description": "2F · 40 × 24m · 占位体块待接入"
     },
@@ -156,6 +160,7 @@
       "id": "lab",
       "name": "综合实验楼",
       "scope": "exterior",
+      "camera": "lab",
       "position": [0, 23, -125],
       "description": "5F · 64 × 24m · 占位体块待接入"
     },
@@ -163,6 +168,7 @@
       "id": "gym",
       "name": "体育馆",
       "scope": "exterior",
+      "camera": "gym",
       "position": [135, 18, 140],
       "description": "2F · 52 × 30m · 占位体块待接入"
     },
@@ -170,6 +176,7 @@
       "id": "canteen",
       "name": "食堂",
       "scope": "exterior",
+      "camera": "canteen",
       "position": [-92, 11, 50],
       "description": "2F · 50 × 34m · 占位体块待接入"
     },
@@ -177,6 +184,7 @@
       "id": "dorm",
       "name": "宿舍区",
       "scope": "exterior",
+      "camera": "dorm",
       "position": [-142, 23, -20],
       "description": "6F · 38 × 64m · 占位体块待接入"
     },
@@ -184,6 +192,7 @@
       "id": "playground",
       "name": "操场",
       "scope": "exterior",
+      "camera": "playground",
       "position": [135, 5, 60],
       "description": "188 × 101m · 400m 田径场"
     },
@@ -191,6 +200,7 @@
       "id": "gate",
       "name": "校门",
       "scope": "exterior",
+      "camera": "gate",
       "position": [0, 9, 155],
       "description": "南侧主入口 · 28m 宽 · 轴线起点"
     },
@@ -198,6 +208,7 @@
       "id": "entry",
       "name": "入口广场",
       "scope": "exterior",
+      "camera": "entry",
       "position": [0, 2, 128],
       "description": "校前集散 · 半径 20m · 水景"
     },
@@ -205,6 +216,7 @@
       "id": "plaza",
       "name": "中心广场",
       "scope": "exterior",
+      "camera": "plaza",
       "position": [0, 2, 48],
       "description": "旗杆广场 · 半径 16m"
     },
@@ -285,8 +297,16 @@
   "cameras": {
     "home": { "position": [300, 200, 340], "target": [20, 0, 0] },
     "teaching": { "position": [-15, 45, 15], "target": [-86, 8, -63] },
+    "teaching2": { "position": [206, 42, 15], "target": [135, 8, -63] },
     "playground": { "position": [260, 80, 10], "target": [135, 0, 60] },
     "gate": { "position": [90, 26, 215], "target": [0, 5, 140] },
-    "plaza": { "position": [70, 38, 16], "target": [0, 4, 48] }
+    "plaza": { "position": [70, 38, 16], "target": [0, 4, 48] },
+    "library": { "position": [62, 48, 186], "target": [0, 9, 88] },
+    "history": { "position": [0, 32, 186], "target": [-66, 4, 106] },
+    "lab": { "position": [70, 52, -20], "target": [0, 10, -125] },
+    "gym": { "position": [200, 48, 228], "target": [135, 8, 140] },
+    "canteen": { "position": [-28, 36, 126], "target": [-92, 5, 50] },
+    "dorm": { "position": [-84, 50, 57], "target": [-142, 10, -20] },
+    "entry": { "position": [62, 30, 222], "target": [0, 3, 128] }
   }
 }

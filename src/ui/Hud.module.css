@@ -1024,6 +1024,12 @@
   width: 264px;
 }
 
+.placesCard {
+  top: 532px;
+  left: 96px;
+  width: 264px;
+}
+
 .settingsCard {
   top: 470px;
   left: 96px;
@@ -1154,6 +1160,59 @@
   color: #03211d;
   font-weight: 700;
   box-shadow: 0 0 16px rgba(56, 232, 198, 0.35);
+}
+
+.placeGroup {
+  margin: 8px 0;
+  color: #9fc0b6;
+  font-size: 11.5px;
+  letter-spacing: 1.5px;
+}
+
+.placeGrid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+}
+
+.placeGridInterior {
+  grid-template-columns: repeat(2, 1fr);
+}
+
+.placeButton {
+  height: 31px;
+  border: 1px solid rgba(56, 232, 198, 0.35);
+  background: rgba(31, 126, 120, 0.25);
+  color: #a9d2c7;
+  font-size: 11px;
+  letter-spacing: 0.5px;
+  transition: 0.16s;
+}
+
+.placeButton:hover {
+  background: rgba(46, 196, 177, 0.3);
+  color: #eafff9;
+  box-shadow: 0 0 12px rgba(56, 232, 198, 0.18);
+}
+
+.placeButtonPending {
+  border-style: dashed;
+  border-color: rgba(255, 211, 106, 0.28);
+  background: rgba(255, 211, 106, 0.04);
+  color: #b9a97f;
+}
+
+.placeButtonPending:hover {
+  border-color: rgba(255, 211, 106, 0.45);
+  background: rgba(255, 211, 106, 0.08);
+  box-shadow: none;
+}
+
+.placePending {
+  margin-left: 3px;
+  color: rgba(255, 211, 106, 0.7);
+  font-size: 8.5px;
+  letter-spacing: 0;
 }
 
 .setRow {
