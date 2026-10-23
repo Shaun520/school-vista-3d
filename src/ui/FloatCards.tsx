@@ -29,6 +29,7 @@ export function FloatCards() {
   const cameraIndex = useCampusStore((state) => state.cameraIndex)
   const setCameraIndex = useCampusStore((state) => state.setCameraIndex)
   const setCameraPreset = useCampusStore((state) => state.setCameraPreset)
+  const enterClassroom = useCampusStore((state) => state.enterClassroom)
   const settings = useCampusStore((state) => state.settings)
   const toggleSetting = useCampusStore((state) => state.toggleSetting)
   const setSensitivity = useCampusStore((state) => state.setSensitivity)
@@ -205,19 +206,34 @@ export function FloatCards() {
         </div>
         <div className={styles.placeGroup}>室内</div>
         <div className={`${styles.placeGrid} ${styles.placeGridInterior}`}>
-          {INTERIOR_PLACES.map((place) => (
-            <button
-              key={place.id}
-              type="button"
-              className={`${styles.placeButton} ${styles.placeButtonPending}`}
-              data-place={place.id}
-              data-pending="true"
-              onClick={() => showToast('室内场景模型待接入，暂未开放跳转')}
-            >
-              {place.name}
-              <span className={styles.placePending}>待实现</span>
-            </button>
-          ))}
+          {INTERIOR_PLACES.map((place) =>
+            place.id === 'classroom' ? (
+              <button
+                key={place.id}
+                type="button"
+                className={styles.placeButton}
+                data-place={place.id}
+                onClick={() => {
+                  closeCard()
+                  enterClassroom()
+                }}
+              >
+                {place.name}
+              </button>
+            ) : (
+              <button
+                key={place.id}
+                type="button"
+                className={`${styles.placeButton} ${styles.placeButtonPending}`}
+                data-place={place.id}
+                data-pending="true"
+                onClick={() => showToast('该室内场景模型待接入，暂未开放跳转')}
+              >
+                {place.name}
+                <span className={styles.placePending}>待实现</span>
+              </button>
+            ),
+          )}
         </div>
       </div>
 

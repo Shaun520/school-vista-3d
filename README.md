@@ -2,11 +2,15 @@
 
 > 用 React + React Three Fiber 在浏览器中还原智慧校园数字孪生：3D 校园、科技感 HUD、数据面板与 AI 助手。
 
+![教室模式 · 多媒体教室](docs/images/classroom-mode.png)
+
+> 教室模式：3D 教室内景、左侧班级概览、右侧教室控制台与四路室内监控。
+
 ## 当前状态
 
 - **工程骨架已落地**：Vite + React + TypeScript + three / R3F / drei，1920×1080 等比舞台、顶部导航、左侧工具栏、右侧数据面板、实时时钟。
-- **布局已冻结**：三个 GLB 按 `src/data/layout.json` 摆放，支持 POI 标签、详情卡、5 个相机预设、加载进度和性能读数。
-- **资产已接入**：教学楼群、操场、教室使用 Meshopt 压缩，外景常驻、室内按需加载。
+- **校园外景**：双教学楼、操场与 6 个占位建筑按 `src/data/layout.json` 摆放，支持 POI 标签、详情卡、13 个室外机位、加载进度和性能读数。
+- **教室模式**：从「地点建筑 → 教室内」进入，教室 GLB 按需加载，提供 4 个室内机位、设备热点、班级概览、教室控制台、四路室内监控与时间/灯光联动。
 - **原型仍保留**：`docs/智慧校园3D平台_原型资料/prototype.html` 是交互与视觉参考，不是最终技术栈。
 
 详细方案见 [docs/项目开发方案.md](docs/项目开发方案.md)，资产规范见 [docs/Blender三维资产接入方案.md](docs/Blender三维资产接入方案.md)。
@@ -50,7 +54,7 @@ npm run dev
 ├─ tools/
 │  ├─ asset-pipeline/        # GLB 实测脚本
 │  └─ verify/                # 无头浏览器验证
-├─ docs/                     # 原型资料、资产方案、项目开发方案
+├─ docs/                     # 原型资料、资产方案、项目开发方案、界面截图
 ├─ model/                    # Blender 源文件与原始贴图
 └─ README.md
 ```
@@ -68,16 +72,16 @@ npm run dev
 
 | 资产 | 文件 | 体积 | 三角面 | draw call |
 | --- | --- | --- | --- | --- |
-| 教学楼群 | `public/assets/campus/teachBuilding.glb` | 2.42MB | 122,136 | 78 |
+| 第一教学楼 | `public/assets/campus/teaching-1.glb` | 4.89MB | 72,274 | 10 |
+| 第二教学楼 | `public/assets/campus/teaching-2.glb` | 2.81MB | 47,056 | 8 |
 | 操场 | `public/assets/campus/playground.glb` | 4.18MB | 43,290 | 12 |
 | 教室 | `public/assets/interior/classroom.glb` | 9.68MB | 92,722 | 58 |
 
 - 1 单位 = 1 米，Y 轴向上，地面 `y = 0`。
-- 外景合计 6.60MB / 16.5 万面 / 90 draw call。
+- 外景合计 11.88MB / 16.3 万面 / 30 draw call。
 - 教室按需加载，不占首屏。
 
 ## 说明
 
-- `docs/` 资料整理自 B 站课程《从零做智慧校园3D平台｜Unity数字孪生项目实战教学》（siki 学院），版权归原作者所有，仅供学习交流。
 - `model/` 中的 Blender 场景与贴图为源资产，公开部署前需确认素材授权。
 - AI 面板当前为骨架占位；接入真实接口时通过服务端 BFF 代理，避免在前端暴露 API Key。

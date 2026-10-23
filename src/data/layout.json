@@ -55,12 +55,16 @@
       "centerXZ": true,
       "snapToGround": true,
       "castShadow": false,
-      "entry": [0, 1.6, 6.2],
-      "lookAt": [0, 1.4, 0],
       "bounds": { "size": [10.96, 3.32, 7.48] },
       "cost": { "bytes": 10153440, "triangles": 92722, "drawCalls": 58 }
     }
   ],
+  "interiorCameras": {
+    "podium": { "position": [4.2, 1.7, 0.0], "target": [-2.9, 1.45, 0.0] },
+    "seats": { "position": [-1.9, 1.7, -0.9], "target": [4.0, 0.95, -0.9] },
+    "rear": { "position": [-1.6, 1.65, 1.2], "target": [4.2, 0.95, 0.7] },
+    "door": { "position": [4.3, 1.7, 1.25], "target": [0.0, 1.15, -2.0] }
+  },
   "placeholders": [
     {
       "id": "library",

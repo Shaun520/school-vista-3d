@@ -1,12 +1,22 @@
 import { create } from 'zustand'
-import type { CameraPresetId } from '../types/layout'
+import type { CameraPresetId, ClassroomCameraId } from '../types/layout'
 
 export type Tab = 'home' | 'base' | 'student' | 'video' | 'source' | 'ai'
 export type Weather = 'sunny' | 'rain' | 'snow'
 export type CardId = 'weather' | 'camera' | 'settings' | 'places'
 export type ViewMode = 'orbit' | 'free' | 'third'
+export type SceneMode = 'campus' | 'classroom'
 
 interface CampusState {
+  mode: SceneMode
+  enterClassroom: () => void
+  exitClassroom: () => void
+  classroomCamera: ClassroomCameraId
+  setClassroomCamera: (camera: ClassroomCameraId) => void
+  classroomTime: number
+  setClassroomTime: (hour: number) => void
+  classroomReady: boolean
+  setClassroomReady: (ready: boolean) => void
   activeTab: Tab
   setActiveTab: (tab: Tab) => void
   selectedPoi: string | null
@@ -44,8 +54,55 @@ interface CampusState {
 let toastTimer: number | undefined
 
 export const useCampusStore = create<CampusState>((set) => ({
+  mode: 'campus',
+  enterClassroom: () =>
+    set((state) => ({
+      mode: 'classroom',
+      activeTab: 'home',
+      classroomCamera: 'podium',
+      classroomReady: false,
+      selectedPoi: null,
+      openCard: null,
+      cameraMoveId: state.cameraMoveId + 1,
+    })),
+  exitClassroom: () =>
+    set((state) => ({
+      mode: 'campus',
+      activeTab: 'home',
+      cameraPreset: 'home',
+      viewMode: 'orbit',
+      classroomReady: false,
+      selectedPoi: null,
+      openCard: null,
+      cameraMoveId: state.cameraMoveId + 1,
+    })),
+  classroomCamera: 'podium',
+  setClassroomCamera: (classroomCamera) =>
+    set((state) => ({
+      classroomCamera,
+      cameraMoveId: state.cameraMoveId + 1,
+    })),
+  classroomTime: 10,
+  setClassroomTime: (classroomTime) => set({ classroomTime }),
+  classroomReady: false,
+  setClassroomReady: (classroomReady) => set({ classroomReady }),
   activeTab: 'home',
-  setActiveTab: (activeTab) => set({ activeTab, selectedPoi: null }),
+  setActiveTab: (activeTab) =>
+    set((state) => {
+      if (state.mode !== 'classroom') {
+        return { activeTab, selectedPoi: null }
+      }
+      return {
+        activeTab,
+        mode: 'campus' as const,
+        cameraPreset: 'home' as const,
+        viewMode: 'orbit' as const,
+        classroomReady: false,
+        selectedPoi: null,
+        openCard: null,
+        cameraMoveId: state.cameraMoveId + 1,
+      }
+    }),
   selectedPoi: null,
   setSelectedPoi: (selectedPoi) => set({ selectedPoi }),
   cameraPreset: 'home',

@@ -216,12 +216,19 @@ scene.render.filepath = os.path.join(out_dir, "preview_aerial.png")
 bpy.ops.render.render(write_still=True)
 print("RENDER=OK")
 
-# material close-up of the largest building
-biggest = max(meshes, key=lambda o: max(
-    max((o.matrix_world @ Vector(c))[i] for c in o.bound_box)
-    - min((o.matrix_world @ Vector(c))[i] for c in o.bound_box)
-    for i in (0, 1, 2)
-))
+# material close-up of the largest building footprint (ignore flat site/track planes)
+candidates = []
+for o in meshes:
+    corners = [o.matrix_world @ Vector(c) for c in o.bound_box]
+    dx = max(p.x for p in corners) - min(p.x for p in corners)
+    dy = max(p.y for p in corners) - min(p.y for p in corners)
+    dz = max(p.z for p in corners) - min(p.z for p in corners)
+    if dz < 3.0 or max(dx, dy) > 300.0:
+        continue
+    candidates.append((max(dx, dy, dz), o))
+preferred = [c for c in candidates if "综合楼01" in c[1].name]
+biggest = (preferred or candidates and [max(candidates, key=lambda c: c[0])])[0][1]
+
 bmin = Vector((min((biggest.matrix_world @ Vector(c)).x for c in biggest.bound_box),
                min((biggest.matrix_world @ Vector(c)).y for c in biggest.bound_box),
                min((biggest.matrix_world @ Vector(c)).z for c in biggest.bound_box)))
