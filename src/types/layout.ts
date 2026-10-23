@@ -15,10 +15,9 @@ export interface LayoutModel {
   cost: { bytes: number; triangles: number; drawCalls: number }
 }
 
-export interface InteriorModel extends LayoutModel {
-  entry: Vec3
-  lookAt: Vec3
-}
+export type InteriorModel = LayoutModel
+
+export type ClassroomCameraId = 'podium' | 'seats' | 'rear' | 'door'
 
 export interface PlaceholderBuilding {
   id: string
@@ -75,6 +74,7 @@ export interface CampusLayout {
   }
   models: LayoutModel[]
   interiors: InteriorModel[]
+  interiorCameras: Record<ClassroomCameraId, CameraPreset>
   placeholders: PlaceholderBuilding[]
   pois: Poi[]
   roads: Road[]
