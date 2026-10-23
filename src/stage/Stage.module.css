@@ -1,0 +1,20 @@
+.viewport {
+  position: fixed;
+  inset: 0;
+  display: grid;
+  overflow: hidden;
+  background: radial-gradient(circle at 50% 45%, #071214 0%, #010507 70%);
+  place-items: center;
+}
+
+.stage {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 1920px;
+  height: 1080px;
+  overflow: hidden;
+  background: #04090b;
+  box-shadow: 0 0 80px rgba(0, 0, 0, 0.8);
+  transform-origin: center center;
+}

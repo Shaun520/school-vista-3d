@@ -1,0 +1,44 @@
+:root {
+  --bg: #04090b;
+  --panel: rgba(6, 20, 23, 0.78);
+  --panel-deep: rgba(3, 12, 15, 0.92);
+  --cyan: #38e8c6;
+  --cyan-2: #8affea;
+  --mint: #7fe6b8;
+  --amber: #ffd36a;
+  --text: #dcf6ef;
+  --muted: #7fa79f;
+  --line: rgba(56, 232, 198, 0.22);
+  --line-strong: rgba(56, 232, 198, 0.55);
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  background: #010507;
+  color: var(--text);
+  font-family: "Microsoft YaHei", "PingFang SC", "Hiragino Sans GB", sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+button {
+  font-family: inherit;
+  color: inherit;
+  background: none;
+  border: none;
+  cursor: pointer;
+  outline: none;
+}
+
+input {
+  font-family: inherit;
+}

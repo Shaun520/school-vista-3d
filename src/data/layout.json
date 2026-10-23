@@ -1,0 +1,105 @@
+{
+  "version": 1,
+  "units": "meter",
+  "axes": { "up": "Y", "ground": 0 },
+  "campus": {
+    "bounds": { "min": [-83, 0, -156], "max": [224, 0, 155] },
+    "groundSize": 600
+  },
+  "models": [
+    {
+      "id": "teaching",
+      "name": "教学楼群",
+      "url": "/assets/campus/teachBuilding.glb",
+      "position": [0, 0, -78],
+      "rotationY": 0,
+      "centerXZ": true,
+      "snapToGround": true,
+      "castShadow": true,
+      "bounds": { "size": [125.17, 18.74, 116.05] },
+      "cost": { "bytes": 2541608, "triangles": 122136, "drawCalls": 78 }
+    },
+    {
+      "id": "playground",
+      "name": "操场",
+      "url": "/assets/campus/playground.glb",
+      "position": [110, 0, 55],
+      "rotationY": 0,
+      "centerXZ": true,
+      "snapToGround": true,
+      "castShadow": false,
+      "stripNormalMaps": true,
+      "bounds": { "size": [188.39, 4.01, 100.9] },
+      "cost": { "bytes": 4383788, "triangles": 43290, "drawCalls": 12 }
+    }
+  ],
+  "interiors": [
+    {
+      "id": "classroom-a",
+      "name": "多媒体教室",
+      "url": "/assets/interior/classroom.glb",
+      "position": [0, 0, 0],
+      "rotationY": 0,
+      "centerXZ": true,
+      "snapToGround": true,
+      "castShadow": false,
+      "entry": [0, 1.6, 6.2],
+      "lookAt": [0, 1.4, 0],
+      "bounds": { "size": [10.96, 3.32, 7.48] },
+      "cost": { "bytes": 10153440, "triangles": 92722, "drawCalls": 58 }
+    }
+  ],
+  "pois": [
+    {
+      "id": "teaching",
+      "name": "教学楼群",
+      "anchor": "POI_Teaching",
+      "scope": "exterior",
+      "position": [0, 21, -78],
+      "description": "6 层建筑群 · 125 × 116m · 122k 三角面"
+    },
+    {
+      "id": "playground",
+      "name": "操场",
+      "anchor": "POI_Playground",
+      "scope": "exterior",
+      "position": [110, 5, 55],
+      "description": "188 × 101m · 草地与球场 · 43k 三角面"
+    },
+    {
+      "id": "gate",
+      "name": "校门",
+      "scope": "exterior",
+      "position": [0, 7, 132],
+      "description": "南侧主入口 · 连接中心广场"
+    },
+    {
+      "id": "plaza",
+      "name": "中心广场",
+      "scope": "exterior",
+      "position": [0, 2, -2],
+      "description": "教学楼与操场之间的集散广场"
+    },
+    {
+      "id": "classroom",
+      "name": "多媒体教室",
+      "anchor": "POI_Classroom",
+      "scope": "interior",
+      "position": [0, 3.4, 0],
+      "description": "10.96 × 7.48m · 固定机位 · 按需加载"
+    }
+  ],
+  "roads": [
+    { "id": "main", "center": [0, 0.02, 64], "size": [14, 136], "rotationY": 0 },
+    { "id": "cross", "center": [75, 0.02, 0], "size": [280, 10], "rotationY": 0 }
+  ],
+  "plaza": { "center": [0, 0.03, -2], "radius": 14 },
+  "gate": { "position": [0, 0, 132], "width": 22, "height": 6.5, "depth": 2.5 },
+  "cameras": {
+    "home": { "position": [185, 135, 220], "target": [50, 2, -8] },
+    "teaching": { "position": [78, 34, 28], "target": [0, 8, -78] },
+    "playground": { "position": [110, 62, 178], "target": [110, 0, 55] },
+    "gate": { "position": [0, 12, 162], "target": [0, 4, 95] },
+    "plaza": { "position": [0, 16, 55], "target": [0, 4, -8] }
+  }
+}
