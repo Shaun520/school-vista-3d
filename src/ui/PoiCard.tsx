@@ -1,3 +1,4 @@
+import { useEffect } from 'react'
 import { layout } from '../data/layout'
 import { useCampusStore } from '../store/useCampusStore'
 import { poiDetails } from './poiDetails'
@@ -7,6 +8,20 @@ export function PoiCard() {
   const selectedPoi = useCampusStore((state) => state.selectedPoi)
   const setSelectedPoi = useCampusStore((state) => state.setSelectedPoi)
   const poi = layout.pois.find((item) => item.id === selectedPoi)
+
+  useEffect(() => {
+    if (!selectedPoi) return
+    const handlePointerDown = (event: PointerEvent) => {
+      if (event.button !== 0) return
+      const target = event.target
+      if (!(target instanceof Element)) return
+      if (target.closest('[data-poi-card]')) return
+      if (target.closest('[data-poi]')) return
+      setSelectedPoi(null)
+    }
+    document.addEventListener('pointerdown', handlePointerDown)
+    return () => document.removeEventListener('pointerdown', handlePointerDown)
+  }, [selectedPoi, setSelectedPoi])
 
   if (!poi) return null
 
