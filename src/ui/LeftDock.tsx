@@ -106,6 +106,7 @@ export function LeftDock() {
         type="button"
         className={`${styles.dockButton} ${openCard === 'settings' ? styles.dockButtonActive : ''}`}
         data-act="settings"
+        data-card-trigger="settings"
         aria-label="设置"
         onClick={() => toggleCard('settings')}
       >
@@ -136,6 +137,7 @@ export function LeftDock() {
         type="button"
         className={`${styles.dockButton} ${openCard === 'camera' ? styles.dockButtonActive : ''}`}
         data-act="cctv"
+        data-card-trigger="camera"
         aria-label="视频监控"
         onClick={() => {
           setActiveTab('video')
@@ -153,6 +155,7 @@ export function LeftDock() {
         type="button"
         className={`${styles.dockButton} ${openCard === 'places' ? styles.dockButtonActive : ''}`}
         data-act="places"
+        data-card-trigger="places"
         aria-label="地点建筑"
         onClick={() => toggleCard('places')}
       >
@@ -182,6 +185,7 @@ export function LeftDock() {
         type="button"
         className={styles.dockButton}
         data-act="weather"
+        data-card-trigger="weather"
         aria-label="天气与时间"
         onClick={() => toggleCard('weather')}
       >

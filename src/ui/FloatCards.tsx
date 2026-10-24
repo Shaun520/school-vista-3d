@@ -1,3 +1,4 @@
+import { useEffect } from 'react'
 import { layout } from '../data/layout'
 import { useCampusStore, type Weather } from '../store/useCampusStore'
 import type { CameraPresetId } from '../types/layout'
@@ -36,6 +37,20 @@ export function FloatCards() {
   const showToast = useCampusStore((state) => state.showToast)
 
   const timeValue = `${pad(Math.floor(timeOfDay))}:${pad(Math.round((timeOfDay % 1) * 60))}`
+
+  useEffect(() => {
+    if (!openCard) return
+    const handlePointerDown = (event: PointerEvent) => {
+      if (event.button !== 0) return
+      const target = event.target
+      if (!(target instanceof Element)) return
+      if (target.closest('[data-float-card]')) return
+      if (target.closest(`[data-card-trigger="${openCard}"]`)) return
+      closeCard()
+    }
+    document.addEventListener('pointerdown', handlePointerDown)
+    return () => document.removeEventListener('pointerdown', handlePointerDown)
+  }, [openCard, closeCard])
 
   const changeWeather = (next: Weather) => {
     setWeather(next)
