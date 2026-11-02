@@ -11,6 +11,7 @@
     "verify:ui": "node tools/verify/screenshot.mjs"
   },
   "dependencies": {
+    "@dgreenheck/ez-tree": "^1.1.0",
     "@react-three/drei": "^10.7.9",
     "@react-three/fiber": "^9.8.2",
     "react": "^19.3.1",

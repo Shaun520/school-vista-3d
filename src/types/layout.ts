@@ -30,6 +30,30 @@ export interface PlaceholderBuilding {
   roofColor: string
 }
 
+export interface PlaygroundField {
+  center: Vec2
+  size: [number, number]
+  rotationY: number
+  lanes: number
+  laneWidth: number
+  outerRadius: number
+  straightHalf: number
+  pitch: [number, number]
+}
+
+export interface River {
+  points: Vec2[]
+  width: number
+  bank: number
+  crossing?: { z: number; width: number }
+}
+
+export interface Lake {
+  center: Vec2
+  size: [number, number]
+  bank: number
+}
+
 export interface Poi {
   id: string
   name: string
@@ -76,6 +100,9 @@ export interface CampusLayout {
   interiors: InteriorModel[]
   interiorCameras: Record<ClassroomCameraId, CameraPreset>
   placeholders: PlaceholderBuilding[]
+  playground: PlaygroundField
+  river: River
+  lake: Lake
   pois: Poi[]
   roads: Road[]
   paths: Road[]
