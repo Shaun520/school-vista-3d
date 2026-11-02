@@ -12,7 +12,9 @@ import { GroundLayer } from './GroundLayer'
 import { ModelLayer } from './ModelLayer'
 import { PerfProbe } from './PerfProbe'
 import { PlaceholderLayer } from './PlaceholderLayer'
+import { PlaygroundLayer } from './PlaygroundLayer'
 import { PoiLayer } from './PoiLayer'
+import { WaterLayer } from './WaterLayer'
 
 function ToneMappingRig({ exposure }: { exposure: number }) {
   const gl = useThree((state) => state.gl)
@@ -70,8 +72,10 @@ export function CampusScene() {
 
           <Suspense fallback={null}>
             <GroundLayer />
+            <WaterLayer />
             <GreeneryLayer />
             <PlaceholderLayer />
+            <PlaygroundLayer />
             <ModelLayer />
             <PoiLayer />
           </Suspense>
