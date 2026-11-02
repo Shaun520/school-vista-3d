@@ -2,7 +2,7 @@ import { useEffect } from 'react'
 import { layout } from '../data/layout'
 import { useCampusStore } from '../store/useCampusStore'
 import { poiDetails } from './poiDetails'
-import styles from './Hud.module.css'
+import styles from './Hud.module.scss'
 
 export function PoiCard() {
   const selectedPoi = useCampusStore((state) => state.selectedPoi)

@@ -1,5 +1,5 @@
 import { useCampusStore } from '../store/useCampusStore'
-import styles from './Hud.module.css'
+import styles from './Hud.module.scss'
 
 const DEFAULT_HINT = {
   title: '视角移动模式',

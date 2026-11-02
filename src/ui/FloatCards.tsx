@@ -2,7 +2,7 @@ import { useEffect } from 'react'
 import { layout } from '../data/layout'
 import { useCampusStore, type Weather } from '../store/useCampusStore'
 import type { CameraPresetId } from '../types/layout'
-import styles from './Hud.module.css'
+import styles from './Hud.module.scss'
 
 const CAMERA_PRESETS: CameraPresetId[] = ['gate', 'teaching', 'playground', 'plaza']
 
@@ -300,6 +300,18 @@ export function FloatCards() {
             onClick={() => toggleSetting('quality')}
             role="switch"
             aria-checked={settings.quality}
+          >
+            <i />
+          </div>
+        </div>
+        <div className={styles.setRow}>
+          <span>自适应画质</span>
+          <div
+            className={`${styles.switch} ${settings.adaptive ? styles.switchOn : ''}`}
+            data-setting="adaptive"
+            onClick={() => toggleSetting('adaptive')}
+            role="switch"
+            aria-checked={settings.adaptive}
           >
             <i />
           </div>

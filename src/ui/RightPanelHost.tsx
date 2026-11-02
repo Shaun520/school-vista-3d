@@ -1,5 +1,5 @@
 import { useCampusStore } from '../store/useCampusStore'
-import styles from './Hud.module.css'
+import styles from './Hud.module.scss'
 import { AiPanel } from './panels/AiPanel'
 import { SecurityPanel } from './panels/SecurityPanel'
 import { SourcePanel } from './panels/SourcePanel'

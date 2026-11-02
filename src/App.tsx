@@ -1,5 +1,4 @@
 import { CampusScene } from './scene/CampusScene'
-import { Stage } from './stage/Stage'
 import { ClassroomHud } from './ui/ClassroomHud'
 import { FloatCards } from './ui/FloatCards'
 import { HeaderNav } from './ui/HeaderNav'
@@ -10,14 +9,14 @@ import { PoiCard } from './ui/PoiCard'
 import { RightPanelHost } from './ui/RightPanelHost'
 import { Toast } from './ui/Toast'
 import { useCampusStore } from './store/useCampusStore'
-import hud from './ui/Hud.module.css'
-import styles from './App.module.css'
+import hud from './ui/Hud.module.scss'
+import styles from './App.module.scss'
 
 export default function App() {
   const mode = useCampusStore((state) => state.mode)
 
   return (
-    <Stage>
+    <div className={styles.root}>
       <div className={styles.canvas}>
         <CampusScene />
       </div>
@@ -41,6 +40,6 @@ export default function App() {
         <span id="perf-readout" className={hud.perfProbe} aria-hidden="true" />
       </div>
       <LoadingOverlay />
-    </Stage>
+    </div>
   )
 }

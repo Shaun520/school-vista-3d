@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
-import styles from '../Hud.module.css'
+import styles from '../Hud.module.scss'
 
 const FEEDS = [
   {

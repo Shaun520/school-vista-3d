@@ -1,0 +1,23 @@
+@use "sass:string";
+
+// 设计稿基准 1920×1080。根变量 --u / --u-vw / --u-vh 由 src/utils/viewport.ts 写入。
+
+// 主单位：min(vw, vh) 等比，默认使用。
+@function u($px) {
+  @return calc(var(--u) * #{$px});
+}
+
+// 横向铺满：仅用于必须跟随屏宽的尺寸。
+@function vw($px) {
+  @return calc(var(--u-vw) * #{$px});
+}
+
+// 纵向铺满：仅用于必须跟随屏高的尺寸。
+@function vh($px) {
+  @return calc(var(--u-vh) * #{$px});
+}
+
+// 发丝线：小屏下不低于 1 个可渲染像素。
+@function hairline($px: 1) {
+  @return string.unquote("max(1px, calc(var(--u) * #{$px}))");
+}

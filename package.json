@@ -8,12 +8,14 @@
     "build": "tsc --noEmit && vite build",
     "preview": "vite preview",
     "measure": "node tools/asset-pipeline/measure.mjs",
-    "verify:ui": "node tools/verify/screenshot.mjs"
+    "verify:ui": "node tools/verify/screenshot.mjs",
+    "verify:ui:matrix": "node tools/verify/resolution-matrix.mjs"
   },
   "dependencies": {
     "@dgreenheck/ez-tree": "^1.1.0",
     "@react-three/drei": "^10.7.9",
     "@react-three/fiber": "^9.8.2",
+    "echarts": "^6.1.0",
     "react": "^19.3.1",
     "react-dom": "^19.3.1",
     "three": "^0.186.1",
@@ -25,6 +27,7 @@
     "@types/three": "^0.186.0",
     "@vitejs/plugin-react": "^6.1.2",
     "puppeteer-core": "^25.16.0",
+    "sass": "^1.107.1",
     "typescript": "^7.0.2",
     "vite": "^8.3.5"
   }

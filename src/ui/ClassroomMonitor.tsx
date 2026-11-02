@@ -3,10 +3,31 @@ import { useEffect, useRef, useState } from 'react'
 import { classroomFeeds } from '../data/classroom'
 import { getClassroomLightState } from '../scene/classroomLighting'
 import { useCampusStore } from '../store/useCampusStore'
-import styles from './Classroom.module.css'
+import styles from './Classroom.module.scss'
 
 const WIDTH = 480
 const HEIGHT = 270
+const MAX_DPR = 2
+
+// 画布逻辑坐标固定为 480×270，backing store 跟随实际显示尺寸与 dpr，避免 4K/8K 下被拉伸。
+function fitFeedCanvas(canvas: HTMLCanvasElement) {
+  const ratio = Math.max(
+    1,
+    (canvas.getBoundingClientRect().width * Math.min(window.devicePixelRatio || 1, MAX_DPR)) /
+      WIDTH,
+  )
+  const width = Math.round(WIDTH * ratio)
+  const height = Math.round(HEIGHT * ratio)
+
+  if (canvas.width !== width || canvas.height !== height) {
+    canvas.width = width
+    canvas.height = height
+  }
+
+  const ctx = canvas.getContext('2d')
+  ctx?.setTransform(ratio, 0, 0, ratio, 0, 0)
+  return ctx
+}
 
 function pad(value: number) {
   return String(value).padStart(2, '0')
@@ -237,15 +258,25 @@ export function ClassroomMonitor() {
   }, [])
 
   useEffect(() => {
-    const contexts = canvasRefs.current.map((canvas) => {
-      if (!canvas) return null
-      canvas.width = WIDTH
-      canvas.height = HEIGHT
-      return canvas.getContext('2d')
-    })
+    const contexts: Array<CanvasRenderingContext2D | null> = []
 
-    contexts.forEach((ctx, index) => {
-      if (ctx) drawFeed(ctx, index, light.isNight, 0)
+    const render = () => {
+      canvasRefs.current.forEach((canvas, index) => {
+        if (!canvas) {
+          contexts[index] = null
+          return
+        }
+        const ctx = fitFeedCanvas(canvas)
+        contexts[index] = ctx
+        if (ctx) drawFeed(ctx, index, light.isNight, 0)
+      })
+    }
+
+    render()
+
+    const observer = new ResizeObserver(render)
+    canvasRefs.current.forEach((canvas) => {
+      if (canvas) observer.observe(canvas)
     })
 
     let raf = 0
@@ -269,7 +300,10 @@ export function ClassroomMonitor() {
     }
 
     raf = window.requestAnimationFrame(loop)
-    return () => window.cancelAnimationFrame(raf)
+    return () => {
+      observer.disconnect()
+      window.cancelAnimationFrame(raf)
+    }
   }, [light.isNight])
 
   const clock = `${pad(now.getHours())}:${pad(now.getMinutes())}:${pad(now.getSeconds())}`

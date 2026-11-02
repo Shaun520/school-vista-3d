@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { useCampusStore, type Tab, type Weather } from '../store/useCampusStore'
-import styles from './Hud.module.css'
+import styles from './Hud.module.scss'
 
 const TABS: Array<{ id: Tab; label: string }> = [
   { id: 'home', label: '系统首页' },
