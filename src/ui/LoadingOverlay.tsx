@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { useProgress } from '@react-three/drei'
-import styles from './Hud.module.css'
+import styles from './Hud.module.scss'
 
 export function LoadingOverlay() {
   const { active, progress } = useProgress()

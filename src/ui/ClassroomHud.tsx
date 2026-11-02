@@ -6,7 +6,7 @@ import { getClassroomLightState } from '../scene/classroomLighting'
 import { useCampusStore } from '../store/useCampusStore'
 import { ClassroomConsole } from './ClassroomConsole'
 import { ClassroomInfoPanel } from './ClassroomInfoPanel'
-import styles from './Classroom.module.css'
+import styles from './Classroom.module.scss'
 
 export function ClassroomHud() {
   const mode = useCampusStore((state) => state.mode)

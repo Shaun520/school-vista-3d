@@ -1,5 +1,5 @@
 import { DonutChart } from '../charts/DonutChart'
-import styles from '../Hud.module.css'
+import styles from '../Hud.module.scss'
 
 const GRADES = [
   { label: '高一', value: 168, width: '68%' },
@@ -64,8 +64,8 @@ export function StudentPanel() {
           <div className={styles.donutBox}>
             <DonutChart
               data={[
-                { value: 260, color: '#38e8c6' },
-                { value: 240, color: '#2f9c8a' },
+                { value: 260, color: '#38e8c6', name: '男生' },
+                { value: 240, color: '#2f9c8a', name: '女生' },
               ]}
               centerTop="52%"
               centerSub="男生占比"

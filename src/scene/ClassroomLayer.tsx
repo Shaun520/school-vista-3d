@@ -8,7 +8,7 @@ import type { ClassroomCameraId } from '../types/layout'
 import { useCampusStore } from '../store/useCampusStore'
 import { getClassroomLightState } from './classroomLighting'
 import { useCampusGLTF } from './useCampusGLTF'
-import styles from '../ui/Classroom.module.css'
+import styles from '../ui/Classroom.module.scss'
 
 const LAMP_POSITIONS: Array<[number, number, number]> = [
   [-1.2, 2.72, -0.9],

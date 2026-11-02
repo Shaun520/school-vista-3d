@@ -1,7 +1,7 @@
 import { Html } from '@react-three/drei'
 import { layout } from '../data/layout'
 import { useCampusStore } from '../store/useCampusStore'
-import styles from '../ui/Hud.module.css'
+import styles from '../ui/Hud.module.scss'
 
 export function PoiLayer() {
   const setSelectedPoi = useCampusStore((state) => state.setSelectedPoi)

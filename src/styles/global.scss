@@ -1,4 +1,9 @@
 :root {
+  // 首屏由 CSS 直接算出单位，避免样式先于 JS 执行时闪一帧；JS 随后写入同值用于运行时读数。
+  --u: min(calc(100vw / 1920), calc(100vh / 1080));
+  --u-vw: calc(100vw / 1920);
+  --u-vh: calc(100vh / 1080);
+
   --bg: #04090b;
   --panel: rgba(6, 20, 23, 0.78);
   --panel-deep: rgba(3, 12, 15, 0.92);

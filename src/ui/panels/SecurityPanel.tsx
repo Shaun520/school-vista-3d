@@ -1,6 +1,6 @@
 import { DonutChart } from '../charts/DonutChart'
 import { LineChart } from '../charts/LineChart'
-import styles from '../Hud.module.css'
+import styles from '../Hud.module.scss'
 
 export function SecurityPanel() {
   return (
@@ -86,9 +86,9 @@ export function SecurityPanel() {
           <div className={styles.donutBox}>
             <DonutChart
               data={[
-                { value: 31, color: '#38e8c6' },
-                { value: 27, color: '#2f9c8a' },
-                { value: 25, color: '#22616c' },
+                { value: 31, color: '#38e8c6', name: '专任教师' },
+                { value: 27, color: '#2f9c8a', name: '行政人员' },
+                { value: 25, color: '#22616c', name: '后勤职工' },
               ]}
               centerTop="83"
               centerSub="教职工总数"

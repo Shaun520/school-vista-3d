@@ -49,6 +49,14 @@ try {
   })
   await wait(2500)
 
+  // 无头 SwiftShader 帧率远低于真实 GPU，先关闭自适应画质，保证截图基线稳定。
+  await page.click('[data-act="settings"]')
+  await wait(350)
+  await page.click('[data-setting="adaptive"]')
+  await wait(350)
+  await page.click('[data-act="settings"]')
+  await wait(350)
+
   const perf = await page.$eval('#perf-readout', (element) => element.textContent)
   const panelTitle = await page.$eval(
     'aside[aria-label="数据面板"] h2',

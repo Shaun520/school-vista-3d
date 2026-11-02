@@ -42,9 +42,10 @@ interface CampusState {
     shadows: boolean
     grid: boolean
     quality: boolean
+    adaptive: boolean
     sensitivity: number
   }
-  toggleSetting: (key: 'shadows' | 'grid' | 'quality') => void
+  toggleSetting: (key: 'shadows' | 'grid' | 'quality' | 'adaptive') => void
   setSensitivity: (value: number) => void
   toastMessage: string
   toastVisible: boolean
@@ -128,6 +129,7 @@ export const useCampusStore = create<CampusState>((set) => ({
     shadows: true,
     grid: false,
     quality: true,
+    adaptive: true,
     sensitivity: 1,
   },
   toggleSetting: (key) =>

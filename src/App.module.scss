@@ -1,0 +1,11 @@
+.root {
+  position: fixed;
+  inset: 0;
+  overflow: hidden;
+  background: radial-gradient(circle at 50% 45%, #071214 0%, #010507 70%);
+}
+
+.canvas {
+  position: absolute;
+  inset: 0;
+}

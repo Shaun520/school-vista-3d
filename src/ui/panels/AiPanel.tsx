@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState, type ReactNode } from 'react'
-import styles from '../Hud.module.css'
+import styles from '../Hud.module.scss'
 
 interface Message {
   id: number
@@ -50,7 +50,7 @@ const INITIAL_MESSAGES: Message[] = [
             <b>多平台：</b>可以在网页端使用，也有 App（支持语音输入）
           </span>
         </span>
-        <div style={{ marginTop: 8 }}>有什么问题需要我帮忙吗？</div>
+        <div className={styles.aiIntroAsk}>有什么问题需要我帮忙吗？</div>
       </>
     ),
   },
@@ -170,7 +170,7 @@ export function AiPanel() {
         </button>
       </div>
 
-      <div className={styles.panelFoot} style={{ paddingTop: 9 }}>
+      <div className={`${styles.panelFoot} ${styles.aiPanelFoot}`}>
         <span>DEMO MODE · 本地模拟回答</span>
         <span>API READY</span>
       </div>

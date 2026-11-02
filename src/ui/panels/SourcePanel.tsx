@@ -1,6 +1,6 @@
 import sourceMap from '../source-map.svg?raw'
-import '../source-map.css'
-import styles from '../Hud.module.css'
+import '../source-map.scss'
+import styles from '../Hud.module.scss'
 
 const PROVINCES = [
   { name: '河北', percent: '26%', width: '92%' },
@@ -22,7 +22,7 @@ export function SourcePanel() {
       <div className={styles.panelBody}>
         <div className={styles.mapWrap} dangerouslySetInnerHTML={{ __html: sourceMap }} />
 
-        <h3 className={styles.secTitle} style={{ marginTop: -4 }}>
+        <h3 className={`${styles.secTitle} ${styles.sourceSecTitle}`}>
           <i />
           生源省份 TOP 5
           <span className={styles.secEn}>PROVINCE</span>

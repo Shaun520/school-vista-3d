@@ -1,5 +1,5 @@
 import { useCampusStore } from '../store/useCampusStore'
-import styles from './Hud.module.css'
+import styles from './Hud.module.scss'
 
 export function Toast() {
   const visible = useCampusStore((state) => state.toastVisible)

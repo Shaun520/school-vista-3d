@@ -3,7 +3,7 @@ import { classroomTimePresets, formatClassroomTime } from '../data/classroom'
 import { getClassroomLightState } from '../scene/classroomLighting'
 import { useCampusStore } from '../store/useCampusStore'
 import { ClassroomMonitor } from './ClassroomMonitor'
-import styles from './Classroom.module.css'
+import styles from './Classroom.module.scss'
 
 type DeviceIconKind = 'projector' | 'light' | 'ac' | 'fan' | 'door' | 'curtain'
 

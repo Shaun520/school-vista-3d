@@ -1,7 +1,7 @@
 // 教室左侧面板：班级、课程、到课情况与室内机位跳转。
 import { classroomCameras, classroomInfo } from '../data/classroom'
 import { useCampusStore } from '../store/useCampusStore'
-import styles from './Classroom.module.css'
+import styles from './Classroom.module.scss'
 
 export function ClassroomInfoPanel() {
   const classroomCamera = useCampusStore((state) => state.classroomCamera)

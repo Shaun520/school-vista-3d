@@ -1,5 +1,5 @@
 import { useCampusStore } from '../store/useCampusStore'
-import styles from './Hud.module.css'
+import styles from './Hud.module.scss'
 
 export function HintCard() {
   const title = useCampusStore((state) => state.hintTitle)
