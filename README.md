@@ -36,8 +36,9 @@ npm run dev
 | `npm run measure` | 输出 GLB 包围盒、锚点、材质统计 |
 | `npm run verify:ui` | 无头浏览器截图与交互验证 |
 | `npm run verify:ui:matrix` | 多分辨率验证矩阵，截图与报告写入 `.workbuddy/verify-matrix` |
+| `npm run verify:perf` | 10 万 / 100 万点图表性能基准，报告写入 `.workbuddy/perf-benchmark` |
 
-两个 `verify` 命令都需要先启动 `npm run dev`，默认查找本机 Chrome / Edge，也可通过 `CHROME_PATH` 指定可执行文件。
+上述 `verify` 命令都需要先启动 `npm run dev`，默认查找本机 Chrome / Edge，也可通过 `CHROME_PATH` 指定可执行文件。
 
 ## 多分辨率适配
 
@@ -64,11 +65,54 @@ npm run verify:ui:matrix
 
 覆盖 1366×768 / 1920×1080 / 2560×1440 / 3440×1440 / 3840×2160 / 3840×2160@2x / 5120×1440 / 7680×4320 / 15360×4320，断言溢出、HUD 尺寸、3D buffer、ECharts canvas、导航与 POI 交互。报告写入 `.workbuddy/verify-matrix/report.json`。
 
+## 大数据图表性能基线
+
+`bench.html` 是独立于主应用的性能基准页，用固定种子生成 10 万 / 100 万点，支持四种模式：
+
+- `plain`：全量数据直接 `setOption`，当前基线；
+- `lttb`：ECharts 内部 `sampling: 'lttb'`；
+- `presample`：主线程先 LTTB 降到 4,000 点，再交给 ECharts；
+- `progressive`：`progressive: 2000` + `progressiveThreshold: 5000`。
+
+记录首图可见耗时、ECharts `finished` 耗时、`setOption` 耗时、DataZoom 交互 FPS、longtask 和 CDP JS 堆峰值。
+
+```bash
+npm run verify:perf
+```
+
+| 数据点 | 模式 | 首图可见 | ECharts 完成 | 导航起首图 | 交互 FPS | 长任务（总 / 交互阶段） | JS 堆峰值 |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| 10 万 | plain | 228ms | 164ms | 316ms | 63.2 | 2 / 0 | 57.7MB |
+| 10 万 | lttb | 275ms | 267ms | 566ms | 117.8 | 1 / 0 | 42.4MB |
+| 10 万 | presample | 161ms | 151ms | 452ms | 119.6 | 1 / 0 | 28.2MB |
+| 10 万 | progressive | 367ms | 356ms | 676ms | 36.2 | 1 / 0 | 45.0MB |
+| 100 万 | plain | 1894ms | 1860ms | 2360ms | 3.7 | 13 / 12 | 201.2MB |
+| 100 万 | lttb | 1555ms | 1527ms | 1970ms | 38.3 | 3 / 2 | 108.2MB |
+| 100 万 | presample | 136ms | 128ms | 565ms | 119.4 | 1 / 0 | 28.2MB |
+| 100 万 | progressive | 1704ms | 1689ms | 2096ms | 5.8 | 20 / 19 | 192.3MB |
+
+测试条件：Headless Chrome 156、1280×600、dpr 1；FPS 在 20% 可视窗口连续 `dataZoom` 平移下采样，无头环境 rAF 可能超过 60，按相对值比较。长任务包含首屏同步任务，交互阶段为首次可见后的 longtask。
+
+结论：
+
+- 100 万点交给 ECharts 前先 LTTB 到约 4,000 点是当前最优解：首图 136ms、交互阶段无 longtask、堆峰值 28.2MB。
+- ECharts 内部 `sampling: 'lttb'` 能改善交互 FPS，但仍保留全量数据，首图约 1.5s、堆峰值 108MB。
+- 当前单折线场景下 `progressive` 没有明显收益，不作为主方案。
+- 后续应把预降采样接到真实数据管线；Worker 优先用于清洗、聚合、排序等业务计算，LTTB 本身在 100 万点约 13ms，单独为它引入 Worker/WASM 收益有限。WebGL 仍保留给“必须展示全部点”或稠密散点场景。
+
+报告与截图写入 `.workbuddy/perf-benchmark/`，可用 `mode` 参数单独复测：
+
+```text
+http://127.0.0.1:5173/bench.html?points=1000000&mode=presample&sample=4000&fpsMs=3000
+```
+
 ## 目录结构
 
 ```text
 .
+├─ bench.html                # 图表性能基准页（Canvas 2D 基线）
 ├─ src/
+│  ├─ benchmark/             # 10 万 / 100 万点数据集与性能采样
 │  ├─ config/                # 分辨率档位、渲染预算、图表 metrics
 │  ├─ scene/                 # R3F 场景、模型加载、POI、相机、性能探针
 │  ├─ ui/                    # HUD、面板、ECharts 图表、POI 卡片
@@ -82,7 +126,7 @@ npm run verify:ui:matrix
 │  └─ interior/              # 教室
 ├─ tools/
 │  ├─ asset-pipeline/        # GLB 实测脚本
-│  └─ verify/                # screenshot.mjs、resolution-matrix.mjs
+│  └─ verify/                # UI、分辨率矩阵、图表性能基准
 ├─ docs/                     # 原型资料、资产方案、项目开发方案、界面截图
 ├─ model/                    # Blender 源文件与原始贴图
 └─ README.md

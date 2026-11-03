@@ -1,0 +1,75 @@
+:root {
+  color-scheme: dark;
+  font-family: "Microsoft YaHei", "PingFang SC", "Hiragino Sans GB", sans-serif;
+  background: #02080a;
+  color: #d6fff7;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  min-height: 100%;
+  background:
+    radial-gradient(circle at 20% 0%, rgba(24, 96, 88, 0.18), transparent 36%),
+    #02080a;
+}
+
+body {
+  padding: 24px;
+}
+
+.bench-shell {
+  width: 1280px;
+  margin: 0 auto;
+}
+
+.bench-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 24px;
+  margin-bottom: 16px;
+}
+
+.bench-head h1 {
+  margin: 0 0 6px;
+  font-size: 20px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+}
+
+.bench-head p {
+  margin: 0;
+  color: #7fa79f;
+  font-size: 13px;
+}
+
+#bench-points {
+  color: #7ff0d8;
+  font-size: 20px;
+  font-variant-numeric: tabular-nums;
+}
+
+#chart {
+  width: 1280px;
+  height: 600px;
+  border: 1px solid rgba(56, 232, 198, 0.18);
+  background: #04090b;
+  box-shadow: 0 0 40px rgba(20, 90, 82, 0.12);
+}
+
+#bench-result {
+  max-height: 220px;
+  margin: 16px 0 0;
+  padding: 14px 16px;
+  overflow: auto;
+  border: 1px solid rgba(56, 232, 198, 0.12);
+  background: rgba(5, 18, 20, 0.86);
+  color: #9fc9bd;
+  font: 11px/1.6 "Cascadia Mono", Consolas, monospace;
+  white-space: pre-wrap;
+}

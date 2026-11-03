@@ -9,7 +9,8 @@
     "preview": "vite preview",
     "measure": "node tools/asset-pipeline/measure.mjs",
     "verify:ui": "node tools/verify/screenshot.mjs",
-    "verify:ui:matrix": "node tools/verify/resolution-matrix.mjs"
+    "verify:ui:matrix": "node tools/verify/resolution-matrix.mjs",
+    "verify:perf": "node tools/verify/perf-benchmark.mjs"
   },
   "dependencies": {
     "@dgreenheck/ez-tree": "^1.1.0",
