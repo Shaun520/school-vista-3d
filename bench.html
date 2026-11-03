@@ -1,0 +1,23 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <title>图表性能基准 · Canvas 2D</title>
+  </head>
+  <body>
+    <main class="bench-shell">
+      <header class="bench-head">
+        <div>
+          <h1>图表性能基准 · Canvas 2D</h1>
+          <p id="bench-status">准备数据...</p>
+        </div>
+        <strong id="bench-points">--</strong>
+      </header>
+      <div id="chart"></div>
+      <pre id="bench-result">等待采样...</pre>
+    </main>
+    <script type="module" src="/src/benchmark/main.ts"></script>
+  </body>
+</html>
